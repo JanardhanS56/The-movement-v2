@@ -20,8 +20,10 @@
   - Files Changed: `tailwind.config.ts`, `scripts/contrast.mjs`, `src/app/globals.css`, `src/app/manifest.ts`, `src/app/layout.tsx`, `src/components/heatmap/LeafletMap.tsx`, `src/app/sign-up/page.tsx`, `src/components/shared/ErrorState.tsx`, `src/app/(dashboard)/feed/error.tsx`, `src/app/(dashboard)/tasks/error.tsx`, `src/app/(dashboard)/profile/[userId]/error.tsx`, `src/app/(dashboard)/tasks/page.tsx`, `src/components/tasks/TaskCard.tsx`, `src/lib/date.ts`, `src/components/profile/BadgeGallery.tsx`, `src/components/profile/ImpactLedger.tsx`, `src/components/profile/ProfileHeader.tsx`, `src/components/profile/ProfileNotFound.tsx`, `src/components/profile/ProfileView.tsx`
   - Notes: Calibrated cobalt to `#255DEE` passing WCAG AA (5.41:1 on white, 4.77:1 on ivory); rebuilt ErrorState with tomato corner bar accent, calm copy, and sanitized Zod/JSON display; wrapped tasks, feed, and profile in calm error boundaries; fixed duplicate "Created by you" badge in TaskCard; improved Tasks title and non-repetitive subtitle; enforced sentence case on Tasks and Profile headings; standardized clean date-time formatting e.g. "Apr 18, 2:40 PM". All 50 tests pass. Verified 0 build or lint errors.
 
-- [ ] **Phase 2: Demo Data and Pure Functions**
-  - Status: NOT DONE
+- [x] **Phase 2: Demo Data and Pure Functions**
+  - Status: DONE
+  - Files Changed: `src/lib/mocks/fictional-data.ts` (created), `src/lib/mocks/seed-data.ts`, `src/lib/schemas/user.schema.ts`, `src/lib/__tests__/leaderboard-and-filters.test.ts` (created)
+  - Notes: Added 12 fictional users with handles, avatars, showOnLeaderboards toggle, and spread completion records. Added task categories and metadata (estimatedMinutes, locationLabel, difficulty) for all tasks. Expanded SEED_TASKS to 14 tasks across all 5 statuses (Open, In progress, Pending verification, Completed, Cancelled). Implemented pure functions `getLeaderboard(period, now)`, `getUserByHandle`, `getBadgeProgress`, `getTaskCounts`, and `getFilteredTasks`. Wrote 10 comprehensive unit tests covering period filtering, tiebreak rule, leaderboard opt-out, badge evaluations, and multi-criteria task filtering. Verified with 60/60 passing tests and full production build.
 
 - [ ] **Phase 3: Tasks Leaderboard**
   - Status: NOT DONE

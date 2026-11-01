@@ -9,6 +9,8 @@ export const UserSchema = z.object({
   display_name: z.string().min(2).max(60),
   avatar_url: z.string().nullable().optional(),
   tier: UserTierSchema,
+  handle: z.string().optional(),
+  show_on_leaderboards: z.boolean().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime().optional(),
