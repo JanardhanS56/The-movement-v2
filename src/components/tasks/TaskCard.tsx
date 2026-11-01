@@ -12,6 +12,7 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react"
 import { Task } from "@/lib/schemas/task.schema"
 import { TaskClaim } from "@/lib/schemas/task.schema"
@@ -36,9 +37,11 @@ export interface TaskCardProps {
   onMarkComplete: (claimId: string) => Promise<void> | void
   onPeerVote: (claimId: string, vote: "approve" | "reject") => Promise<void> | void
   onOrganizerOverride: (claimId: string, approve: boolean, note?: string) => Promise<void> | void
+  onSmartAssign?: (taskId: string) => Promise<void> | void
   isClaiming?: boolean
   isCompleting?: boolean
   isVerifying?: boolean
+  isSmartAssigning?: boolean
 }
 
 export function TaskCard({
@@ -52,9 +55,11 @@ export function TaskCard({
   onMarkComplete,
   onPeerVote,
   onOrganizerOverride,
+  onSmartAssign,
   isClaiming = false,
   isCompleting = false,
   isVerifying = false,
+  isSmartAssigning = false,
 }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = React.useState(false)
   const [verifyOpen, setVerifyOpen] = React.useState(false)
@@ -196,6 +201,20 @@ export function TaskCard({
             </div>
           )}
 
+          {/* Required Skills Badges */}
+          {task.required_skills && task.required_skills.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {task.required_skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="inline-flex items-center text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Distinct Ledger-Row Treatment for Completed Tasks */}
           {isCompleted && (
             <div className="p-2.5 rounded-sm bg-background/50 border border-lime/40 text-xs tabular-nums space-y-1">
@@ -245,7 +264,22 @@ export function TaskCard({
       </div>
 
       {/* Primary Action Button */}
-      <CardFooter className="pt-2 pb-4 border-t border-border/40 flex items-center justify-end gap-2">
+      <CardFooter className="pt-2 pb-4 border-t border-border/40 flex items-center justify-end gap-2 flex-wrap">
+        {/* Smart Assign for open tasks */}
+        {isOpen && onSmartAssign && (isTier3 || isCreator) && (task.required_skills?.length || 0) > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onSmartAssign(task.id)}
+            loading={isSmartAssigning}
+            disabled={isSmartAssigning}
+            className="text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10"
+          >
+            <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Smart Assign</span>
+          </Button>
+        )}
+
         {/* State 1: Open task -> Claim */}
         {isOpen && (
           <div>

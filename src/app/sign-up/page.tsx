@@ -7,18 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Shield, CheckCircle2, ArrowRight, UserPlus, Sparkles } from "lucide-react"
-
-const AVAILABLE_SKILLS = [
-  "Medical & First Aid",
-  "Logistics & Transport",
-  "Crowd Coordination",
-  "Communications & Media",
-  "Food & Water Distribution",
-  "Legal Support",
-  "Technical & IT",
-  "Field Safety",
-  "Language Translation",
-]
+import { AVAILABLE_SKILLS } from "@/lib/constants/skills"
 
 export default function SignUpPage() {
   const router = useRouter()

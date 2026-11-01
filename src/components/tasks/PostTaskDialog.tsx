@@ -4,7 +4,8 @@ import * as React from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Plus, Minus, ListPlus } from "lucide-react"
+import { Plus, Minus, ListPlus, Sparkles, Check } from "lucide-react"
+import { AVAILABLE_SKILLS } from "@/lib/constants/skills"
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,8 @@ const formSchema = z.object({
     .int()
     .min(1, "At least 1 volunteer is required.")
     .max(100, "Cannot require more than 100 volunteers."),
+  required_skills: z.array(z.string()),
+  smart_assign: z.boolean(),
 })
 
 export type PostTaskFormData = z.infer<typeof formSchema>
@@ -68,6 +71,8 @@ export function PostTaskDialog({
       description: "",
       reward_points: 50,
       required_volunteers: 1,
+      required_skills: [],
+      smart_assign: false,
     },
   })
 
@@ -222,6 +227,74 @@ export function PostTaskDialog({
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Required Skills Multi-select */}
+          <div className="space-y-2">
+            <Label>Required Skills</Label>
+            <p className="text-xs text-muted-foreground">
+              Select skills needed for this task to enable automated matching.
+            </p>
+            <Controller
+              control={control}
+              name="required_skills"
+              render={({ field }) => (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {AVAILABLE_SKILLS.map((skill) => {
+                    const isSelected = field.value?.includes(skill)
+                    return (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => {
+                          const current = field.value || []
+                          const updated = isSelected
+                            ? current.filter((s) => s !== skill)
+                            : [...current, skill]
+                          field.onChange(updated)
+                        }}
+                        className={`text-xs px-2.5 py-1 rounded-full border transition-colors flex items-center gap-1 ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary font-medium"
+                            : "bg-muted/60 text-muted-foreground border-border hover:border-foreground/30"
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3 h-3" />}
+                        {skill}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            />
+          </div>
+
+          {/* Smart Assign Toggle */}
+          <div className="pt-2 border-t border-border/50">
+            <Controller
+              control={control}
+              name="smart_assign"
+              render={({ field }) => (
+                <div className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-primary/5">
+                  <div className="space-y-0.5 pr-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Smart Assign</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Automatically claim task for eligible volunteers with matching skills upon creation
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    id="smart-assign-checkbox"
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                    className="h-4 w-4 rounded border-primary text-primary focus:ring-primary cursor-pointer"
+                  />
+                </div>
+              )}
+            />
           </div>
         </form>
 

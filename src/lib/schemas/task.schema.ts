@@ -17,6 +17,7 @@ export const TaskSchema = z.object({
   description: z.string().max(2000).optional(),
   reward_points: z.number().int().min(0).max(10000),
   required_volunteers: z.number().int().min(1).max(100),
+  required_skills: z.array(z.string()).default([]).optional(),
   status: TaskStatusSchema,
   created_by: uuidField,
   metadata: z.record(z.string(), z.unknown()).optional(),
@@ -31,6 +32,7 @@ export const CreateTaskSchema = z.object({
   description: z.string().max(2000).optional(),
   reward_points: z.number().int().min(0).max(10000).default(50),
   required_volunteers: z.number().int().min(1).max(100).default(1),
+  required_skills: z.array(z.string()).default([]).optional(),
 })
 export type CreateTaskInput = z.infer<typeof CreateTaskSchema>
 

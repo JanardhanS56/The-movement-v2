@@ -194,6 +194,7 @@ class MockStore {
       description: input.description,
       reward_points: input.reward_points,
       required_volunteers: input.required_volunteers,
+      required_skills: input.required_skills || [],
       status: "open",
       created_at: now,
     }
