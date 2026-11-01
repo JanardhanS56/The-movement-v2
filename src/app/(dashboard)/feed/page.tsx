@@ -362,7 +362,7 @@ export default function FeedPage() {
 
       if (newCount >= required) {
         toast.success(
-          `${coSigner.display_name} co-signed! Multi-sig threshold reached (${newCount}/${required}) — Published live!`
+          `${coSigner.display_name} co-signed! Multi-sig threshold reached (${newCount}/${required}) - Published live!`
         )
       } else {
         toast.success(
