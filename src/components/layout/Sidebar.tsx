@@ -142,6 +142,21 @@ export function Sidebar() {
                 <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Sign Out</span>
               </Button>
+              <div className="pt-2 flex items-center justify-between text-[11px] text-muted-foreground border-t border-border/40">
+                <Link
+                  href="/privacy"
+                  className="hover:text-foreground underline underline-offset-2 transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+                <span>•</span>
+                <Link
+                  href="/terms"
+                  className="hover:text-foreground underline underline-offset-2 transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">

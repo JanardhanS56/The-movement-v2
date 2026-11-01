@@ -104,6 +104,14 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="max-w-5xl mx-auto w-full pt-12 border-t border-border flex flex-col sm:flex-row items-center justify-between text-xs text-muted-foreground gap-4">
         <p>The Movement platform for verified collective action.</p>
+        <div className="flex items-center gap-4">
+          <Link href="/privacy" className="hover:text-foreground underline underline-offset-4">
+            Privacy Policy
+          </Link>
+          <Link href="/terms" className="hover:text-foreground underline underline-offset-4">
+            Terms of Service
+          </Link>
+        </div>
         <p className="font-mono text-[11px]">DEMO ENVIRONMENT</p>
       </footer>
     </div>

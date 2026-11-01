@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "check:bans": "node scripts/check-bans.mjs",
     "test": "vitest run --passWithNoTests",
+    "analyze": "node scripts/analyze.mjs",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build && npm run check:bans"
   },
   "dependencies": {

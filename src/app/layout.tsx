@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -16,9 +16,39 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0b0f17",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: "The Movement",
-  description: "A platform for verified collective action and coordination",
+  metadataBase: new URL("https://REPLACE_ME.example"),
+  alternates: {
+    canonical: "/",
+  },
+  title: {
+    default: "The Movement | Decentralized Civic Action & Verification",
+    template: "%s | The Movement",
+  },
+  description: "A platform where volunteers and organizers coordinate verified announcements, check in on a map, complete tasks, and earn public badge profiles.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://REPLACE_ME.example",
+    siteName: "The Movement",
+    title: "The Movement | Decentralized Civic Action & Verification",
+    description: "A platform where volunteers and organizers coordinate verified announcements, check in on a map, complete tasks, and earn public badge profiles.",
+  },
 };
 
 export default function RootLayout({
