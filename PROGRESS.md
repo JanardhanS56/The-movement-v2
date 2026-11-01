@@ -129,6 +129,18 @@
   - Files Changed: `src/components/layout/CommandPalette.tsx`, `src/components/layout/NotificationInbox.tsx`, `src/components/layout/Sidebar.tsx`, `README.md`, `PROGRESS.md`
   - Notes: Indexed chat pages and individual rooms in Command Palette. Expanded NotificationInbox with chat mention and pinned room alert tracking. Added 3 room sub-links under Chat in expanded sidebar ("Everyone", "Coastal Action Front", "Help and questions") with active highlights, unread count chips, and Tomato @mention badges. Added collapsed sidebar chat icon unread badge. Documented full chat functionality and backend handover requirements in README.md. Ran full quality gates with 0 errors across security, types, lint, tests, build, and bans checks.
 
+---
+
+## Civic Provenance: Ground Truth ("Git for Civic Action")
+
+- [x] **Feature: Ground Truth Provenance Ledger**
+  - Status: DONE
+  - Route: `/ground-truth`
+  - Files Changed: `src/lib/mocks/ground-truth-data.ts`, `src/components/ground-truth/GroundTruthHeader.tsx`, `src/components/ground-truth/AuditSearchBar.tsx`, `src/components/ground-truth/CommitCard.tsx`, `src/components/ground-truth/CommitAuditModal.tsx`, `src/app/(dashboard)/ground-truth/page.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `src/components/layout/CommandPalette.tsx`
+  - Notes: Restyled Ground Truth from dark terminal styling to matching Feed page design: light ivory canvas, PageHeader ruled borders, 4-column divider row, white Feed dispatch cards with colored left strips, normal Bricolage Grotesque typography with tabular numerals, Tasks-styled filter chips, outlined verify button, and accessible light audit inspector modal. Zero dark backgrounds or monospace fonts remaining. Passed all quality gates with 0 errors.
+
+---
+
 ### Donation / Support Dialog
 - [x] **Donate option and QR Support Dialog**
   - Status: DONE
