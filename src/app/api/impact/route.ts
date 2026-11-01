@@ -120,3 +120,4 @@ export async function GET(req: NextRequest) {
     return apiError(msg, 500)
   }
 }
+

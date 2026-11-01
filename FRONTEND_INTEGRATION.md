@@ -417,3 +417,4 @@ Set in `.env.local`:
 NEXT_PUBLIC_USE_MOCKS=false
 ```
 All UI components immediately render real database state from Supabase without any UI modifications.
+

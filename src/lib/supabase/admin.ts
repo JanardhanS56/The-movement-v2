@@ -60,3 +60,4 @@ export async function getCallerUser(req: Request): Promise<{ id: string; tier: n
 
   return null
 }
+
