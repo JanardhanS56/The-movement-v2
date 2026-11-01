@@ -1,215 +1,244 @@
-# The Movement — A Trust Engine for Collective Action
+# The Movement
 
-> A Progressive Web App that brings institutional-grade accountability to grassroots organizing.
-
----
-
-## What is The Movement?
-
-Modern social movements face three critical challenges:
-
-**1. Misinformation** — False announcements spread through groups, causing chaos and eroding trust.  
-**2. Coordination gaps** — Organizers don't know where their people are or how many showed up.  
-**3. Volunteer accountability** — There's no tamper-evident record of who did what.
-
-**The Movement** solves all three with a decentralized trust engine:
-
-- Announcements require multiple organizer signatures before going public.
-- A live GPS heatmap shows real-time crowd density — no app install required.
-- Tasks are publicly posted, claimed by volunteers, and verified by peers before credit is awarded.
-- A public Impact Ledger makes every contribution permanently visible and verifiable.
+> A decentralized trust engine for civic volunteers and community organizers coordinating verified announcements, privacy-preserving field check-ins, and peer-verified community tasks.
 
 ---
 
-## Core Features (MVP — Phase 1)
+## 1. Overview & Purpose
 
-### 1. Multi-Sig Announcement Feed
+Modern civic movements and field coordination efforts face three critical vulnerabilities:
+1. **Misinformation & Unauthorized Panic:** Fake broadcasts or unverified alerts spread rapidly across messaging groups.
+2. **Location Exposure & Safety Risks:** Real-time volunteer tracking exposes physical safety and privacy.
+3. **Accountability & Trust Gaps:** Contributions, bounties, and field tasks lack tamper-evident verification.
 
-Organizers draft announcements. Before an announcement goes public, it requires a configured number of digital signatures (e.g., 2 out of 3 co-organizers must sign). A PostgreSQL trigger automatically publishes the announcement the moment the threshold is met — atomically, with no race conditions.
+**The Movement** addresses these vulnerabilities directly with institutional-grade frontend guarantees:
+- **Multi-Signature Announcements:** Broadcast alerts require cryptographic threshold approval from multiple organizers before publication.
+- **Privacy-Preserving Heatmaps:** On-demand check-ins truncate coordinates to ~110m (3 decimal places). Exact locations and individual paths are never recorded or mapped.
+- **Peer-Verified Task Board:** Open community tasks require multi-volunteer peer review consensus or organizer override before impact points and badges are awarded.
+- **Public Impact Ledger:** Deterministic, publicly verifiable profile records detailing verified actions, peer verifiers, and earned badges.
 
-**Demo flow:**
-- Alex drafts "March moved to Sunday" (requires 2 signatures)
-- Alex auto-signs on creation (1/2 done)
-- Jordan signs → announcement publishes instantly to all members
-
-### 2. Live Check-in Heatmap
-
-Volunteers click **"Check In Here"**. The browser's native `navigator.geolocation` API captures their GPS coordinates — no third-party geolocation service, no API key. A Supabase Realtime WebSocket pushes the new coordinate to every connected client, where `leaflet.heat` renders a glowing red/orange density blob on an OpenStreetMap base layer.
-
-**Result:** Organizers see where their people are concentrated, in real-time, from any device.
-
-### 3. Bounty Board — Task Claim & Peer Verification
-
-Organizers post tasks (e.g., "Distribute flyers at Central Park — 150 points"). Any movement member can claim a task. When they mark it complete, three random peers are assigned to verify. If 2 out of 3 approve, the task is marked verified and a badge is automatically issued. Organizers can also override and verify directly.
-
-### 4. Impact Ledger / Badge Profile
-
-Every verified contribution is permanently recorded in a public profile page. Badges show whether they were earned via Peer Vote or Organizer Override — making the verification method transparent. The profile is server-rendered for fast loading and full SEO indexability.
+**Design Tone:** Serious, calm, direct, trustworthy. Built for outdoor visibility and rapid mobile interaction.
 
 ---
 
-## Tech Stack
+## 2. Technology Stack & Rationale
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 14 (App Router, React Server Components) |
-| Language | TypeScript (strict mode) |
-| Styling | Tailwind CSS + shadcn/ui |
-| Database | PostgreSQL 15 via Supabase |
-| Real-time | Supabase Realtime (WebSocket) |
-| Auth | Supabase Auth (magic link / email) |
-| Storage | Supabase Storage (document uploads) |
-| Map | react-leaflet + leaflet.heat (OpenStreetMap — no API key) |
-| Data Fetching | TanStack Query v5 |
-| Validation | Zod |
-| PWA | next-pwa (Service Worker) |
-| Deployment | Vercel (free tier) |
+| Layer | Technology | Rationale |
+|---|---|---|
+| **Framework** | Next.js 14 (App Router) | React Server Components for SEO shells, fast initial render, zero SSR crashes on Leaflet. |
+| **Language** | TypeScript (Strict Mode) | Complete type safety, eliminating runtime null/undefined errors across asynchronous data boundaries. |
+| **Design System** | Tailwind CSS + CSS Variables | WCAG 2.2 AA compliant palette (dark-first). Sub-pixel font smoothing and high contrast. |
+| **Component Primitives**| shadcn/ui + Radix UI | Accessible keyboard navigation, ARIA attributes, and focus trap containment. |
+| **Iconography** | lucide-react | Clear, semantic icons with explicit accessible titles and aria attributes. |
+| **Data Validation** | Zod v4 | Strict schema validation across all inputs, claims, signatures, and mock adapters. |
+| **State & Cache** | TanStack Query v5 | Declarative server-state caching, optimistic mutations, automatic retry, and cache invalidation. |
+| **Mapping Engine** | Leaflet + react-leaflet v4 + leaflet.heat | OpenStreetMap tile layers with zero API keys. SSR-safe dynamic import wrapper. |
+| **Test Engine** | Vitest | Lightning-fast pure logic and workflow integration testing (37 tests across 6 suites). |
+| **Bundle Analysis** | @next/bundle-analyzer | Continuous optimization of client JavaScript chunks and vendor dependencies. |
 
 ---
 
-## Local Development Setup
+## 3. Installation & Local Development
 
 ### Prerequisites
+- Node.js 18.17.0 or higher
+- npm 9.0.0 or higher
 
-- Node.js 18 or later
-- A free [Supabase](https://supabase.com) account (create a new project)
-- A free [Vercel](https://vercel.com) account (optional, for preview deploys)
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/your-org/the-movement.git
-cd the-movement
-```
-
-### 2. Install dependencies
-
+### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. Configure environment variables
+### 2. Run Local Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+### 3. Verification Suite
+Run the comprehensive verification toolchain (typecheck, linter, tests, production build, bans check):
+```bash
+npm run verify
+```
+
+### 4. Bundle Analysis
+Inspect webpack bundle distribution and chunk sizes:
+```bash
+npm run analyze
+```
+
+---
+
+## 4. Environment Variables & Adapter Architecture
 
 Create a `.env.local` file in the project root:
 
 ```bash
-cp .env.example .env.local
-```
+# Data Source Flag (Fixed at Build Time)
+# Set to 'true' to use the client-side MockApiAdapter (default for demos and prototype testing)
+# Set to 'false' to switch to SupabaseStubAdapter (for production backend integration)
+NEXT_PUBLIC_USE_MOCKS=true
 
-Fill in the values from your Supabase project dashboard (Settings → API):
+# Canonical Site URL
+NEXT_PUBLIC_APP_URL=https://REPLACE_ME.example
 
-```bash
-# .env.local
-
-# Supabase — found in Project Settings > API
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+# Supabase Credentials (Required only when NEXT_PUBLIC_USE_MOCKS=false)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...
-
-# Service role key — NEVER commit this, NEVER expose to client
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...
-
-# App URL
-NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-> **Warning:** `SUPABASE_SERVICE_ROLE_KEY` bypasses all Row Level Security. It must only be used in server-side Route Handlers. Never import it into a client component.
+### Mock Adapter vs. Supabase Behavior
+- **`NEXT_PUBLIC_USE_MOCKS=true` (Default):** All operations execute in-browser via `MockApiAdapter` and `mockStore`. Realistic seed data centered around Mangalore, Karnataka is provided out of the box.
+- **`NEXT_PUBLIC_USE_MOCKS=false`:** Disables mock data and activates `SupabaseStubAdapter`. Any unimplemented backend call throws `NotImplementedError`, preventing silent failures.
+- **Build-Time Constant:** `NEXT_PUBLIC_USE_MOCKS` is evaluated at build time by Next.js to enable tree-shaking of mock data in production builds.
 
-### 4. Set up the database
+---
 
-1. Open your Supabase project → SQL Editor.
-2. Run the migrations in the order specified in [`database-schema.md`](./database-schema.md) (Section 8: Migration Order).
-3. Apply all tables, triggers, functions, RLS policies, and indexes.
-4. Run the seed data SQL to create the test movement and sample tasks.
+## 5. Backend Integration Requirements (For Backend Teammates)
 
-### 5. Configure Supabase Storage
+Backend teammates own the database, RLS policies, migrations, and real authentication. The frontend relies exclusively on the contract defined in [`docs/API_CONTRACT.md`](./docs/API_CONTRACT.md):
 
-In your Supabase Dashboard → Storage:
-- Create a bucket named `documents`
-- Set it to **Private** (not public)
+1. **Authentication:** Implement Supabase Auth (magic link / OTP). Edge middleware in `src/middleware.ts` will validate the session cookie and populate user claims.
+2. **Row Level Security (RLS):**
+   - Announcements: Published announcements are readable by all movement members; drafts are restricted to the author and Tier 3 organizers.
+   - Tasks: Claiming tasks requires transactional concurrency locks to prevent over-subscription beyond `required_volunteers`.
+   - Verifications: Claimants must be blocked by database constraints from verifying their own tasks.
+3. **Privacy Enforcements (Backend Responsibility):**
+   - Check-in coordinates must be truncated to 3 decimal places (~110m) in Postgres triggers before storage.
+   - The public heatmap endpoint must return aggregated spatial centroids only (`aggregated_heatmap_view`). Individual coordinate rows must never be queried by clients.
 
-### 6. Run the development server
+---
 
-```bash
-npm run dev
+## 6. Known Limitations
+
+- **In-Memory State Persistence:** In demo mode (`NEXT_PUBLIC_USE_MOCKS=true`), mutations persist during the session but reset to initial seed data on full browser refresh. To restore seed data manually at any time, use the **Reset demo data** button in the Demo Panel.
+- **Simulated Real-Time:** In mock mode, real-time updates across multiple tabs are simulated via TanStack Query cache invalidations rather than active Supabase Realtime WebSockets.
+
+---
+
+## 7. 2-Minute Demo Script (Mangalore Organizer Walkthrough)
+
+Follow this step-by-step walkthrough to exercise all core platform features in under two minutes:
+
+1. **Sign In as Lead Organizer:**
+   - Navigate to `/sign-in`.
+   - Select **Priya Rao** (Tier 3 Organizer, Mangalore chapter).
+   - You will be redirected to `/feed`. Notice the active Tier 3 badge in the sidebar and header.
+2. **Draft a Multi-Signature Announcement:**
+   - In `/feed`, tap **New Announcement**.
+   - Enter Title: `Emergency Coastal Alert`, Body: `High tide advisory for Zone B stewards. Secure water supplies immediately.`, Required Signatures: `2`.
+   - Submit the dialog. Notice the announcement appears in **Pending Signatures** with `1 / 2 Signed` (author auto-signed on creation).
+3. **Co-Sign as Co-Organizer:**
+   - In the bottom-right **Demo Panel**, expand controls and switch persona to **Rohan Shetty** (Tier 3 Organizer).
+   - Tap **Sign Bulletin** on the pending announcement and confirm the alert dialog.
+   - The announcement reaches the threshold (`2 / 2 Signed`), transitions to **Verified Announcements Feed**, and displays the verified shield emblem.
+4. **Field Telemetry Check-in:**
+   - Navigate to `/heatmap`. Observe 40 aggregated check-in points near Mangalore.
+   - Tap the bottom-right **Check In Here** button (48px height).
+   - Your location is truncated to 3 decimals (~110m) and immediately renders your electric blue indicator. No individual coordinates of other users are shown.
+5. **Volunteer Task Claim & Completion:**
+   - In the Demo Panel, switch persona to **Sneha Nayak** (Tier 1 Volunteer).
+   - Navigate to `/tasks`. Select the filter **Open**.
+   - Tap **Claim Task** on `Water Station Distribution Setup` (40 pts). The claim updates optimistically.
+   - Tap **Mark Complete**, enter a field note, and submit. The task moves to `pending_verification`.
+6. **Peer Review & Verification:**
+   - In the Demo Panel, switch persona back to **Priya Rao** (Tier 3 Organizer).
+   - On the same task card, tap **Verify Task Claim**.
+   - Choose **Organizer Override (Approve)** and confirm.
+   - The task transitions to **Completed** with distinct ledger styling.
+7. **Inspect Public Impact Ledger:**
+   - In the Demo Panel, switch back to **Sneha Nayak**.
+   - Click **My Profile** in the sidebar (navigating to `/profile/66666666-6666-6666-6666-666666666666`).
+   - Observe Sneha's earned badge (`Water Station Distribution Setup Champion`), validated impact points (+40 pts), and the permanent ledger entry linking to `/tasks`.
+
+---
+
+## 8. Repository File Tree
+
+```
+├── docs/
+│   └── API_CONTRACT.md             # Full frontend/backend REST, RPC, RLS specification
+├── public/
+│   ├── apple-touch-icon.png        # 180x180 branded PNG icon
+│   ├── favicon.svg                 # SVG browser tab icon
+│   ├── icon.svg                    # Scalable app emblem
+│   ├── manifest.json               # Web app manifest
+│   ├── robots.txt                  # Search crawler directives
+│   ├── sitemap.xml                 # Static sitemap
+│   └── leaflet/                    # Local Leaflet marker assets
+├── scripts/
+│   ├── analyze.mjs                 # Cross-platform bundle analyzer trigger
+│   ├── check-bans.mjs              # Quality gate enforcement (bans em dashes, TODOs, emojis, etc.)
+│   └── contrast.mjs                # WCAG 2.2 AA relative luminance calculator
+├── src/
+│   ├── app/
+│   │   ├── (dashboard)/
+│   │   │   ├── feed/page.tsx       # Multi-Sig Announcement feed
+│   │   │   ├── heatmap/page.tsx    # SSR-safe check-in heatmap
+│   │   │   ├── profile/[userId]/   # RSC shell for volunteer profile
+│   │   │   ├── tasks/page.tsx      # Bounty board with URL filter params
+│   │   │   └── layout.tsx          # Authenticated shell layout
+│   │   ├── not-found.tsx           # Custom 404 page
+│   │   ├── privacy/page.tsx        # Legal draft privacy policy
+│   │   ├── sign-in/page.tsx        # Persona selection & demo auth
+│   │   ├── terms/page.tsx          # Legal draft terms of service
+│   │   ├── globals.css             # Theme tokens and WCAG 2.2 variables
+│   │   ├── layout.tsx              # Root HTML shell with canonical URL and metadata
+│   │   └── page.tsx                # Public landing page
+│   ├── components/
+│   │   ├── feed/                   # Announcement cards, dialogs, signature chips
+│   │   ├── heatmap/                # LeafletMap, dynamic HeatmapView, MapSkeleton
+│   │   ├── layout/                 # Collapsible Sidebar and MobileTabBar
+│   │   ├── profile/                # ProfileView, Header, Stats, BadgeGallery, ImpactLedger
+│   │   ├── providers/              # AuthProvider, QueryProvider, DemoPanel
+│   │   ├── shared/                 # EmptyState, ErrorAlert, PageHeader, TierBadge, UserAvatar
+│   │   ├── tasks/                  # TaskCard, ClaimTaskDialog, CreateTaskDialog, VerifyTaskDialog
+│   │   └── ui/                     # shadcn/ui accessible components
+│   ├── lib/
+│   │   ├── api/                    # ApiClient, MockApiAdapter, SupabaseStubAdapter
+│   │   ├── mocks/                  # Seed data and in-memory mock store
+│   │   ├── schemas/                # Zod schemas (User, Task, Announcement, CheckIn, Badge, Ledger)
+│   │   ├── __tests__/              # Vitest test suites (Date, Permissions, Feed, Tasks, Heatmap, Profile)
+│   │   ├── date.ts                 # Deterministic UTC date formatters
+│   │   ├── permissions.ts          # Pure authorization rules table
+│   │   ├── query-keys.ts           # Centralized TanStack Query cache keys
+│   │   └── utils.ts                # Tailwind class merge utility
+│   └── types/
+│       └── leaflet-heat.d.ts       # Typed declaration for leaflet.heat
+├── next.config.mjs                 # Next.js configuration with bundle analyzer
+├── package.json                    # Project scripts and dependencies
+├── tailwind.config.ts              # Custom design tokens configuration
+└── tsconfig.json                   # Strict TypeScript compiler options
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+---
+
+## 9. Planned Features (Post-MVP)
+
+- **Bounty Overbooking (+20% Capacity):** Allow slight volunteer over-subscription to compensate for field attrition.
+- **Web Push Notifications:** Real-time push alerts for pending organizer multi-sig authorization requests.
+- **PWA Service Worker:** Offline tile caching and background queueing for field check-ins in low-connectivity areas.
+- **Liquid Democracy Delegation:** Allow Tier 2 volunteers to delegate verification votes to domain specialists (e.g., medical stewards).
+- **Automated EXIF Stripping:** Client-side canvas sanitization to strip GPS metadata from photo evidence prior to upload.
 
 ---
 
-## Demo Personas
+## 10. Remaining Work by Owner
 
-Use these test accounts to explore all user tiers. All use the password `demo1234`.
+### Frontend Owner (Complete)
+- [x] All 8 application phases implemented and SSR-safe.
+- [x] Zero hydration errors, zero ESLint warnings, zero TypeScript errors.
+- [x] 100% test pass rate across 37 automated tests.
+- [x] Quality bans audit passing with 0 findings across all 90 source files.
 
-| Name | Email | Tier | Role |
-|---|---|---|---|
-| Alex Rivera | alex@demo.test | 3 — Organizer | Lead Organizer. Can draft announcements, post tasks, override verifications. |
-| Jordan Lee | jordan@demo.test | 3 — Organizer | Co-Organizer. Can co-sign announcements. |
-| Sam Patel | sam@demo.test | 3 — Organizer | Co-Organizer. Can co-sign announcements. |
-| Casey Kim | casey@demo.test | 2 — Sr. Volunteer | Can claim tasks, check in, act as peer verifier. |
-| Morgan Chen | morgan@demo.test | 1 — Volunteer | Can claim tasks, check in, act as peer verifier. |
+### Backend Teammates (Pending)
+- [ ] Deploy Supabase project and apply Postgres schema migrations.
+- [ ] Configure database triggers for multi-sig publication thresholds.
+- [ ] Implement Row Level Security (RLS) policies specified in `docs/API_CONTRACT.md`.
+- [ ] Implement coordinate truncation triggers and PostGIS spatial clustering views.
+- [ ] Connect Next.js edge middleware to validate Supabase session cookies.
 
-> **Note:** In the demo, any user can upload any file at `/onboarding` and be auto-upgraded to Tier 3. This is intentional — it's the mock identity flow described in [`database-schema.md`](./database-schema.md#6-mock-auth-flow).
-
----
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── (auth)/           # Login, signup, onboarding pages
-│   ├── (dashboard)/      # Protected app pages (sidebar layout)
-│   │   ├── feed/         # Multi-Sig Announcement Feed
-│   │   ├── heatmap/      # Live Check-in Heatmap
-│   │   ├── tasks/        # Bounty Board
-│   │   └── profile/      # Badge Profile (public)
-│   └── api/              # Route Handlers (server-side mutations)
-├── components/           # React components by feature
-├── lib/
-│   ├── supabase/         # Supabase client helpers
-│   ├── schemas/          # Zod schemas for all data types
-│   └── types/            # TypeScript interfaces
-└── hooks/                # Custom React hooks
-```
-
----
-
-## Documentation
-
-| File | Purpose |
-|---|---|
-| [`README.md`](./README.md) | You are here — onboarding and setup |
-| [`implementation-plan.md`](./implementation-plan.md) | Sprint-by-sprint development guide, feature implementation details, Phase 2 scratchpad |
-| [`ui-plan.md`](./ui-plan.md) | Frontend architecture, design system, library mandates, accessibility rules |
-| [`database-schema.md`](./database-schema.md) | Full SQL schema, RLS policies, triggers, mock auth flow |
-| [`architecture.md`](./architecture.md) | System design, boundary model, real-time flow, ADRs |
-
----
-
-## Phase 2 (Future Features)
-
-Phase 2 features are explicitly out of scope for the MVP. They are documented in [`implementation-plan.md`](./implementation-plan.md#6-scratchpad--phase-2-future-features). The database schema has been designed with JSONB flexibility columns to accommodate these features without requiring destructive migrations:
-
-- **+20% Bounty Overbooking** — allow slight volunteer over-subscription
-- **Reliability Scores** — rolling user trust metric influencing task assignment
-- **Treasury Shadow Ledger** — track movement funds with double-entry accounting
-- **Liquid Democracy** — delegate verification votes to trusted peers
-- **EXIF Stripping** — protect volunteer privacy by stripping GPS from uploaded photos
-
----
-
-## Contributing
-
-This project was built for a hackathon. If you want to extend it:
-
-1. Read all documentation files listed above before writing any code.
-2. Follow the TypeScript + Zod rules in [`ui-plan.md`](./ui-plan.md#3-non-vibe-coded-mandates).
-3. Write RLS policies for any new table (see [`database-schema.md`](./database-schema.md#4-row-level-security-rls-policies)).
-4. Test with all 5 demo personas.
-
----
-
-## License
-
-MIT — see [LICENSE](./LICENSE).
+### Legal Review (Pending)
+- [ ] Review draft `/privacy` policy and insert actual legal entity name, mailing address, and jurisdiction.
+- [ ] Review draft `/terms` of service and confirm liability provisions for voluntary field activities.
+- [ ] Finalize active legal contact email (`[LEGAL_CONTACT_EMAIL]`).

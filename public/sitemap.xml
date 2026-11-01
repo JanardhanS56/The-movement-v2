@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://REPLACE_ME.example/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://REPLACE_ME.example/sign-in</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://REPLACE_ME.example/feed</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://REPLACE_ME.example/heatmap</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://REPLACE_ME.example/tasks</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://REPLACE_ME.example/privacy</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://REPLACE_ME.example/terms</loc>
+    <priority>0.3</priority>
+  </url>
+</urlset>
