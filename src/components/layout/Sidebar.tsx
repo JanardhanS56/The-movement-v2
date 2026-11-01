@@ -20,6 +20,7 @@ import {
   User as UserIcon,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Radio,
   Bookmark,
   ShieldCheck,
@@ -117,7 +118,22 @@ export function Sidebar() {
   const { user } = useAuth()
   const [collapsed, setCollapsed] = React.useState(false)
   const [activeRoomParam, setActiveRoomParam] = React.useState<string | null>(null)
+  const [expandedItems, setExpandedItems] = React.useState<Set<string>>(
+    () => new Set(["Tasks", "Chat"])
+  )
   const { pendingAnnouncements, pendingTasks } = useNotificationCounts()
+
+  const toggleExpanded = React.useCallback((label: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev)
+      if (next.has(label)) {
+        next.delete(label)
+      } else {
+        next.add(label)
+      }
+      return next
+    })
+  }, [])
   const chatStats = useChatStats(user?.id)
 
   React.useEffect(() => {
@@ -240,44 +256,90 @@ export function Sidebar() {
             pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
           const Icon = item.icon
 
+          const hasSubItems =
+            !collapsed && (item.subLinks || item.label === "Chat")
+          const isExpanded = expandedItems.has(item.label)
+
           return (
             <div key={item.href} className="space-y-1">
-              <Link
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                className={`flex items-center justify-between px-3 py-2.5 rounded-sm text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt ${
-                  isActive
-                    ? "bg-lime text-ink font-black border-2 border-ink shadow-hard-xs"
-                    : "text-ink/80 hover:bg-ink/5 hover:text-ink font-bold border-2 border-transparent"
-                }`}
-                title={collapsed ? item.label : undefined}
-              >
-                <div className="relative flex items-center gap-3 min-w-0">
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
-                  {collapsed && item.needsYouCount > 0 && (
+              {/* Row: link on the left, chevron toggle on the right */}
+              <div className="flex items-stretch gap-0">
+                <Link
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`flex-1 flex items-center gap-3 px-3 py-2.5 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt min-w-0 ${
+                    hasSubItems
+                      ? isActive
+                        ? "rounded-l-sm bg-lime text-ink font-black border-2 border-r-0 border-ink shadow-hard-xs"
+                        : "rounded-l-sm text-ink/80 hover:bg-ink/5 hover:text-ink font-bold border-2 border-r-0 border-transparent"
+                      : isActive
+                        ? "rounded-sm bg-lime text-ink font-black border-2 border-ink shadow-hard-xs"
+                        : "rounded-sm text-ink/80 hover:bg-ink/5 hover:text-ink font-bold border-2 border-transparent"
+                  }`}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <div className="relative flex items-center gap-3 min-w-0">
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {!collapsed && <span className="truncate">{item.label}</span>}
+                    {collapsed && item.needsYouCount > 0 && (
+                      <span
+                        title={`${item.needsYouCount} items require your action`}
+                        className="absolute -top-1.5 -right-2 inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px] font-black rounded-full bg-tomato text-white border border-ink leading-none tabular-nums"
+                      >
+                        {item.needsYouCount > 99 ? "99+" : item.needsYouCount}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* "Needs you" count chip: shown when expanded or no sub-items */}
+                  {!collapsed && !hasSubItems && item.needsYouCount > 0 && (
                     <span
                       title={`${item.needsYouCount} items require your action`}
-                      className="absolute -top-1.5 -right-2 inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px] font-black rounded-full bg-tomato text-white border border-ink leading-none tabular-nums"
+                      className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-black rounded-full bg-tomato text-white border border-ink leading-none shadow-hard-xs shrink-0 tabular-nums"
                     >
-                      {item.needsYouCount > 99 ? "99+" : item.needsYouCount}
+                      {item.needsYouCount}
                     </span>
                   )}
-                </div>
+                </Link>
 
-                {/* "Needs you" count chip: hidden when 0 or when collapsed */}
-                {!collapsed && item.needsYouCount > 0 && (
-                  <span
-                    title={`${item.needsYouCount} items require your action`}
-                    className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-black rounded-full bg-tomato text-white border border-ink leading-none shadow-hard-xs shrink-0 tabular-nums"
+                {/* Chevron toggle: only for items with sub-links, only when sidebar expanded */}
+                {hasSubItems && (
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(item.label)}
+                    aria-label={isExpanded ? `Collapse ${item.label}` : `Expand ${item.label}`}
+                    aria-expanded={isExpanded}
+                    className={`flex items-center justify-center w-8 shrink-0 border-2 border-l-0 rounded-r-sm transition-all cursor-pointer ${
+                      isActive
+                        ? "bg-lime border-ink text-ink hover:bg-lime/80"
+                        : "border-transparent text-ink/50 hover:bg-ink/5 hover:text-ink hover:border-ink/20"
+                    }`}
                   >
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        isExpanded ? "rotate-0" : "-rotate-90"
+                      }`}
+                      aria-hidden="true"
+                    />
+                    {/* Show count badge on the chevron button when sub-items exist */}
+                    {!isExpanded && item.needsYouCount > 0 && (
+                      <span className="sr-only">{item.needsYouCount} items require action</span>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Unread badge line shown below when collapsed */}
+              {!collapsed && hasSubItems && !isExpanded && item.needsYouCount > 0 && (
+                <div className="px-3">
+                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-black rounded-full bg-tomato text-white border border-ink leading-none shadow-hard-xs tabular-nums">
                     {item.needsYouCount}
                   </span>
-                )}
-              </Link>
+                </div>
+              )}
 
-              {/* Tasks Sub-links: visible when expanded and count > 0 */}
-              {!collapsed && item.subLinks && (
+              {/* Tasks Sub-links: visible when sidebar expanded AND item is expanded */}
+              {!collapsed && item.subLinks && isExpanded && (
                 <div className="pl-6 pr-1 py-1 space-y-1">
                   {item.subLinks.map((sub) => {
                     if (sub.count === 0) return null
@@ -302,8 +364,8 @@ export function Sidebar() {
                 </div>
               )}
 
-              {/* Chat Sub-links: visible when expanded */}
-              {!collapsed && item.label === "Chat" && (
+              {/* Chat Sub-links: visible when sidebar expanded AND chat is expanded */}
+              {!collapsed && item.label === "Chat" && isExpanded && (
                 <div className="pl-6 pr-1 py-1 space-y-1">
                   {chatSubLinks.map((room) => {
                     const isRoomActive =
