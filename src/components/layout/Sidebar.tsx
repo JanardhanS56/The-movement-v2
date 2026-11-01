@@ -13,6 +13,7 @@ import { getTaskCounts } from "@/lib/mocks/fictional-data"
 import { SEED_TASKS, SEED_TASK_CLAIMS } from "@/lib/mocks/seed-data"
 import { getStoredSavedTasks } from "@/lib/ui-prefs"
 import { CreateMovementDialog } from "./CreateMovementDialog"
+import { SupportDialog } from "./SupportDialog"
 import {
   Megaphone,
   MapPin,
@@ -29,6 +30,7 @@ import {
   MessageSquare,
   Hash,
   GitCommit,
+  Heart,
 } from "lucide-react"
 import { CHAT_ROOMS } from "@/lib/constants/chat"
 import { Message } from "@/lib/schemas/chat.schema"
@@ -118,6 +120,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const { user } = useAuth()
   const [collapsed, setCollapsed] = React.useState(false)
+  const [donateOpen, setDonateOpen] = React.useState(false)
   const [activeRoomParam, setActiveRoomParam] = React.useState<string | null>(null)
   const [expandedItems, setExpandedItems] = React.useState<Set<string>>(
     () => new Set(["Tasks", "Chat"])
@@ -432,6 +435,18 @@ export function Sidebar() {
             {!collapsed && <span>Report from the field</span>}
           </Link>
 
+          {/* Quick link: Donate */}
+          <button
+            type="button"
+            onClick={() => setDonateOpen(true)}
+            title={collapsed ? "Donate" : undefined}
+            aria-label="Donate"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-sm text-xs font-black bg-sun/20 border-2 border-ink text-ink shadow-hard-xs hover:bg-sun/40 transition-all cursor-pointer"
+          >
+            <Heart className="w-4 h-4 text-ink shrink-0 fill-sun" aria-hidden="true" />
+            {!collapsed && <span>Donate</span>}
+          </button>
+
           {user?.tier === 3 && (
             <div className="pt-1">
               <CreateMovementDialog
@@ -455,6 +470,9 @@ export function Sidebar() {
 
       {/* 4. User Menu at the bottom */}
       <UserMenu collapsed={collapsed} />
+
+      {/* Support / Donate Dialog */}
+      <SupportDialog open={donateOpen} onOpenChange={setDonateOpen} />
     </aside>
   )
 }

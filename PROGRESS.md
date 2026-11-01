@@ -139,4 +139,10 @@
   - Files Changed: `src/lib/mocks/ground-truth-data.ts`, `src/components/ground-truth/GroundTruthHeader.tsx`, `src/components/ground-truth/AuditSearchBar.tsx`, `src/components/ground-truth/CommitCard.tsx`, `src/components/ground-truth/CommitAuditModal.tsx`, `src/app/(dashboard)/ground-truth/page.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `src/components/layout/CommandPalette.tsx`
   - Notes: Restyled Ground Truth from dark terminal styling to matching Feed page design: light ivory canvas, PageHeader ruled borders, 4-column divider row, white Feed dispatch cards with colored left strips, normal Bricolage Grotesque typography with tabular numerals, Tasks-styled filter chips, outlined verify button, and accessible light audit inspector modal. Zero dark backgrounds or monospace fonts remaining. Passed all quality gates with 0 errors.
 
+---
 
+### Donation / Support Dialog
+- [x] **Donate option and QR Support Dialog**
+  - Status: DONE
+  - Files Changed: `src/config/donation.ts` (created), `public/donate-qr.png` (created), `src/components/layout/SupportDialog.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `PROGRESS.md`
+  - Notes: Added Donate option to left sidebar with Heart icon, matching existing action items (near Report from the field), with collapsed icon tooltip and aria-label. Put Donate in mobile More sheet. Replaced SupportDialog contents with the configured donation details (The Movement Foundation), contacts at the top, big un-stretched QR image on plain white background, tap-to-enlarge full-screen view, download link, accessible focus trap and keyboard control (Esc/backdrop close, focus return), and three plain honesty disclaimer lines.
