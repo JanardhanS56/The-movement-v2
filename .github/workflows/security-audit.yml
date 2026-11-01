@@ -1,0 +1,78 @@
+name: Security & Secret Leak Prevention
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan-secrets:
+    name: Secret Leak & Sensitive File Scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (full commit history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Run Dedicated Secret Exposure Audit Script
+        run: node scripts/security-check.mjs
+
+      - name: Run Gitleaks Automated Secret Scanner
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: false
+
+      - name: Verify No Forbidden Files in Git Tree
+        run: |
+          echo "Verifying no forbidden environment or key files are tracked..."
+          FORBIDDEN_FILES=$(git ls-files | grep -E '^\.env$|^\.env\.(local|production|development)|.*\.pem$|.*\.key$|id_rsa|service-account.*\.json$' || true)
+          if [ -n "$FORBIDDEN_FILES" ]; then
+            echo "❌ CRITICAL: The following forbidden files are tracked in git:"
+            echo "$FORBIDDEN_FILES"
+            exit 1
+          fi
+          echo "✅ No sensitive environment or credential files detected in git tree."
+
+  code-and-dependencies:
+    name: Code Hygiene & Dependency Vulnerability Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Banned Patterns Check
+        run: npm run check:bans
+
+      - name: Run TypeScript Strict Type Check
+        run: npm run typecheck
+
+      - name: Run Test Suite
+        run: npm run test
+
+      - name: Audit NPM Dependencies (High/Critical)
+        run: npm audit --audit-level=high
+        continue-on-error: true

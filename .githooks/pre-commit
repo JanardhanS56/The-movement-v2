@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# Pre-commit hook: Block secrets and banned patterns before commit
+
+echo "🔒 Running pre-commit security checks..."
+
+# 1. Run secret scanner
+node scripts/security-check.mjs
+if [ $? -ne 0 ]; then
+  echo "❌ Commit aborted: Sensitive secret or forbidden file detected."
+  exit 1
+fi
+
+# 2. Run banned pattern scanner
+node scripts/check-bans.mjs
+if [ $? -ne 0 ]; then
+  echo "❌ Commit aborted: Banned pattern violation detected."
+  exit 1
+fi
+
+echo "✅ Pre-commit security verification passed."
+exit 0
