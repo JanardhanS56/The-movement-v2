@@ -1,5 +1,8 @@
 import { z } from "zod"
 
+const uuidPattern = /^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/
+const uuidField = z.string().regex(uuidPattern, "Invalid UUID")
+
 export const TaskStatusSchema = z.enum([
   "open",
   "in_progress",
@@ -10,14 +13,14 @@ export const TaskStatusSchema = z.enum([
 export type TaskStatus = z.infer<typeof TaskStatusSchema>
 
 export const TaskSchema = z.object({
-  id: z.string().uuid(),
-  movement_id: z.string().uuid(),
+  id: uuidField,
+  movement_id: uuidField,
   title: z.string().min(5).max(120),
   description: z.string().max(2000).optional(),
   reward_points: z.number().int().min(0).max(10000),
   required_volunteers: z.number().int().min(1).max(100),
   status: TaskStatusSchema,
-  created_by: z.string().uuid(),
+  created_by: uuidField,
   metadata: z.record(z.string(), z.unknown()).optional(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime().optional(),
@@ -25,7 +28,7 @@ export const TaskSchema = z.object({
 export type Task = z.infer<typeof TaskSchema>
 
 export const CreateTaskSchema = z.object({
-  movement_id: z.string().uuid(),
+  movement_id: uuidField,
   title: z.string().min(5).max(120),
   description: z.string().max(2000).optional(),
   reward_points: z.number().int().min(0).max(10000).default(50),
@@ -43,15 +46,15 @@ export const TaskClaimStatusSchema = z.enum([
 export type TaskClaimStatus = z.infer<typeof TaskClaimStatusSchema>
 
 export const ClaimTaskSchema = z.object({
-  task_id: z.string().uuid(),
+  task_id: uuidField,
   note: z.string().max(500).optional(),
 })
 export type ClaimTaskInput = z.infer<typeof ClaimTaskSchema>
 
 export const TaskClaimSchema = z.object({
-  id: z.string().uuid(),
-  task_id: z.string().uuid(),
-  claimed_by: z.string().uuid(),
+  id: uuidField,
+  task_id: uuidField,
+  claimed_by: uuidField,
   status: TaskClaimStatusSchema,
   note: z.string().max(500).nullable().optional(),
   proof_url: z.string().nullable().optional(),

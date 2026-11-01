@@ -1,4 +1,4 @@
-import { ApiClient } from "./types"
+import { ApiClient, UserStats } from "./types"
 import {
   Announcement,
   CreateAnnouncementInput,
@@ -153,5 +153,10 @@ export class SupabaseStubAdapter implements ApiClient {
   public async getImpactLedger(userId: string): Promise<ImpactLedgerEntry[]> {
     void userId
     throw new NotImplementedError("getImpactLedger")
+  }
+
+  public async getUserStats(userId: string): Promise<UserStats> {
+    void userId
+    throw new NotImplementedError("getUserStats")
   }
 }

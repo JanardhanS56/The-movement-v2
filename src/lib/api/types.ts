@@ -10,6 +10,13 @@ import { User } from "../schemas/user.schema"
 import { Badge } from "../schemas/badge.schema"
 import { ImpactLedgerEntry } from "../schemas/impact-ledger.schema"
 
+export interface UserStats {
+  tasksCompleted: number
+  announcementsSigned: number
+  checkInsCount: number
+  impactPoints: number
+}
+
 export interface ApiClient {
   // Announcements & Signatures
   getAnnouncements(movementId: string): Promise<Announcement[]>
@@ -50,4 +57,5 @@ export interface ApiClient {
   getUserProfile(userId: string): Promise<User>
   getUserBadges(userId: string): Promise<Badge[]>
   getImpactLedger(userId: string): Promise<ImpactLedgerEntry[]>
+  getUserStats(userId: string): Promise<UserStats>
 }

@@ -448,6 +448,26 @@ class MockStore {
   public getImpactLedger(userId: string): ImpactLedgerEntry[] {
     return clone(this.impactLedger.filter((e) => e.user_id === userId))
   }
+
+  public getUserStats(userId: string): {
+    tasksCompleted: number
+    announcementsSigned: number
+    checkInsCount: number
+    impactPoints: number
+  } {
+    const userLedger = this.impactLedger.filter((e) => e.user_id === userId)
+    const tasksCompleted = userLedger.length
+    const announcementsSigned = this.signatures.filter((s) => s.signed_by === userId).length
+    const checkInsCount = this.checkIns.filter((c) => c.user_id === userId).length
+    const impactPoints = userLedger.reduce((sum, e) => sum + (e.reward_points || 0), 0)
+
+    return {
+      tasksCompleted,
+      announcementsSigned,
+      checkInsCount,
+      impactPoints,
+    }
+  }
 }
 
 export const mockStore = new MockStore()
