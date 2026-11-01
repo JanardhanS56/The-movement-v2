@@ -89,3 +89,58 @@ export function formatRelativeTime(
     return "-"
   }
 }
+
+export function formatShortTime(dateInput: string | Date | null | undefined): string {
+  if (!dateInput) return ""
+  try {
+    const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput
+    if (isNaN(d.getTime())) return ""
+    let hours = d.getUTCHours()
+    const minutes = String(d.getUTCMinutes()).padStart(2, "0")
+    const ampm = hours >= 12 ? "PM" : "AM"
+    hours = hours % 12
+    hours = hours ? hours : 12
+    return `${hours}:${minutes} ${ampm}`
+  } catch {
+    return ""
+  }
+}
+
+export function getDayLabel(dateInput: string | Date | null | undefined): string {
+  if (!dateInput) return ""
+  try {
+    const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput
+    if (isNaN(d.getTime())) return ""
+    const now = new Date()
+    const isToday =
+      d.getUTCFullYear() === now.getUTCFullYear() &&
+      d.getUTCMonth() === now.getUTCMonth() &&
+      d.getUTCDate() === now.getUTCDate()
+    if (isToday) return "Today"
+
+    const yesterday = new Date(now.getTime() - 86400000)
+    const isYesterday =
+      d.getUTCFullYear() === yesterday.getUTCFullYear() &&
+      d.getUTCMonth() === yesterday.getUTCMonth() &&
+      d.getUTCDate() === yesterday.getUTCDate()
+    if (isYesterday) return "Yesterday"
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ]
+    return `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`
+  } catch {
+    return ""
+  }
+}

@@ -104,15 +104,15 @@
   - Files Changed: `src/lib/constants/chat.ts` (created), `src/lib/schemas/chat.schema.ts` (created), `src/lib/mocks/chat-pure.ts` (created), `src/lib/api/chat.ts` (created), `src/lib/__tests__/chat-pure.test.ts` (created)
   - Notes: Implemented typed ChatClient interface, MockChatAdapter with sessionStorage persistence and BroadcastChannel cross-tab sync, rate limits (1 msg / 2s, 20 msgs / min; 1 reaction / 300ms, 30 / min), 25 seeded demo messages across 3 rooms using SEED_USERS IDs, pure derived functions (getUnreadCount, getMentionCount, getReactionTotals, parseMentions, searchMessages), strict Zod schemas with fixed reaction keys, and SupabaseChatAdapter throwing NotImplementedError. All 67 unit tests pass.
 
-- [ ] **Phase 2: Chat Page (core)**
-  - Status: NOT DONE
-  - Files Changed: None
-  - Notes: Starting next.
+- [x] **Phase 2: Chat Page (core)**
+  - Status: DONE
+  - Files Changed: `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `src/lib/date.ts`, `src/components/chat/ChatRoomList.tsx` (created), `src/components/chat/ChatMessageItem.tsx` (created), `src/components/chat/ChatComposer.tsx` (created), `src/components/chat/ChatConversation.tsx` (created), `src/app/(dashboard)/chat/page.tsx` (created)
+  - Notes: Added Chat to sidebar below Tasks with lime active block. Added Community chat to mobile More sheet. Built core Chat page at /chat with room selection (?room=ID), desktop 2-column layout and mobile responsive view switcher. Rendered header with room title, description, and Rule 8 honest demo banner. Rendered message list with UserAvatar, TierBadge, tabular numerals, 5-minute same-author grouping, day dividers, right-aligned own bubbles with "You" badge and lime fill, plain text links, and send state indicators. Built composer with character counter (0/500), Enter-to-send, and privacy disclaimer line. Added auto-scroll to bottom and "New messages" floating button.
 
 - [ ] **Phase 3: Replies, Mentions, Reactions, Pin**
   - Status: NOT DONE
   - Files Changed: None
-  - Notes: Pending.
+  - Notes: Starting next.
 
 - [ ] **Phase 4: Safety and Control**
   - Status: NOT DONE

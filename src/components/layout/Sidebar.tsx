@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   ListTodo,
   PlusCircle,
+  MessageSquare,
 } from "lucide-react"
 
 export function Sidebar() {
@@ -70,6 +71,12 @@ export function Sidebar() {
           icon: ShieldCheck,
         },
       ],
+    },
+    {
+      label: "Chat",
+      href: "/chat",
+      icon: MessageSquare,
+      needsYouCount: 0,
     },
     {
       label: "My Profile",
