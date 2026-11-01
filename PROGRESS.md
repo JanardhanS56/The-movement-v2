@@ -99,15 +99,15 @@
   - Files Changed: `PROGRESS.md` (updated)
   - Notes: Completed comprehensive read-only audit of components, layout, state, tokens, drawer, and verification scripts.
 
-- [ ] **Phase 1: Chat API Layer and Pure Functions (no UI)**
-  - Status: NOT DONE
-  - Files Changed: None
-  - Notes: Pending user confirmation to proceed.
+- [x] **Phase 1: Chat API Layer and Pure Functions (no UI)**
+  - Status: DONE
+  - Files Changed: `src/lib/constants/chat.ts` (created), `src/lib/schemas/chat.schema.ts` (created), `src/lib/mocks/chat-pure.ts` (created), `src/lib/api/chat.ts` (created), `src/lib/__tests__/chat-pure.test.ts` (created)
+  - Notes: Implemented typed ChatClient interface, MockChatAdapter with sessionStorage persistence and BroadcastChannel cross-tab sync, rate limits (1 msg / 2s, 20 msgs / min; 1 reaction / 300ms, 30 / min), 25 seeded demo messages across 3 rooms using SEED_USERS IDs, pure derived functions (getUnreadCount, getMentionCount, getReactionTotals, parseMentions, searchMessages), strict Zod schemas with fixed reaction keys, and SupabaseChatAdapter throwing NotImplementedError. All 67 unit tests pass.
 
 - [ ] **Phase 2: Chat Page (core)**
   - Status: NOT DONE
   - Files Changed: None
-  - Notes: Pending.
+  - Notes: Starting next.
 
 - [ ] **Phase 3: Replies, Mentions, Reactions, Pin**
   - Status: NOT DONE
