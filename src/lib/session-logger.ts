@@ -1,3 +1,5 @@
+import { User } from "@/lib/schemas/user.schema"
+
 export interface SessionLogEntry {
   id: string
   user_id: string
@@ -8,6 +10,31 @@ export interface SessionLogEntry {
 }
 
 const STORAGE_KEY = "movement_user_logs"
+const AUTH_USER_KEY = "the-movement:auth-user"
+
+export function getStoredAuthUser(): User | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(AUTH_USER_KEY)
+    if (!raw) return null
+    return JSON.parse(raw) as User
+  } catch {
+    return null
+  }
+}
+
+export function setStoredAuthUser(user: User | null): void {
+  if (typeof window === "undefined") return
+  try {
+    if (user) {
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user))
+    } else {
+      localStorage.removeItem(AUTH_USER_KEY)
+    }
+  } catch {
+    // Storage access blocked
+  }
+}
 
 export async function logUserSession(
   userId: string,

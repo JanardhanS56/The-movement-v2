@@ -109,7 +109,7 @@ export default function SignUpPage() {
           </div>
 
           <div className="flex flex-col gap-2 pt-2">
-            <Link href="/sign-in" className="w-full">
+            <Link href={`/sign-in?username=${encodeURIComponent(successResult.username)}`} className="w-full">
               <Button className="w-full gap-2">
                 <span>Sign In to Account</span>
                 <ArrowRight className="w-4 h-4" />

@@ -25,6 +25,13 @@ export default function SignInPage() {
   const [loading, setLoading] = React.useState(false)
   const [loginError, setLoginError] = React.useState<string | null>(null)
 
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search).get("username")
+      if (q) setUsername(q)
+    }
+  }, [])
+
   const handleSelectUser = async (userId: string) => {
     signIn(userId)
     await logUserSession(userId, "login", { method: "demo_persona" })
@@ -55,6 +62,24 @@ export default function SignInPage() {
 
       const loggedUser = data.data.user
 
+      const numericTier: 1 | 2 | 3 =
+        loggedUser.tier === "organizer" || loggedUser.tier === 3
+          ? 3
+          : loggedUser.tier === "experienced_volunteer" || loggedUser.tier === 2
+          ? 2
+          : 1
+
+      const userObj = {
+        id: loggedUser.id,
+        display_name: loggedUser.display_name || loggedUser.username,
+        tier: numericTier,
+        created_at: new Date().toISOString(),
+        metadata: {
+          username: loggedUser.username,
+          email: loggedUser.email,
+        },
+      }
+
       // Log session
       await logUserSession(loggedUser.id, "login", {
         username: loggedUser.username,
@@ -62,7 +87,7 @@ export default function SignInPage() {
       })
 
       // Authenticate in app context
-      signIn(loggedUser.id)
+      signIn(loggedUser.id, userObj)
       router.push("/feed")
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : "Authentication failed")
