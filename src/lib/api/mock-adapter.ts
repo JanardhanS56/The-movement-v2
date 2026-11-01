@@ -161,6 +161,11 @@ export class MockApiAdapter implements ApiClient {
     return CheckInSchema.parse(raw)
   }
 
+  public async getUsers(): Promise<User[]> {
+    const raw = mockStore.getUsers()
+    return z.array(UserSchema).parse(raw)
+  }
+
   public async getUserProfile(userId: string): Promise<User> {
     z.string().uuid().parse(userId)
     const raw = mockStore.getUser(userId)

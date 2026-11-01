@@ -5,6 +5,7 @@ export const QueryKeys = {
   signatures: (announcementId: string) => ["signatures", announcementId] as const,
   checkIns: (movementId: string) => ["check-ins", movementId] as const,
   aggregatedCheckIns: () => ["aggregated-check-ins"] as const,
+  users: () => ["users"] as const,
   userProfile: (userId: string) => ["profile", userId] as const,
   badges: (userId: string) => ["badges", userId] as const,
   impactLedger: (userId: string) => ["impact-ledger", userId] as const,

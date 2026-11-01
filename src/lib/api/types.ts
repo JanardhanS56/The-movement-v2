@@ -44,6 +44,7 @@ export interface ApiClient {
   checkIn(input: CreateCheckInInput, userId: string): Promise<CheckIn>
 
   // Profiles, Badges & Impact Ledger
+  getUsers(): Promise<User[]>
   getUserProfile(userId: string): Promise<User>
   getUserBadges(userId: string): Promise<Badge[]>
   getImpactLedger(userId: string): Promise<ImpactLedgerEntry[]>

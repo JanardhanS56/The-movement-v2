@@ -126,6 +126,10 @@ export class SupabaseStubAdapter implements ApiClient {
     throw new NotImplementedError("checkIn")
   }
 
+  public async getUsers(): Promise<User[]> {
+    throw new NotImplementedError("getUsers")
+  }
+
   public async getUserProfile(userId: string): Promise<User> {
     void userId
     throw new NotImplementedError("getUserProfile")
