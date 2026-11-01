@@ -135,7 +135,7 @@ export function LeafletMap({
       // Distinct beacon circle for user's own check-in
       const marker = L.circleMarker([userCheckIn.lat, userCheckIn.lng], {
         radius: 10,
-        color: "#0047FF",
+        color: "#255DEE",
         fillColor: "#D4FF24",
         fillOpacity: 1.0,
         weight: 3,

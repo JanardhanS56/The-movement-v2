@@ -13,8 +13,8 @@ export default function FeedError({
   return (
     <div className="py-8">
       <ErrorAlert
-        title="Could not load announcements"
-        message={error.message || "An unexpected error occurred while fetching movement announcements."}
+        title="We could not load this"
+        message={error.message || "We could not load this. Check your connection and try again."}
         onRetry={reset}
       />
     </div>

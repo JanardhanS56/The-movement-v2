@@ -32,7 +32,7 @@ const colors = {
   ink: "#060814",
   ivory: "#F6F0E4",
   white: "#FFFFFF",
-  cobalt: "#0047FF",
+  cobalt: "#255DEE",
   cobaltSoft: "#7C9BFF",
   lime: "#D4FF24",
   tomato: "#FF4D2E",

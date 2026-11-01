@@ -18,7 +18,7 @@ export function ProfileNotFound({ userId }: ProfileNotFoundProps) {
         <UserX className="h-8 w-8" aria-hidden="true" />
       </div>
       <h2 className="text-xl font-bold tracking-tight text-foreground">
-        Volunteer Profile Not Found
+        Volunteer profile not found
       </h2>
       <p className="mt-2 text-sm text-muted-foreground max-w-md">
         No registered volunteer or organizer was found with identifier{" "}
@@ -32,13 +32,13 @@ export function ProfileNotFound({ userId }: ProfileNotFoundProps) {
         <Link href="/feed">
           <Button variant="outline" className="min-h-[44px] gap-2 border-border">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            <span>Return to Feed</span>
+            <span>Return to feed</span>
           </Button>
         </Link>
         <Link href="/tasks">
           <Button className="min-h-[44px] gap-2">
             <CheckSquare className="h-4 w-4" aria-hidden="true" />
-            <span>Browse Tasks Board</span>
+            <span>Browse tasks</span>
           </Button>
         </Link>
       </div>

@@ -16,9 +16,10 @@ export function parseErrorMessage(
   message: string,
   customDetails?: string
 ): { displayMessage: string; technicalDetails?: string } {
+  const calmFallback = "We could not load this. Check your connection and try again."
   if (!message) {
     return {
-      displayMessage: "An unexpected error occurred. Please try again.",
+      displayMessage: calmFallback,
       technicalDetails: customDetails,
     }
   }
@@ -56,12 +57,13 @@ export function parseErrorMessage(
         }
       }
       return {
-        displayMessage: "Data verification issue: received information does not match expected format.",
+        displayMessage:
+          "Data verification issue: received information does not match expected format.",
         technicalDetails: rawDetails,
       }
     }
     return {
-      displayMessage: "Could not communicate with the movement service.",
+      displayMessage: calmFallback,
       technicalDetails: rawDetails,
     }
   }
@@ -72,7 +74,7 @@ export function parseErrorMessage(
     message.includes("Invalid UUID")
   ) {
     return {
-      displayMessage: "Could not display this section due to a data formatting issue.",
+      displayMessage: calmFallback,
       technicalDetails: customDetails || message,
     }
   }
@@ -81,8 +83,8 @@ export function parseErrorMessage(
 }
 
 export function ErrorState({
-  title = "Could not load content",
-  message,
+  title = "We could not load this",
+  message = "We could not load this. Check your connection and try again.",
   details,
   actionLabel = "Try again",
   onRetry,
@@ -98,22 +100,19 @@ export function ErrorState({
     <div
       role="alert"
       className={cn(
-        "rounded-chunky border-2 border-tomato bg-tomato/10 p-6 text-foreground shadow-hard",
+        "rounded-chunky border-2 border-ink bg-card border-l-8 border-l-tomato p-6 text-foreground shadow-hard",
         className
       )}
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="p-2 rounded-sm bg-tomato text-ink shrink-0 font-bold">
+          <div className="p-2 rounded-sm bg-tomato/15 text-tomato border border-tomato/30 shrink-0 font-bold">
             <AlertCircle className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="text-lg font-extrabold text-foreground tracking-tight">{title}</h3>
-            <p className="text-base text-muted-foreground mt-1 leading-relaxed">
+            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
+            <p className="text-sm text-foreground/80 mt-1 leading-relaxed">
               {displayMessage}
-            </p>
-            <p className="text-sm text-foreground/80 mt-1 font-medium">
-              Please check your connection or retry in a few moments.
             </p>
 
             {isDev && technicalDetails && (
@@ -133,7 +132,7 @@ export function ErrorState({
           <Button
             type="button"
             onClick={onRetry}
-            className="shrink-0 bg-lime text-ink hover:bg-white border-2 border-ink rounded-chunky font-bold px-4 py-2 shadow-hard-sm"
+            className="shrink-0 bg-lime text-ink hover:bg-lime/90 border-2 border-ink rounded-chunky font-bold px-4 py-2 shadow-hard-xs"
           >
             <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
             {actionLabel}

@@ -12,10 +12,10 @@ export interface ProfileHeaderProps {
 export function ProfileHeader({ user }: ProfileHeaderProps) {
   const roleLabel =
     user.tier === 3
-      ? "Movement Organizer"
+      ? "Movement organizer"
       : user.tier === 2
-      ? "Senior Field Steward"
-      : "Active Volunteer"
+      ? "Senior field steward"
+      : "Active volunteer"
 
   return (
     <section

@@ -17,17 +17,17 @@ export function ImpactLedger({ entries }: ImpactLedgerProps) {
         <div className="flex items-center gap-2">
           <Scroll className="h-5 w-5 text-primary" aria-hidden="true" />
           <h3 id="ledger-heading" className="text-lg font-bold tracking-tight text-foreground">
-            Impact Ledger
+            Impact ledger
           </h3>
         </div>
         <span className="text-xs tabular-nums font-medium px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground border border-border">
-          {entries.length} {entries.length === 1 ? "Record" : "Records"}
+          {entries.length} {entries.length === 1 ? "record" : "records"}
         </span>
       </div>
 
       {entries.length === 0 ? (
         <EmptyState
-          title="No Impact Ledger Entries"
+          title="No impact ledger entries"
           description="No verified task completions recorded yet. Community contributions and peer-reviewed tasks will appear in this ledger."
           icon={<Scroll className="h-6 w-6 text-muted-foreground" aria-hidden="true" />}
           action={

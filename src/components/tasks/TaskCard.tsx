@@ -197,7 +197,7 @@ export function TaskCard({
               </div>
             )}
 
-            {isCreator && (
+            {isCreator && !isOpen && (
               <span className="text-xs text-ink/50 font-medium italic">
                 Created by you
               </span>

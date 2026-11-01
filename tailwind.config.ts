@@ -18,7 +18,7 @@ const config: Config = {
         ink: "#060814",
         ivory: "#F6F0E4",
         cobalt: {
-          DEFAULT: "#0047FF",
+          DEFAULT: "#255DEE",
           soft: "#7C9BFF",
         },
         lime: {

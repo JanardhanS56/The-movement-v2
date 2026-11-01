@@ -33,9 +33,9 @@ export default function SignUpPage() {
   const previewTier = React.useMemo(() => {
     const hasEmail = formData.email.trim().length > 0
     const hasPhone = formData.phone.trim().length > 0
-    if (hasEmail && hasPhone) return { label: "Organizer", level: 3, color: "text-amber-400 bg-amber-500/10 border-amber-500/30" }
-    if (hasEmail || hasPhone) return { label: "Experienced Volunteer", level: 2, color: "text-blue-400 bg-blue-500/10 border-blue-500/30" }
-    return { label: "Volunteer", level: 1, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" }
+    if (hasEmail && hasPhone) return { label: "Organizer", level: 3, color: "text-sun bg-sun/10 border-sun/30" }
+    if (hasEmail || hasPhone) return { label: "Experienced Volunteer", level: 2, color: "text-cobalt bg-cobalt/10 border-cobalt/30" }
+    return { label: "Volunteer", level: 1, color: "text-ink bg-lime/20 border-lime/40" }
   }, [formData.email, formData.phone])
 
   const toggleSkill = (skill: string) => {

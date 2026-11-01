@@ -51,12 +51,15 @@ export function formatCleanDateTime(dateInput: string | Date | null | undefined)
   try {
     const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput
     if (isNaN(d.getTime())) return "-"
-    const day = d.getUTCDate()
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     const month = months[d.getUTCMonth()]
-    const hours = String(d.getUTCHours()).padStart(2, "0")
+    const day = d.getUTCDate()
+    let hours = d.getUTCHours()
     const minutes = String(d.getUTCMinutes()).padStart(2, "0")
-    return `${day} ${month}, ${hours}:${minutes}`
+    const ampm = hours >= 12 ? "PM" : "AM"
+    hours = hours % 12
+    hours = hours ? hours : 12
+    return `${month} ${day}, ${hours}:${minutes} ${ampm}`
   } catch {
     return "-"
   }

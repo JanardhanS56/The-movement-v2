@@ -28,11 +28,11 @@ export function BadgeGallery({ badges }: BadgeGalleryProps) {
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
           <h3 id="badges-heading" className="text-lg font-bold tracking-tight text-foreground">
-            Earned Badges
+            Earned badges
           </h3>
         </div>
         <span className="text-xs tabular-nums font-medium px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground border border-border">
-          {badges.length} {badges.length === 1 ? "Badge" : "Badges"}
+          {badges.length} {badges.length === 1 ? "badge" : "badges"}
         </span>
       </div>
 
@@ -41,7 +41,7 @@ export function BadgeGallery({ badges }: BadgeGalleryProps) {
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border bg-secondary text-muted-foreground mx-auto mb-3">
             <Award className="h-6 w-6" aria-hidden="true" />
           </div>
-          <h4 className="text-sm font-semibold text-foreground">No Badges Awarded</h4>
+          <h4 className="text-sm font-semibold text-foreground">No badges awarded</h4>
           <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
             Badges are earned through verified task completions and confirmed community contributions.
           </p>

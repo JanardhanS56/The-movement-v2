@@ -79,10 +79,10 @@ export function ProfileView({ userId }: ProfileViewProps) {
           <AlertCircle className="h-6 w-6" aria-hidden="true" />
         </div>
         <h3 className="text-base font-semibold text-destructive">
-          Failed to load volunteer profile
+          We could not load this profile
         </h3>
         <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-          An unexpected error occurred while querying member records.
+          We could not load this. Check your connection and try again.
         </p>
         <Button
           variant="outline"
@@ -96,7 +96,7 @@ export function ProfileView({ userId }: ProfileViewProps) {
           className="min-h-[44px] gap-2 border-border"
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          <span>Retry Profile Query</span>
+          <span>Try again</span>
         </Button>
       </div>
     )

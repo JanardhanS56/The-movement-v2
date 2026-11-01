@@ -15,8 +15,10 @@
   - Files Changed: `PROGRESS.md` (created)
   - Notes: Completed audit of real paths, seed UUIDs, and verification pipeline.
 
-- [ ] **Phase 1: Blue Tweak, Error State, Small Fixes**
-  - Status: NOT DONE
+- [x] **Phase 1: Blue Tweak, Error State, Small Fixes**
+  - Status: DONE
+  - Files Changed: `tailwind.config.ts`, `scripts/contrast.mjs`, `src/app/globals.css`, `src/app/manifest.ts`, `src/app/layout.tsx`, `src/components/heatmap/LeafletMap.tsx`, `src/app/sign-up/page.tsx`, `src/components/shared/ErrorState.tsx`, `src/app/(dashboard)/feed/error.tsx`, `src/app/(dashboard)/tasks/error.tsx`, `src/app/(dashboard)/profile/[userId]/error.tsx`, `src/app/(dashboard)/tasks/page.tsx`, `src/components/tasks/TaskCard.tsx`, `src/lib/date.ts`, `src/components/profile/BadgeGallery.tsx`, `src/components/profile/ImpactLedger.tsx`, `src/components/profile/ProfileHeader.tsx`, `src/components/profile/ProfileNotFound.tsx`, `src/components/profile/ProfileView.tsx`
+  - Notes: Calibrated cobalt to `#255DEE` passing WCAG AA (5.41:1 on white, 4.77:1 on ivory); rebuilt ErrorState with tomato corner bar accent, calm copy, and sanitized Zod/JSON display; wrapped tasks, feed, and profile in calm error boundaries; fixed duplicate "Created by you" badge in TaskCard; improved Tasks title and non-repetitive subtitle; enforced sentence case on Tasks and Profile headings; standardized clean date-time formatting e.g. "Apr 18, 2:40 PM". All 50 tests pass. Verified 0 build or lint errors.
 
 - [ ] **Phase 2: Demo Data and Pure Functions**
   - Status: NOT DONE

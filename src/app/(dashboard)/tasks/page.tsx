@@ -406,8 +406,8 @@ function TasksContent() {
     <div className="space-y-12 max-w-5xl mx-auto pb-16">
       {/* Page Header */}
       <PageHeader
-        title="Community tasks"
-        description="Community tasks verified by organizers and volunteers."
+        title="Tasks"
+        description="Find volunteer opportunities or post field actions."
         action={
           <div className="flex flex-wrap items-center gap-3">
             {/* Tier 3: Post Task Dialog */}
@@ -458,11 +458,11 @@ function TasksContent() {
       {/* Error state with retry */}
       {tasksError && (
         <ErrorAlert
-          title="Unable to load tasks"
+          title="We could not load this"
           message={
             tasksErrorObj instanceof Error
               ? tasksErrorObj.message
-              : "Failed to connect to the task distribution layer."
+              : "We could not load this. Check your connection and try again."
           }
           onRetry={() => void refetchTasks()}
         />
