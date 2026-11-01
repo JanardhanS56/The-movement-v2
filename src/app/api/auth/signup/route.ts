@@ -63,22 +63,27 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Compute Tier Assignment
-    // No Email + No Phone -> 'volunteer'
-    // Email ONLY or Phone ONLY -> 'experienced_volunteer'
-    // Both Email AND Phone -> 'organizer'
+    // No Email + No Phone -> 'volunteer' (1)
+    // Email ONLY or Phone ONLY -> 'experienced_volunteer' (2)
+    // Both Email AND Phone -> 'organizer' (3)
     let tier: "volunteer" | "experienced_volunteer" | "organizer"
+    let numericTier: 1 | 2 | 3
     if (email && phone) {
       tier = "organizer"
+      numericTier = 3
     } else if (email || phone) {
       tier = "experienced_volunteer"
+      numericTier = 2
     } else {
       tier = "volunteer"
+      numericTier = 1
     }
 
     // 3. Resolve Auth Email (use real email if given, or generate dummy email username@demo.com)
     const authEmail = email || `${cleanUsername}@demo.com`
 
     // 4. Create user in Supabase Auth
+    // Note: handle_new_user() trigger in Postgres casts raw_user_meta_data->>'tier' to SMALLINT
     const { data: authData, error: authError } = await admin.auth.admin.createUser({
       email: authEmail,
       password,
@@ -88,7 +93,8 @@ export async function POST(req: NextRequest) {
         first_name,
         last_name,
         display_name: `${first_name} ${last_name}`.trim(),
-        tier,
+        tier: numericTier,
+        tier_name: tier,
       },
     })
 
@@ -109,7 +115,7 @@ export async function POST(req: NextRequest) {
         gender,
         age,
         skills_interests,
-        phone,
+        phone: phone || null,
         tier,
         metadata: {
           auth_email: authEmail,

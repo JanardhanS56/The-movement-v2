@@ -118,3 +118,36 @@ EXCEPTION
 END;
 $$;
 
+-- 8. Robust handle_new_user() handling both numeric (1, 2, 3) and string ('volunteer', 'experienced_volunteer', 'organizer') tiers
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_tier_raw TEXT;
+  v_tier_num SMALLINT := 1;
+BEGIN
+  v_tier_raw := NEW.raw_user_meta_data->>'tier';
+  
+  IF v_tier_raw = 'organizer' OR v_tier_raw = '3' THEN
+    v_tier_num := 3;
+  ELSIF v_tier_raw = 'experienced_volunteer' OR v_tier_raw = '2' THEN
+    v_tier_num := 2;
+  ELSE
+    v_tier_num := 1;
+  END IF;
+
+  INSERT INTO public.users (id, display_name, avatar_url, tier)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'avatar_url',
+    v_tier_num
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$;
+
