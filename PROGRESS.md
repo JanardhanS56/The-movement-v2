@@ -119,12 +119,12 @@
   - Files Changed: `src/components/chat/ReportMessageDialog.tsx` (created), `src/components/chat/ConfirmDeleteDialog.tsx` (created), `src/components/chat/BlockedUsersDialog.tsx` (created), `src/components/chat/ChatRulesDialog.tsx` (created), `src/components/chat/ChatComposer.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
   - Notes: Implemented ReportMessageDialog with 5 category options, optional note, and Rule 8 honest demo toast ("Report saved on this device (demo). Organizers do not receive it yet."). Implemented ConfirmDeleteDialog for own message deletion and Tier 3 organizer removal ("Message removed by an organizer"). Built BlockedUsersDialog with sessionStorage persistence hiding messages and reactions for blocked users. Created ChatRulesDialog with session acknowledgement on first open and header button. Added Slow mode toggle per room for Tier 3 organizers with visible 10s countdown cooldown on composer. Enforced privacy: zero email, phone, or exact location exposure.
 
-- [ ] **Phase 5: Room Tools**
-  - Status: NOT DONE
-  - Files Changed: None
-  - Notes: Starting next.
+- [x] **Phase 5: Room Tools**
+  - Status: DONE
+  - Files Changed: `src/components/chat/ChatSearchBar.tsx` (created), `src/components/chat/TaskPickerModal.tsx` (created), `src/components/chat/RoomInfoDrawer.tsx` (created), `src/components/chat/ChatComposer.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
+  - Notes: Implemented ChatSearchBar with live matching from searchMessages, match count display, and Enter/Shift+Enter navigation. Built RoomInfoDrawer side drawer/bottom sheet displaying room description, rules, tier 3 room organizers, mute room toggle switch, and "Mark all as read" action. Wired sessionStorage persistence for muted room ids (the-movement:chat:muted-rooms) suppressing room unread counts. Built TaskPickerModal integrating with TaskDetailDrawer allowing volunteers to share open tasks with title and reward points.
 
 - [ ] **Phase 6: Sidebar Extras and Audit**
   - Status: NOT DONE
   - Files Changed: None
-  - Notes: Pending.
+  - Notes: Starting next.

@@ -3,18 +3,21 @@
 import * as React from "react"
 import { Message } from "@/lib/schemas/chat.schema"
 import { User } from "@/lib/schemas/user.schema"
+import { Task } from "@/lib/schemas/task.schema"
 import { ChatRoomDefinition, ReactionKey } from "@/lib/constants/chat"
 import { ChatMessageItem } from "./ChatMessageItem"
 import { ChatComposer } from "./ChatComposer"
 import { PinnedMessageStrip } from "./PinnedMessageStrip"
+import { ChatSearchBar } from "./ChatSearchBar"
 import { getDayLabel } from "@/lib/date"
-import { ArrowLeft, ArrowDown, Info, Shield, Clock, UserX } from "lucide-react"
+import { ArrowLeft, ArrowDown, Info, Shield, Clock, UserX, Search } from "lucide-react"
 import { EmptyState } from "@/components/shared/EmptyState"
 
 export interface ChatConversationProps {
   room: ChatRoomDefinition
   messages: Message[]
   usersMap: Record<string, User>
+  tasks?: Task[]
   currentUserId?: string | null
   currentUserTier?: number
   pinnedMessage?: Message | null
@@ -24,8 +27,9 @@ export interface ChatConversationProps {
   onToggleSlowMode?: () => void
   onOpenRules?: () => void
   onOpenBlocked?: () => void
+  onOpenInfo?: () => void
   onBackToRooms?: () => void
-  onSendMessage: (text: string, replyToId?: string | null) => Promise<void>
+  onSendMessage: (text: string, replyToId?: string | null, taskRef?: string | null) => Promise<void>
   onToggleReaction?: (messageId: string, key: ReactionKey) => void
   onTogglePin?: (messageId: string) => void
   onDeleteMessage?: (messageId: string) => void
@@ -40,6 +44,7 @@ export function ChatConversation({
   room,
   messages,
   usersMap,
+  tasks = [],
   currentUserId,
   currentUserTier = 1,
   pinnedMessage,
@@ -49,6 +54,7 @@ export function ChatConversation({
   onToggleSlowMode,
   onOpenRules,
   onOpenBlocked,
+  onOpenInfo,
   onBackToRooms,
   onSendMessage,
   onToggleReaction,
@@ -62,6 +68,7 @@ export function ChatConversation({
 }: ChatConversationProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
   const [showScrollBottomButton, setShowScrollBottomButton] = React.useState(false)
+  const [searchOpen, setSearchOpen] = React.useState(false)
   const [visibleCount, setVisibleCount] = React.useState(50)
   const [replyingTo, setReplyingTo] = React.useState<Message | null>(null)
   const isNearBottomRef = React.useRef(true)
@@ -98,7 +105,7 @@ export function ChatConversation({
   }
 
   // Jump to specific message element by ID
-  const jumpToMessage = (messageId: string) => {
+  const jumpToMessage = React.useCallback((messageId: string) => {
     const el = document.getElementById(`msg-${messageId}`)
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -107,7 +114,7 @@ export function ChatConversation({
         el.classList.remove("bg-sun/20")
       }, 1500)
     }
-  }
+  }, [])
 
   // Auto-scroll on new messages if already near bottom
   React.useEffect(() => {
@@ -120,14 +127,15 @@ export function ChatConversation({
   React.useEffect(() => {
     scrollToBottom("auto")
     setReplyingTo(null)
+    setSearchOpen(false)
   }, [room.id])
 
   const displayedMessages = messages.slice(-visibleCount)
   const hasEarlierMessages = messages.length > displayedMessages.length
 
-  const handleSend = async (text: string) => {
+  const handleSend = async (text: string, taskRef?: string | null) => {
     const replyId = replyingTo ? replyingTo.id : null
-    await onSendMessage(text, replyId)
+    await onSendMessage(text, replyId, taskRef)
     setReplyingTo(null)
   }
 
@@ -157,7 +165,20 @@ export function ChatConversation({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Search Button */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen(!searchOpen)}
+            aria-label="Search conversation messages"
+            className={`p-1.5 rounded-sm border-2 border-ink text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+              searchOpen ? "bg-sun text-ink shadow-hard-xs" : "bg-white text-ink/70 hover:bg-ivory"
+            }`}
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Search</span>
+          </button>
+
           {/* Slow mode badge / toggle button */}
           {isSlowMode && (
             <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-xs bg-sun/30 border border-ink text-ink">
@@ -177,6 +198,19 @@ export function ChatConversation({
             >
               <Clock className="w-3.5 h-3.5" />
               <span className="hidden lg:inline">{isSlowMode ? "Slow mode on" : "Slow mode"}</span>
+            </button>
+          )}
+
+          {/* Room Info Drawer button */}
+          {onOpenInfo && (
+            <button
+              type="button"
+              onClick={onOpenInfo}
+              aria-label="View room details and members"
+              className="p-1.5 rounded-sm border-2 border-ink bg-white text-ink/70 hover:text-ink hover:bg-ivory transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold"
+            >
+              <Info className="w-3.5 h-3.5 text-cobalt" />
+              <span className="hidden lg:inline">Info</span>
             </button>
           )}
 
@@ -223,7 +257,18 @@ export function ChatConversation({
         </span>
       </aside>
 
-      {/* 3. Pinned Message Strip (if room has a pinned message) */}
+      {/* 3. Search Bar (if search is toggled open) */}
+      {searchOpen && (
+        <ChatSearchBar
+          roomId={room.id}
+          messages={messages}
+          blockedIds={blockedIds}
+          onJumpToMessage={jumpToMessage}
+          onClose={() => setSearchOpen(false)}
+        />
+      )}
+
+      {/* 4. Pinned Message Strip (if room has a pinned message) */}
       {pinnedMessage && pinnedMessage.status !== "removed" && (
         <PinnedMessageStrip
           pinnedMessage={pinnedMessage}
@@ -234,7 +279,7 @@ export function ChatConversation({
         />
       )}
 
-      {/* 4. Messages Log */}
+      {/* 5. Messages Log */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
@@ -330,11 +375,12 @@ export function ChatConversation({
         </div>
       )}
 
-      {/* 5. Composer */}
+      {/* 6. Composer */}
       <ChatComposer
         onSendMessage={handleSend}
         isSending={isSending}
         slowModeCountdown={slowModeCountdown}
+        tasks={tasks}
         replyingToMessage={
           replyingTo
             ? {

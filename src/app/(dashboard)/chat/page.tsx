@@ -11,6 +11,7 @@ import { SEED_USERS, SEED_TASKS } from "@/lib/mocks/seed-data"
 import { FICTIONAL_USERS } from "@/lib/mocks/fictional-data"
 import { ChatRoomList } from "@/components/chat/ChatRoomList"
 import { ChatConversation } from "@/components/chat/ChatConversation"
+import { RoomInfoDrawer } from "@/components/chat/RoomInfoDrawer"
 import { ReportMessageDialog } from "@/components/chat/ReportMessageDialog"
 import { ConfirmDeleteDialog } from "@/components/chat/ConfirmDeleteDialog"
 import { BlockedUsersDialog } from "@/components/chat/BlockedUsersDialog"
@@ -33,11 +34,13 @@ export default function ChatPage() {
   const [messagesMap, setMessagesMap] = React.useState<Record<string, Message[]>>({})
   const [lastReadMap, setLastReadMap] = React.useState<Record<string, string | null>>({})
   const [pinnedMessage, setPinnedMessage] = React.useState<Message | null>(null)
+  const [mutedRoomIds, setMutedRoomIds] = React.useState<string[]>([])
   const [isSending, setIsSending] = React.useState(false)
 
   // Safety & Dialog States
   const [rulesOpen, setRulesOpen] = React.useState(false)
   const [blockedOpen, setBlockedOpen] = React.useState(false)
+  const [roomInfoOpen, setRoomInfoOpen] = React.useState(false)
   const [reportTargetId, setReportTargetId] = React.useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; isOrganizer: boolean } | null>(null)
   const [blockedUserIds, setBlockedUserIds] = React.useState<string[]>([])
@@ -50,12 +53,16 @@ export default function ChatPage() {
     return SEED_TASKS.find((t) => t.id === selectedTaskId)
   }, [selectedTaskId])
 
-  // Hydrate blocked users, rules acknowledgement, and slow mode from sessionStorage
+  // Hydrate blocked users, muted rooms, rules acknowledgement, and slow mode from sessionStorage
   React.useEffect(() => {
     try {
       const storedBlocked = sessionStorage.getItem("the-movement:chat:blocked-users")
       if (storedBlocked) {
         setBlockedUserIds(JSON.parse(storedBlocked))
+      }
+      const storedMuted = sessionStorage.getItem("the-movement:chat:muted-rooms")
+      if (storedMuted) {
+        setMutedRoomIds(JSON.parse(storedMuted))
       }
       const rulesAck = sessionStorage.getItem("the-movement:chat:rules-acknowledged")
       if (rulesAck !== "true") {
@@ -89,6 +96,11 @@ export default function ChatPage() {
     }
     return map
   }, [user])
+
+  // Organizers in this room (tier === 3)
+  const roomOrganizers = React.useMemo(() => {
+    return Object.values(usersMap).filter((u) => u.tier === 3)
+  }, [usersMap])
 
   // Load messages and pinned message for the active room
   const loadMessages = React.useCallback(async (roomId: string) => {
@@ -157,8 +169,8 @@ export default function ChatPage() {
     setMobileView("conversation")
   }
 
-  // Handle message submission (supports replies and slow mode cooldown)
-  const handleSendMessage = async (text: string, replyToId?: string | null) => {
+  // Handle message submission (supports replies, task sharing, and slow mode cooldown)
+  const handleSendMessage = async (text: string, replyToId?: string | null, taskRef?: string | null) => {
     setIsSending(true)
     try {
       const authorId = user?.id || SEED_USERS[0]?.id
@@ -166,7 +178,7 @@ export default function ChatPage() {
         activeRoom.id,
         text,
         replyToId,
-        null,
+        taskRef,
         authorId
       )
 
@@ -250,6 +262,28 @@ export default function ChatPage() {
     toast.success(next ? "Slow mode enabled (10s cooldown)." : "Slow mode disabled.")
   }
 
+  // Toggle mute for room
+  const handleToggleMute = () => {
+    const isMuted = mutedRoomIds.includes(activeRoom.id)
+    const next = isMuted
+      ? mutedRoomIds.filter((id) => id !== activeRoom.id)
+      : [...mutedRoomIds, activeRoom.id]
+    setMutedRoomIds(next)
+    try {
+      sessionStorage.setItem("the-movement:chat:muted-rooms", JSON.stringify(next))
+    } catch {}
+    toast.info(isMuted ? `Unmuted ${activeRoom.name}.` : `Muted ${activeRoom.name}.`)
+  }
+
+  // Mark all as read in room
+  const handleMarkAllAsRead = () => {
+    setLastReadMap((prev) => ({
+      ...prev,
+      [activeRoom.id]: new Date().toISOString(),
+    }))
+    toast.success(`Marked ${activeRoom.name} as read.`)
+  }
+
   // Handle confirmed deletion or organizer removal
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
@@ -316,6 +350,7 @@ export default function ChatPage() {
             onSelectRoom={handleSelectRoom}
             messagesMap={messagesMap}
             lastReadMap={lastReadMap}
+            mutedRoomIds={mutedRoomIds}
             currentUserId={user?.id}
             blockedIds={blockedUserIds}
           />
@@ -331,6 +366,7 @@ export default function ChatPage() {
             room={activeRoom}
             messages={messages}
             usersMap={usersMap}
+            tasks={SEED_TASKS}
             currentUserId={user?.id}
             currentUserTier={user?.tier || 1}
             pinnedMessage={pinnedMessage}
@@ -340,6 +376,7 @@ export default function ChatPage() {
             onToggleSlowMode={handleToggleSlowMode}
             onOpenRules={() => setRulesOpen(true)}
             onOpenBlocked={() => setBlockedOpen(true)}
+            onOpenInfo={() => setRoomInfoOpen(true)}
             onBackToRooms={() => setMobileView("rooms")}
             onSendMessage={handleSendMessage}
             onToggleReaction={handleToggleReaction}
@@ -353,6 +390,20 @@ export default function ChatPage() {
           />
         </div>
       </div>
+
+      {/* Room Info Drawer */}
+      <RoomInfoDrawer
+        open={roomInfoOpen}
+        onClose={() => setRoomInfoOpen(false)}
+        room={activeRoom}
+        organizers={roomOrganizers}
+        isMuted={mutedRoomIds.includes(activeRoom.id)}
+        blockedCount={blockedUserIds.length}
+        onToggleMute={handleToggleMute}
+        onMarkAllAsRead={handleMarkAllAsRead}
+        onOpenRules={() => setRulesOpen(true)}
+        onOpenBlocked={() => setBlockedOpen(true)}
+      />
 
       {/* Safety & Moderation Dialogs */}
       <ReportMessageDialog

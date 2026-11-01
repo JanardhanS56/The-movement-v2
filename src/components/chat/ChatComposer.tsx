@@ -1,12 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Send, X } from "lucide-react"
+import { Send, X, CheckSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { User } from "@/lib/schemas/user.schema"
+import { Task } from "@/lib/schemas/task.schema"
+import { TaskPickerModal } from "./TaskPickerModal"
 
 export interface ChatComposerProps {
-  onSendMessage: (text: string) => Promise<void>
+  onSendMessage: (text: string, taskRef?: string | null) => Promise<void>
   isSending?: boolean
   replyingToMessage?: {
     id: string
@@ -15,6 +17,7 @@ export interface ChatComposerProps {
   } | null
   onCancelReply?: () => void
   users?: User[]
+  tasks?: Task[]
   disabled?: boolean
   slowModeCountdown?: number
 }
@@ -25,12 +28,15 @@ export function ChatComposer({
   replyingToMessage,
   onCancelReply,
   users = [],
+  tasks = [],
   disabled = false,
   slowModeCountdown = 0,
 }: ChatComposerProps) {
   const [text, setText] = React.useState("")
   const [mentionQuery, setMentionQuery] = React.useState<string | null>(null)
   const [selectedMentionIndex, setSelectedMentionIndex] = React.useState(0)
+  const [taskPickerOpen, setTaskPickerOpen] = React.useState(false)
+  const [attachedTask, setAttachedTask] = React.useState<Task | null>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   const charCount = text.length
@@ -88,19 +94,22 @@ export function ChatComposer({
     if (!canSend) return
 
     const toSend = text
+    const taskRefId = attachedTask ? attachedTask.id : null
     setText("")
     setMentionQuery(null)
+    setAttachedTask(null)
 
     try {
-      await onSendMessage(toSend)
+      await onSendMessage(toSend, taskRefId)
     } catch {
-      // If send failed, restore text so user doesn't lose it
       setText(toSend)
+      if (taskRefId && tasks) {
+        setAttachedTask(tasks.find((t) => t.id === taskRefId) || null)
+      }
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Handle mention suggestions dropdown keyboard navigation
     if (mentionSuggestions.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault()
@@ -128,7 +137,6 @@ export function ChatComposer({
       }
     }
 
-    // Enter without shift sends
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSubmit()
@@ -187,6 +195,24 @@ export function ChatComposer({
         </div>
       )}
 
+      {/* Attached task banner */}
+      {attachedTask && (
+        <div className="flex items-center justify-between px-3 py-1.5 rounded-sm bg-lime/30 border-2 border-ink text-xs text-ink font-bold shadow-hard-xs">
+          <div className="flex items-center gap-2 truncate">
+            <CheckSquare className="w-4 h-4 text-ink shrink-0" />
+            <span className="truncate">Attached task: {attachedTask.title} ({attachedTask.reward_points} pts)</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAttachedTask(null)}
+            aria-label="Remove attached task"
+            className="p-0.5 text-ink hover:text-tomato cursor-pointer ml-2"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-2">
         <label htmlFor="chat-message-input" className="sr-only">
           Write a message
@@ -214,18 +240,33 @@ export function ChatComposer({
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          {/* Character counter */}
-          <span
-            className={`text-[11px] tabular-nums font-bold ${
-              isOverLimit
-                ? "text-tomato font-black"
-                : charCount > 450
-                ? "text-sun font-black"
-                : "text-ink/50"
-            }`}
-          >
-            {charCount}/500
-          </span>
+          <div className="flex items-center gap-2">
+            {/* Share a task button */}
+            {tasks.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setTaskPickerOpen(true)}
+                aria-label="Share a task in message"
+                className="flex items-center gap-1.5 px-2 py-1 rounded-sm border border-dashed border-ink/40 hover:border-ink hover:bg-ivory text-xs font-bold text-ink cursor-pointer transition-colors"
+              >
+                <CheckSquare className="w-3.5 h-3.5 text-ink/70" />
+                <span className="hidden sm:inline">Share task</span>
+              </button>
+            )}
+
+            {/* Character counter */}
+            <span
+              className={`text-[11px] tabular-nums font-bold ${
+                isOverLimit
+                  ? "text-tomato font-black"
+                  : charCount > 450
+                  ? "text-sun font-black"
+                  : "text-ink/50"
+              }`}
+            >
+              {charCount}/500
+            </span>
+          </div>
 
           <Button
             type="submit"
@@ -249,6 +290,14 @@ export function ChatComposer({
           Messages are visible to everyone in this chat. Do not share your address, phone number or anything private.
         </p>
       </form>
+
+      {/* Task Picker Modal */}
+      <TaskPickerModal
+        open={taskPickerOpen}
+        onOpenChange={setTaskPickerOpen}
+        tasks={tasks}
+        onSelectTask={(task) => setAttachedTask(task)}
+      />
     </div>
   )
 }
