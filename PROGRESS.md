@@ -109,15 +109,15 @@
   - Files Changed: `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `src/lib/date.ts`, `src/components/chat/ChatRoomList.tsx` (created), `src/components/chat/ChatMessageItem.tsx` (created), `src/components/chat/ChatComposer.tsx` (created), `src/components/chat/ChatConversation.tsx` (created), `src/app/(dashboard)/chat/page.tsx` (created)
   - Notes: Added Chat to sidebar below Tasks with lime active block. Added Community chat to mobile More sheet. Built core Chat page at /chat with room selection (?room=ID), desktop 2-column layout and mobile responsive view switcher. Rendered header with room title, description, and Rule 8 honest demo banner. Rendered message list with UserAvatar, TierBadge, tabular numerals, 5-minute same-author grouping, day dividers, right-aligned own bubbles with "You" badge and lime fill, plain text links, and send state indicators. Built composer with character counter (0/500), Enter-to-send, and privacy disclaimer line. Added auto-scroll to bottom and "New messages" floating button.
 
-- [ ] **Phase 3: Replies, Mentions, Reactions, Pin**
-  - Status: NOT DONE
-  - Files Changed: None
-  - Notes: Starting next.
+- [x] **Phase 3: Replies, Mentions, Reactions, Pin**
+  - Status: DONE
+  - Files Changed: `src/components/chat/EmojiPickerPopover.tsx` (created), `src/components/chat/ReactionChipsRow.tsx` (created), `src/components/chat/MessageActionsMenu.tsx` (created), `src/components/chat/PinnedMessageStrip.tsx` (created), `src/components/chat/ChatMessageItem.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
+  - Notes: Added Reply with quote preview (first 80 chars) and smooth scrolling to referenced message. Added @mention keyboard navigable autocomplete and "Mentions you" badge. Implemented the fixed set of 6 reaction emoji (thumbs_up, heart, thanks, celebrate, laugh, surprised) with reaction chips row, aria-pressed, screen-reader labels with name and count, 44px tap targets, keyboard arrow movement, "Who reacted" tooltips, 320px flex-wrapping, and toggle handling. Added Tier 3 organizer message pinning with pinned message banner in room header and jump-to link.
 
 - [ ] **Phase 4: Safety and Control**
   - Status: NOT DONE
   - Files Changed: None
-  - Notes: Pending.
+  - Notes: Starting next.
 
 - [ ] **Phase 5: Room Tools**
   - Status: NOT DONE

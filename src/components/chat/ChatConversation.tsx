@@ -3,9 +3,10 @@
 import * as React from "react"
 import { Message } from "@/lib/schemas/chat.schema"
 import { User } from "@/lib/schemas/user.schema"
-import { ChatRoomDefinition } from "@/lib/constants/chat"
+import { ChatRoomDefinition, ReactionKey } from "@/lib/constants/chat"
 import { ChatMessageItem } from "./ChatMessageItem"
 import { ChatComposer } from "./ChatComposer"
+import { PinnedMessageStrip } from "./PinnedMessageStrip"
 import { getDayLabel } from "@/lib/date"
 import { ArrowLeft, ArrowDown, Info } from "lucide-react"
 import { EmptyState } from "@/components/shared/EmptyState"
@@ -15,8 +16,17 @@ export interface ChatConversationProps {
   messages: Message[]
   usersMap: Record<string, User>
   currentUserId?: string | null
+  currentUserTier?: number
+  pinnedMessage?: Message | null
+  blockedIds?: string[]
   onBackToRooms?: () => void
-  onSendMessage: (text: string) => Promise<void>
+  onSendMessage: (text: string, replyToId?: string | null) => Promise<void>
+  onToggleReaction?: (messageId: string, key: ReactionKey) => void
+  onTogglePin?: (messageId: string) => void
+  onDeleteMessage?: (messageId: string) => void
+  onRemoveMessageByOrganizer?: (messageId: string) => void
+  onReportMessage?: (messageId: string) => void
+  onBlockUser?: (authorId: string) => void
   isSending?: boolean
   onSelectTask?: (taskId: string) => void
 }
@@ -26,15 +36,36 @@ export function ChatConversation({
   messages,
   usersMap,
   currentUserId,
+  currentUserTier = 1,
+  pinnedMessage,
+  blockedIds = [],
   onBackToRooms,
   onSendMessage,
+  onToggleReaction,
+  onTogglePin,
+  onDeleteMessage,
+  onRemoveMessageByOrganizer,
+  onReportMessage,
+  onBlockUser,
   isSending = false,
   onSelectTask,
 }: ChatConversationProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
   const [showScrollBottomButton, setShowScrollBottomButton] = React.useState(false)
   const [visibleCount, setVisibleCount] = React.useState(50)
+  const [replyingTo, setReplyingTo] = React.useState<Message | null>(null)
   const isNearBottomRef = React.useRef(true)
+
+  const isOrganizer = currentUserTier === 3
+
+  // Quick lookup map of messages by ID for reply quotes
+  const messagesById = React.useMemo(() => {
+    const map = new Map<string, Message>()
+    for (const m of messages) {
+      map.set(m.id, m)
+    }
+    return map
+  }, [messages])
 
   // Track scroll position to decide whether to auto-scroll on new message
   const handleScroll = () => {
@@ -56,6 +87,18 @@ export function ChatConversation({
     setShowScrollBottomButton(false)
   }
 
+  // Jump to specific message element by ID
+  const jumpToMessage = (messageId: string) => {
+    const el = document.getElementById(`msg-${messageId}`)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      el.classList.add("bg-sun/20")
+      setTimeout(() => {
+        el.classList.remove("bg-sun/20")
+      }, 1500)
+    }
+  }
+
   // Auto-scroll on new messages if already near bottom
   React.useEffect(() => {
     if (isNearBottomRef.current) {
@@ -66,10 +109,17 @@ export function ChatConversation({
   // Initial scroll to bottom on room change
   React.useEffect(() => {
     scrollToBottom("auto")
+    setReplyingTo(null)
   }, [room.id])
 
   const displayedMessages = messages.slice(-visibleCount)
   const hasEarlierMessages = messages.length > displayedMessages.length
+
+  const handleSend = async (text: string) => {
+    const replyId = replyingTo ? replyingTo.id : null
+    await onSendMessage(text, replyId)
+    setReplyingTo(null)
+  }
 
   return (
     <div className="flex-1 flex flex-col h-full min-w-0 bg-ivory">
@@ -115,7 +165,18 @@ export function ChatConversation({
         </span>
       </aside>
 
-      {/* 3. Messages Log */}
+      {/* 3. Pinned Message Strip (if room has a pinned message) */}
+      {pinnedMessage && pinnedMessage.status !== "removed" && (
+        <PinnedMessageStrip
+          pinnedMessage={pinnedMessage}
+          author={usersMap[pinnedMessage.authorId]}
+          onJumpToMessage={jumpToMessage}
+          onUnpin={onTogglePin}
+          isOrganizer={isOrganizer}
+        />
+      )}
+
+      {/* 4. Messages Log */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
@@ -148,6 +209,8 @@ export function ChatConversation({
           displayedMessages.map((msg, index) => {
             const author = usersMap[msg.authorId]
             const isOwn = Boolean(currentUserId && msg.authorId === currentUserId)
+            const replyTarget = msg.replyToId ? messagesById.get(msg.replyToId) : null
+            const isPinned = Boolean(pinnedMessage && pinnedMessage.id === msg.id)
 
             // Calculate day divider
             const prevMsg = displayedMessages[index - 1]
@@ -170,9 +233,23 @@ export function ChatConversation({
                 key={msg.id}
                 message={msg}
                 author={author}
+                replyTarget={replyTarget}
+                usersMap={usersMap}
                 isOwn={isOwn}
                 isGrouped={isGrouped}
+                isPinned={isPinned}
+                isOrganizer={isOrganizer}
+                currentUserId={currentUserId}
+                blockedIds={blockedIds}
                 dayDivider={dayDivider}
+                onReply={(m) => setReplyingTo(m)}
+                onToggleReaction={onToggleReaction}
+                onTogglePin={onTogglePin}
+                onDelete={onDeleteMessage}
+                onRemoveByOrganizer={onRemoveMessageByOrganizer}
+                onReport={onReportMessage}
+                onBlockUser={onBlockUser}
+                onJumpToMessage={jumpToMessage}
                 onSelectTask={onSelectTask}
               />
             )
@@ -195,10 +272,20 @@ export function ChatConversation({
         </div>
       )}
 
-      {/* 4. Composer */}
+      {/* 5. Composer */}
       <ChatComposer
-        onSendMessage={onSendMessage}
+        onSendMessage={handleSend}
         isSending={isSending}
+        replyingToMessage={
+          replyingTo
+            ? {
+                id: replyingTo.id,
+                authorName: usersMap[replyingTo.authorId]?.display_name || "Volunteer",
+                preview: replyingTo.text.slice(0, 60),
+              }
+            : null
+        }
+        onCancelReply={() => setReplyingTo(null)}
         users={Object.values(usersMap)}
       />
     </div>

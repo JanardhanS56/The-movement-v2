@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
-import { CHAT_ROOMS } from "@/lib/constants/chat"
+import { CHAT_ROOMS, ReactionKey } from "@/lib/constants/chat"
 import { chatApi, ChatRateLimitError } from "@/lib/api/chat"
 import { Message } from "@/lib/schemas/chat.schema"
 import { User } from "@/lib/schemas/user.schema"
@@ -28,6 +28,7 @@ export default function ChatPage() {
   const [messages, setMessages] = React.useState<Message[]>([])
   const [messagesMap, setMessagesMap] = React.useState<Record<string, Message[]>>({})
   const [lastReadMap, setLastReadMap] = React.useState<Record<string, string | null>>({})
+  const [pinnedMessage, setPinnedMessage] = React.useState<Message | null>(null)
   const [isSending, setIsSending] = React.useState(false)
 
   // Selected task state for TaskDetailDrawer
@@ -51,7 +52,7 @@ export default function ChatPage() {
     return map
   }, [user])
 
-  // Load messages for the active room
+  // Load messages and pinned message for the active room
   const loadMessages = React.useCallback(async (roomId: string) => {
     try {
       const res = await chatApi.listMessages(roomId)
@@ -60,15 +61,16 @@ export default function ChatPage() {
         ...prev,
         [roomId]: res.messages,
       }))
+      const pinned = await chatApi.getPinnedMessage(roomId)
+      setPinnedMessage(pinned)
     } catch {
-      // Fallback empty
+      // Fallback
     }
   }, [])
 
   // Initial load and whenever active room changes
   React.useEffect(() => {
     loadMessages(activeRoom.id)
-    // Update lastRead time for this room
     setLastReadMap((prev) => ({
       ...prev,
       [activeRoom.id]: new Date().toISOString(),
@@ -101,6 +103,8 @@ export default function ChatPage() {
         )
       } else if (event.type === "message_deleted" && event.message) {
         setMessages((prev) => prev.filter((m) => m.id !== event.message!.id))
+      } else if (event.type === "message_pinned") {
+        chatApi.getPinnedMessage(activeRoom.id).then(setPinnedMessage)
       }
     })
 
@@ -115,15 +119,15 @@ export default function ChatPage() {
     setMobileView("conversation")
   }
 
-  // Handle message submission
-  const handleSendMessage = async (text: string) => {
+  // Handle message submission (supports replies)
+  const handleSendMessage = async (text: string, replyToId?: string | null) => {
     setIsSending(true)
     try {
       const authorId = user?.id || SEED_USERS[0]?.id
       const newMsg = await chatApi.sendMessage(
         activeRoom.id,
         text,
-        null,
+        replyToId,
         null,
         authorId
       )
@@ -147,6 +151,73 @@ export default function ChatPage() {
       throw err
     } finally {
       setIsSending(false)
+    }
+  }
+
+  // Handle reaction toggle
+  const handleToggleReaction = async (messageId: string, key: ReactionKey) => {
+    try {
+      const updated = await chatApi.toggleReaction(messageId, key, user?.id)
+      setMessages((prev) =>
+        prev.map((m) => (m.id === updated.id ? updated : m))
+      )
+    } catch (err: unknown) {
+      if (err instanceof ChatRateLimitError) {
+        toast.warning(err.message)
+      } else {
+        toast.error("Could not toggle reaction.")
+      }
+    }
+  }
+
+  // Handle message pinning / unpinning (Tier 3 organizers only)
+  const handleTogglePin = async (messageId: string) => {
+    if (user?.tier !== 3) {
+      toast.error("Only Tier 3 organizers can pin messages.")
+      return
+    }
+
+    try {
+      const isAlreadyPinned = pinnedMessage?.id === messageId
+      const nextPinnedId = isAlreadyPinned ? null : messageId
+      await chatApi.pinMessage(activeRoom.id, nextPinnedId)
+
+      const nextPinned = nextPinnedId
+        ? messages.find((m) => m.id === nextPinnedId) || null
+        : null
+      setPinnedMessage(nextPinned)
+
+      toast.success(isAlreadyPinned ? "Message unpinned." : "Message pinned to room header.")
+    } catch {
+      toast.error("Could not update pinned message.")
+    }
+  }
+
+  // Handle message deletion
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      await chatApi.deleteMessage(messageId)
+      setMessages((prev) => prev.filter((m) => m.id !== messageId))
+      toast.success("Message deleted.")
+    } catch {
+      toast.error("Could not delete message.")
+    }
+  }
+
+  // Handle organizer removal
+  const handleRemoveByOrganizer = async (messageId: string) => {
+    try {
+      await chatApi.removeMessageByOrganizer(messageId)
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId
+            ? { ...m, status: "removed", text: "Message removed by an organizer", reactions: {} }
+            : m
+        )
+      )
+      toast.success("Message removed by organizer.")
+    } catch {
+      toast.error("Could not remove message.")
     }
   }
 
@@ -182,8 +253,16 @@ export default function ChatPage() {
             messages={messages}
             usersMap={usersMap}
             currentUserId={user?.id}
+            currentUserTier={user?.tier || 1}
+            pinnedMessage={pinnedMessage}
             onBackToRooms={() => setMobileView("rooms")}
             onSendMessage={handleSendMessage}
+            onToggleReaction={handleToggleReaction}
+            onTogglePin={handleTogglePin}
+            onDeleteMessage={handleDeleteMessage}
+            onRemoveMessageByOrganizer={handleRemoveByOrganizer}
+            onReportMessage={() => {}}
+            onBlockUser={() => {}}
             isSending={isSending}
             onSelectTask={(taskId) => setSelectedTaskId(taskId)}
           />
