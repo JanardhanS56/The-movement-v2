@@ -67,3 +67,4 @@ CREATE POLICY "Claims: members read" ON public.task_claims FOR SELECT TO authent
 DROP POLICY IF EXISTS "CheckIns: members read" ON public.check_ins;
 CREATE POLICY "CheckIns: members read" ON public.check_ins FOR SELECT TO authenticated
   USING (public.is_movement_member(movement_id, auth.uid()));
+

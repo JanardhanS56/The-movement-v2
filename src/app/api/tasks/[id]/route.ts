@@ -27,3 +27,4 @@ export async function GET(
     return apiError(msg, 500)
   }
 }
+
