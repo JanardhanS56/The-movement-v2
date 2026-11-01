@@ -39,8 +39,7 @@ import { User, UserSchema } from "../schemas/user.schema"
 import { Badge, BadgeSchema } from "../schemas/badge.schema"
 import { ImpactLedgerEntry, ImpactLedgerEntrySchema } from "../schemas/impact-ledger.schema"
 
-const uuidPattern = /^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/
-const idSchema = z.string().regex(uuidPattern, "Invalid UUID")
+const idSchema = z.string().uuid()
 
 export class MockApiAdapter implements ApiClient {
   public async getAnnouncements(movementId: string): Promise<Announcement[]> {

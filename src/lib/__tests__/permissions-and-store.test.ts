@@ -95,14 +95,14 @@ describe("Permissions and Mock Store Integrity Tests", () => {
   // Test 6: Claimant cannot verify own task
   it("prevents the claimant from voting to verify their own task claim", () => {
     // Task 5 is pending_verification by Karthik Bhat
-    const karthikId = "55555555-5555-5555-5555-555555555555"
-    const claimId = "c5555555-5555-5555-5555-555555555555"
+    const karthikId = "55555555-5555-4555-8555-555555555555"
+    const claimId = "d5555555-5555-4555-8555-555555555555"
 
     // Permission check
     const check = Permissions.canVerifyClaim({
       verifierId: karthikId,
       claimantId: karthikId,
-      assignedVerifierIds: [karthikId, "44444444-4444-4444-4444-444444444444"],
+      assignedVerifierIds: [karthikId, "44444444-4444-4444-8444-444444444444"],
     })
     expect(check.allowed).toBe(false)
     expect(check.reason).toBe("Claimants cannot verify their own tasks")
