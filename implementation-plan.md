@@ -45,7 +45,7 @@ Strictly contains the following 4 core features. **No other features are to be d
 | 4 | Impact Ledger / Badge Profile | P0 |
 
 **Authentication approach for MVP:**
-- Supabase Auth (email/password magic link) for basic session management.
+- Supabase Auth with **magic link (passwordless email)** for basic session management. This is the only MVP auth method — do not also add email+password in Phase 1.
 - Mock identity upgrade: any uploaded "document" auto-upgrades the user to Tier 3 (Organizer). No real ID verification.
 
 **Explicitly excluded from Phase 1:**
@@ -291,7 +291,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 2. **Claim flow:**
    - `POST /api/claim-task` with `{ task_id }`.
-   - Validates user is not already claimant. Inserts into `task_claims`.
+   - Validates user is not already claimant. Inserts into `task_claims` with `status = 'in_progress'`.
    - TanStack Query invalidates `['tasks']` key.
 
 3. **"Mark Complete" flow:**
@@ -320,7 +320,13 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 #### 3B — Peer Verification Flow
 
-1. On `task_claims.status = 'pending_verification'`, a Postgres function randomly selects 3 eligible voters.
+**Zod schema for `task_claims.status` — must match the DB CHECK constraint exactly:**
+```typescript
+// src/lib/schemas/task.schema.ts
+status: z.enum(['in_progress', 'pending_verification', 'verified', 'rejected', 'withdrawn']),
+```
+
+1. When `task_claims.status` changes to `'pending_verification'`, the Route Handler calls `assign_peer_verifiers(claim_id)` which randomly selects 3 eligible voters from the movement's members.
 2. Each voter submits `POST /api/verify-task` with `{ verification_id, vote: 'approve' | 'reject' }`.
 3. DB function: if `approvals >= 2`, marks claim as `'verified'` and issues a badge.
 4. Organizer Override: Tier 3 can bypass peer vote via `POST /api/override-verify`.

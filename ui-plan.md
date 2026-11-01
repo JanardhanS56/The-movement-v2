@@ -88,6 +88,7 @@ export const TaskSchema = z.object({
   reward_points: z.number().int().min(0).max(10000),
   required_volunteers: z.number().int().min(1).max(100),
   status: z.enum(['open', 'in_progress', 'pending_verification', 'completed', 'cancelled']),
+  // ^ This is tasks.status (the task board row, not the claim row)
   created_by: z.string().uuid(),
   metadata: z.record(z.unknown()).optional(),
   created_at: z.string().datetime(),
@@ -95,12 +96,25 @@ export const TaskSchema = z.object({
 
 export type Task = z.infer<typeof TaskSchema>
 
-// For the claim form:
+// For the claim form (what the user submits when claiming):
 export const ClaimTaskSchema = z.object({
   task_id: z.string().uuid(),
   note: z.string().max(500).optional(),
 })
 export type ClaimTaskInput = z.infer<typeof ClaimTaskSchema>
+
+// For the task_claims DB row (different from tasks.status!):
+export const TaskClaimSchema = z.object({
+  id: z.string().uuid(),
+  task_id: z.string().uuid(),
+  claimed_by: z.string().uuid(),
+  status: z.enum(['in_progress', 'pending_verification', 'verified', 'rejected', 'withdrawn']),
+  // ^ IMPORTANT: task_claims.status starts at 'in_progress', NOT 'active' or 'open'
+  note: z.string().max(500).nullable().optional(),
+  claimed_at: z.string().datetime(),
+  verified_at: z.string().datetime().nullable().optional(),
+})
+export type TaskClaim = z.infer<typeof TaskClaimSchema>
 ```
 
 **Route Handler validation pattern (mandatory):**
@@ -133,25 +147,31 @@ export async function POST(req: Request) {
 
 TanStack Query solves all of these out of the box.
 
-**Setup (root layout):**
+**Setup — CRITICAL: never put `'use client'` on `app/layout.tsx` itself (it is a Server Component). Create a separate client wrapper:**
+
 ```typescript
-// src/app/layout.tsx
+// src/components/providers/QueryProvider.tsx  <-- NEW file
 'use client'
+import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,        // data is fresh for 30s
-      gcTime: 5 * 60 * 1000,   // keep in cache for 5min after unmount
-      retry: 2,
-      refetchOnWindowFocus: true,
-    },
-  },
-})
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export function QueryProvider({ children }: { children: React.ReactNode }) {
+  // useState ensures a new QueryClient is created per browser session,
+  // NOT shared across SSR requests on the server.
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000,        // data is fresh for 30s
+            gcTime: 5 * 60 * 1000,   // keep in cache for 5min after unmount
+            retry: 2,
+            refetchOnWindowFocus: true,
+          },
+        },
+      })
+  )
   return (
     <QueryClientProvider client={queryClient}>
       {children}
@@ -161,7 +181,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-> Note: Wrap only the client part. RSC layout should use a separate client wrapper component.
+```typescript
+// src/app/layout.tsx  <-- remains a Server Component (no 'use client')
+import { QueryProvider } from '@/components/providers/QueryProvider'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <QueryProvider>
+          {children}
+        </QueryProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+> **Why `useState` instead of a module-level singleton?** A module-level `const queryClient = new QueryClient()` is created once per Node.js worker process and is shared across all concurrent SSR requests — leaking one user's cached data into another user's response. `useState` creates a fresh instance per client render.
 
 **Query key conventions:**
 ```typescript
@@ -240,7 +277,9 @@ const claimMutation = useMutation({
 
 4. **Updating the heat layer without full re-render:**
    ```typescript
-   const heatLayerRef = useRef<L.HeatLayer | null>(null)
+   // L.HeatLayer does NOT exist as a named type — the shim returns L.Layer.
+   // Use L.Layer for the ref type.
+   const heatLayerRef = useRef<L.Layer | null>(null)
 
    useEffect(() => {
      if (!mapRef.current || heatPoints.length === 0) return
@@ -248,7 +287,8 @@ const claimMutation = useMutation({
        heatLayerRef.current = L.heatLayer(heatPoints, { radius: 25, blur: 15 })
        heatLayerRef.current.addTo(mapRef.current)
      } else {
-       heatLayerRef.current.setLatLngs(heatPoints)
+       // Cast needed because setLatLngs is added by leaflet.heat, not on base L.Layer
+       ;(heatLayerRef.current as any).setLatLngs(heatPoints)
      }
    }, [heatPoints])
    ```
@@ -569,7 +609,7 @@ This avoids unnecessary network requests on every Realtime event.
 | Rule | Implementation |
 |---|---|
 | No Leaflet in SSR | `dynamic(() => import('./HeatmapMap'), { ssr: false })` |
-| No bundle bloat | Analyze with `next build && next-bundle-analyzer` |
+| No bundle bloat | Install `@next/bundle-analyzer`, wrap `next.config.js`, then run `ANALYZE=true npm run build` |
 | Image optimization | Use `next/image` for all badge and avatar images |
 | Font subsetting | `next/font/google` — only latin subset loaded |
 | Query stale time | 30s default — reduces unnecessary refetches |

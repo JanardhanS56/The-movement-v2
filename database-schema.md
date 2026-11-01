@@ -195,8 +195,8 @@ CREATE TABLE public.task_claims (
   task_id     UUID NOT NULL REFERENCES public.tasks(id) ON DELETE CASCADE,
   claimed_by  UUID NOT NULL REFERENCES public.users(id),
   
-  status      TEXT NOT NULL DEFAULT 'active'
-              CHECK (status IN ('active', 'pending_verification', 'verified', 'rejected', 'withdrawn')),
+  status      TEXT NOT NULL DEFAULT 'in_progress'
+              CHECK (status IN ('in_progress', 'pending_verification', 'verified', 'rejected', 'withdrawn')),
   
   note        TEXT CHECK (char_length(note) <= 500), -- Claimant's note on completion
   proof_url   TEXT, -- URL to proof artifact in Supabase Storage (Phase 2)
@@ -210,7 +210,7 @@ CREATE TABLE public.task_claims (
   UNIQUE (task_id, claimed_by) -- One claim per user per task
 );
 
-COMMENT ON TABLE public.task_claims IS 'Records of volunteers claiming tasks. One claim per user per task.';
+COMMENT ON TABLE public.task_claims IS 'Records of volunteers claiming tasks. One claim per user per task. Initial status is in_progress.';
 ```
 
 ### 2.7 — `peer_verifications`
@@ -448,22 +448,26 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-  v_task_id    UUID;
-  v_claimant   UUID;
+  v_task_id      UUID;
+  v_movement_id  UUID;
+  v_claimant     UUID;
   v_task_creator UUID;
 BEGIN
-  SELECT tc.task_id, tc.claimed_by, t.created_by
-  INTO v_task_id, v_claimant, v_task_creator
+  SELECT tc.task_id, t.movement_id, tc.claimed_by, t.created_by
+  INTO v_task_id, v_movement_id, v_claimant, v_task_creator
   FROM public.task_claims tc
   JOIN public.tasks t ON t.id = tc.task_id
   WHERE tc.id = p_claim_id;
 
-  -- Insert 3 random verifiers, excluding claimant and task creator
+  -- Insert 3 random verifiers:
+  -- Must be movement members (not just any user in the system)
+  -- Must exclude the claimant and the task creator
   INSERT INTO public.peer_verifications (claim_id, verifier_id)
-  SELECT p_claim_id, id
-  FROM public.users
-  WHERE id NOT IN (v_claimant, v_task_creator)
-    AND tier >= 1
+  SELECT p_claim_id, mm.user_id
+  FROM public.movement_members mm
+  JOIN public.users u ON u.id = mm.user_id
+  WHERE mm.movement_id = v_movement_id
+    AND mm.user_id NOT IN (v_claimant, v_task_creator)
   ORDER BY random()
   LIMIT 3;
 END;
@@ -547,12 +551,29 @@ CREATE POLICY "Movements: creator update"
 ### 4.3 — `announcements` Policies
 
 ```sql
--- CRITICAL: Public can only see PUBLISHED announcements
-CREATE POLICY "Announcements: public read (published only)"
+-- CRITICAL RLS NOTE: In Supabase, multiple SELECT policies on the same table are OR-ed together.
+-- To prevent the public policy from leaking pending announcements, we MUST scope it to the
+-- `anon` role only. Authenticated organizers are covered exclusively by the second policy.
+
+-- Unauthenticated (anon) users can only see PUBLISHED announcements
+CREATE POLICY "Announcements: anon read (published only)"
   ON public.announcements FOR SELECT
+  TO anon
   USING (is_published = true);
 
--- Tier 3 users who are members of the movement can also see PENDING announcements
+-- Authenticated non-organizers can see PUBLISHED announcements in their movement
+CREATE POLICY "Announcements: members read (published only)"
+  ON public.announcements FOR SELECT
+  TO authenticated
+  USING (
+    is_published = true
+    AND EXISTS (
+      SELECT 1 FROM public.movement_members
+      WHERE user_id = auth.uid() AND movement_id = announcements.movement_id
+    )
+  );
+
+-- Tier 3 movement members can also see PENDING announcements
 CREATE POLICY "Announcements: organizers read pending"
   ON public.announcements FOR SELECT
   TO authenticated
@@ -866,6 +887,18 @@ VALUES (
   'A grassroots campaign to push for urban green infrastructure.',
   '00000000-0000-0000-0000-000000000001'  -- Alex Rivera's ID (set up via Supabase Auth seeding)
 );
+
+-- ============================================================
+-- SEED: Movement Membership (REQUIRED before seeding tasks/announcements)
+-- Without this, all RLS policies that check movement_members will deny access.
+-- ============================================================
+INSERT INTO public.movement_members (movement_id, user_id, role)
+VALUES
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', '00000000-0000-0000-0000-000000000001', 'organizer'),  -- Alex
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', '00000000-0000-0000-0000-000000000002', 'organizer'),  -- Jordan
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', '00000000-0000-0000-0000-000000000003', 'organizer'),  -- Sam
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', '00000000-0000-0000-0000-000000000004', 'member'),     -- Casey
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', '00000000-0000-0000-0000-000000000005', 'member');     -- Morgan
 
 -- ============================================================
 -- SEED: Sample Task

@@ -188,7 +188,7 @@ const allPoints = useMemo(() => [
              | Volunteer clicks "Claim"
              | POST /api/claim-task
              v
-        [in_progress] (task_claims.status = 'active')
+        [in_progress] (task_claims.status = 'in_progress')
              |
              | Claimant clicks "Mark Complete"
              | POST /api/complete-task
@@ -413,7 +413,7 @@ Layer 4: Database (RLS)
 - 500MB database storage
 - 1GB file storage
 - 50,000 MAU
-- 2 concurrent Realtime connections (sufficient for demo/hackathon)
+- **200** concurrent Realtime connections (sufficient for demo/hackathon — the free tier was previously mistakenly listed as 2)
 
 > **Hackathon Note:** Both free tiers are more than sufficient for demo traffic. The architecture is designed to scale — when paid tiers are needed, no code changes are required, only account upgrades.
 
@@ -441,7 +441,7 @@ Layer 4: Database (RLS)
 - Client polling every 3s: Creates N*1 server load per active user. At 1000 concurrent users = 333 requests/second just for heatmap.
 - Server-Sent Events (SSE): Would require a persistent Vercel serverless connection — incompatible with serverless architecture.
 
-**Consequences:** Client maintains one WebSocket connection per Supabase Realtime subscription. Supabase Free tier allows 200 concurrent Realtime connections (suitable for hackathon demo).
+**Consequences:** Client maintains one WebSocket connection per Supabase Realtime subscription. Supabase Free tier allows **200** concurrent Realtime connections (suitable for hackathon demo; see deployment section).
 
 ---
 
