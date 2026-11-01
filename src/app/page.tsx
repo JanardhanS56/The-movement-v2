@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Megaphone, MapPin, CheckSquare, Shield, ArrowRight } from "lucide-react"
+import { Megaphone, MapPin, CheckSquare, ArrowRight } from "lucide-react"
+import { Monogram } from "@/components/shared/Monogram"
 
 export default function LandingPage() {
   const router = useRouter()
@@ -23,15 +24,13 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-between p-6 sm:p-12">
       {/* Top Bar */}
       <header className="flex items-center justify-between max-w-5xl mx-auto w-full pb-8">
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary text-primary-foreground font-bold">
-            <Shield className="h-4 w-4" aria-hidden="true" />
-          </span>
-          <span className="font-bold text-lg tracking-tight">The Movement</span>
+        <div className="flex items-center gap-2.5">
+          <Monogram className="h-8 w-8" />
+          <span className="font-black text-xl tracking-tight text-foreground font-sans">The Movement</span>
         </div>
         <Link href="/sign-in">
-          <Button variant="outline" size="sm">
-            Sign In
+          <Button variant="outline" size="sm" className="font-bold">
+            Sign in
           </Button>
         </Link>
       </header>
@@ -106,13 +105,15 @@ export default function LandingPage() {
         <p>The Movement platform for verified collective action.</p>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="hover:text-foreground underline underline-offset-4">
-            Privacy Policy
+            Privacy policy
           </Link>
           <Link href="/terms" className="hover:text-foreground underline underline-offset-4">
-            Terms of Service
+            Terms of service
           </Link>
         </div>
-        <p className="tabular-nums text-[11px]">DEMO ENVIRONMENT</p>
+        <span className="px-2 py-0.5 rounded-xs text-xs font-bold bg-lime text-ink border border-ink">
+          Demo data
+        </span>
       </footer>
     </div>
   )

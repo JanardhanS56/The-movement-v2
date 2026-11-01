@@ -121,7 +121,7 @@ export function ErrorState({
                 <summary className="cursor-pointer font-bold hover:text-foreground">
                   Technical details
                 </summary>
-                <pre className="mt-2 p-3 bg-background/90 rounded-sm border border-border text-[11px] overflow-x-auto whitespace-pre-wrap">
+                <pre className="mt-2 p-3 bg-background/90 rounded-sm border border-border text-xs overflow-x-auto whitespace-pre-wrap">
                   {technicalDetails}
                 </pre>
               </details>

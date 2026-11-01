@@ -1,7 +1,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { ImpactLedgerEntry } from "@/lib/schemas/impact-ledger.schema"
-import { formatDateTime } from "@/lib/date"
+import { formatCleanDateTime } from "@/lib/date"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { Scroll, CheckCircle2, UserCheck, ExternalLink, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -74,16 +74,16 @@ export function ImpactLedger({ entries }: ImpactLedgerProps) {
 
                     <span className="text-muted-foreground">•</span>
 
-                    <span className="tabular-nums text-[11px]">
+                    <span className="text-xs text-muted-foreground">
                       {entry.verification_method === "peer_vote"
-                        ? "Peer Consensus"
-                        : "Organizer Override"}
+                        ? "Peer verification"
+                        : "Organizer verification"}
                     </span>
 
                     <span className="text-muted-foreground">•</span>
 
-                    <span className="tabular-nums text-[11px]">
-                      {formatDateTime(entry.verified_at)}
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {formatCleanDateTime(entry.verified_at)}
                     </span>
                   </div>
                 </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Shield, ArrowLeft, Mail, AlertTriangle } from "lucide-react"
+import { ArrowLeft, Mail, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Monogram } from "@/components/shared/Monogram"
 
 export const metadata: Metadata = {
   title: "Privacy Policy | The Movement",
@@ -33,14 +34,14 @@ export default function PrivacyPage() {
         <div
           role="alert"
           aria-label="Legal draft status banner"
-          className="p-4 rounded-md border-2 border-caution bg-caution-bg/40 text-caution flex items-start gap-3"
+          className="p-4 rounded-md border-2 border-sun bg-sun/15 text-ink flex items-start gap-3"
         >
-          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
+          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5 text-sun" aria-hidden="true" />
           <div className="space-y-1 text-xs sm:text-sm">
-            <p className="font-bold tracking-wide uppercase">
-              DRAFT, requires legal review before launch
+            <p className="font-bold text-xs text-ink">
+              Draft, requires legal review before launch
             </p>
-            <p className="text-caution/90">
+            <p className="text-ink/80">
               This document is a technical placeholder draft for prototype coordination. It must be customized, reviewed, and finalized by qualified legal counsel prior to production deployment.
             </p>
           </div>
@@ -48,14 +49,14 @@ export default function PrivacyPage() {
 
         {/* Page Header */}
         <header className="border-b border-border pb-6 space-y-3">
-          <div className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" aria-hidden="true" />
-            <span className="tabular-nums text-xs uppercase tracking-widest text-primary-light">
-              Compliance & Data Governance
+          <div className="flex items-center gap-2.5">
+            <Monogram className="h-6 w-6" />
+            <span className="text-xs font-bold text-cobalt">
+              Compliance & data governance
             </span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Privacy Policy (Draft)
+          <h1 className="text-3xl font-black tracking-tight text-foreground font-sans">
+            Privacy policy (draft)
           </h1>
           <p className="text-sm text-muted-foreground">
             Effective Date: <span className="tabular-nums text-foreground font-semibold">[EFFECTIVE_DATE]</span> | Jurisdiction: <span className="tabular-nums text-foreground font-semibold">[LEGAL_JURISDICTION]</span>

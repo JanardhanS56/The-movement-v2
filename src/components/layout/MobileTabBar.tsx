@@ -62,7 +62,7 @@ export function MobileTabBar() {
               />
             )}
             <Icon className="h-4 w-4 mb-1" aria-hidden="true" />
-            <span className="text-[11px] tracking-tight">{tab.label}</span>
+            <span className="text-xs font-medium tracking-tight">{tab.label}</span>
           </Link>
         )
       })}

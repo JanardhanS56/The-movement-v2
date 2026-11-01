@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useQuery, useMutation, useQueryClient, useQueries } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { ShieldCheck, AlertTriangle, Bug, Sparkles } from "lucide-react"
+import { ShieldCheck, AlertTriangle, Sparkles } from "lucide-react"
 import { api } from "@/lib/api"
 import { QueryKeys } from "@/lib/query-keys"
 import { useAuth } from "@/components/providers/AuthProvider"
@@ -45,9 +45,8 @@ const SIMULATED_ANNOUNCEMENTS: NewAnnouncementFormData[] = [
 ]
 
 export default function FeedPage() {
-  const { user, movementId } = useAuth()
+  const { user, movementId, simulateFailure } = useAuth()
   const queryClient = useQueryClient()
-  const [simulateFailure, setSimulateFailure] = React.useState(false)
   const [simulateIndex, setSimulateIndex] = React.useState(0)
   const [isSimulatingDraft, setIsSimulatingDraft] = React.useState(false)
 
@@ -377,13 +376,13 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto pb-12">
+    <div className="space-y-12 max-w-4xl mx-auto pb-16">
       {/* Page Header */}
       <PageHeader
-        title="Announcements Feed"
-        description="Multi-signature verified dispatches and operational directives."
+        title="Announcements feed"
+        description="Official dispatches co-signed by community organizers."
         action={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Simulate Announcement Button */}
             <Button
               id="simulate-announcement-button"
@@ -393,25 +392,11 @@ export default function FeedPage() {
               onClick={handleSimulateAnnouncement}
               loading={isSimulatingDraft}
               disabled={isSimulatingDraft}
-              className="text-xs gap-1.5 h-8 border border-border/80 shadow-xs"
+              className="text-xs font-bold gap-2 h-9 border-2 border-ink bg-white hover:bg-ivory text-ink shadow-hard-xs"
               aria-label="Simulate draft announcement requiring co-signatures"
             >
-              <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" aria-hidden="true" />
-              <span>Simulate Announcement</span>
-            </Button>
-
-            {/* Test Error Simulation Toggle */}
-            <Button
-              variant={simulateFailure ? "destructive" : "outline"}
-              size="sm"
-              onClick={() => setSimulateFailure((prev) => !prev)}
-              className="text-xs gap-1.5 h-8"
-              aria-label="Toggle network error simulation"
-            >
-              <Bug className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>
-                {simulateFailure ? "Simulated Error: ON" : "Simulate Error: OFF"}
-              </span>
+              <Sparkles className="w-4 h-4 text-cobalt shrink-0" aria-hidden="true" />
+              <span>Simulate announcement</span>
             </Button>
 
             {/* Tier 3: New Announcement Dialog */}
@@ -446,33 +431,33 @@ export default function FeedPage() {
       )}
 
       {!announcementsLoading && !announcementsError && (
-        <div className="space-y-8">
+        <div className="space-y-12">
           {/* 1. Pending Signatures Section: Visible ONLY to Tier 3 organizers at top */}
           {isTier3 && pendingAnnouncements.length > 0 && (
             <section
               aria-labelledby="pending-signatures-heading"
-              className="space-y-4 p-4 sm:p-5 rounded-lg border border-sun/40 bg-sun/20 shadow-xs"
+              className="p-6 md:p-8 rounded-sm border-2 border-ink bg-sun/10 shadow-hard space-y-6"
             >
-              <div className="flex items-center justify-between gap-3 border-b border-sun/40 pb-3">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-sun shrink-0" aria-hidden="true" />
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink pb-4">
+                <div className="flex items-center gap-2.5">
+                  <AlertTriangle className="w-5 h-5 text-ink shrink-0" aria-hidden="true" />
                   <h2
                     id="pending-signatures-heading"
-                    className="text-base sm:text-lg font-bold tracking-tight text-foreground"
+                    className="text-xl font-black tracking-tight text-ink font-sans"
                   >
-                    Pending Signatures ({pendingAnnouncements.length})
+                    Pending signatures ({pendingAnnouncements.length})
                   </h2>
                 </div>
-                <span className="text-xs tabular-nums text-sun bg-sun/20 px-2 py-0.5 rounded-sm border border-sun/40">
-                  Organizer Action Required
+                <span className="text-xs font-bold text-ink bg-sun px-3 py-1 rounded-sm border-2 border-ink shadow-hard-xs">
+                  Organizer action required
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                These announcements require co-signatures from Tier 3 Organizers before they are verified and published to volunteers.
+              <p className="text-sm font-medium text-ink/80 max-w-prose">
+                These announcements require co-signatures from Tier 3 organizers before they are verified and published to volunteers.
               </p>
 
-              <div className="space-y-4 pt-1">
+              <div className="space-y-6 pt-2">
                 {pendingAnnouncements.map((announcement) => (
                   <AnnouncementCard
                     key={announcement.id}
@@ -498,31 +483,31 @@ export default function FeedPage() {
           {/* 2. Published Announcements Feed: Visible to all, newest first */}
           <section
             aria-labelledby="published-feed-heading"
-            className="space-y-4"
+            className="space-y-6"
           >
-            <div className="flex items-center justify-between border-b border-border/80 pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
+            <div className="flex items-center justify-between border-b-2 border-ink pb-4">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-5 h-5 text-cobalt shrink-0" aria-hidden="true" />
                 <h2
                   id="published-feed-heading"
-                  className="text-lg font-bold tracking-tight text-foreground"
+                  className="text-xl font-black tracking-tight text-ink font-sans"
                 >
-                  Published Dispatches
+                  Published dispatches
                 </h2>
               </div>
-              <span className="text-xs tabular-nums text-muted-foreground">
-                {publishedAnnouncements.length} Verified Dispatch
+              <span className="text-xs font-semibold text-ink/70">
+                {publishedAnnouncements.length} verified dispatch
                 {publishedAnnouncements.length === 1 ? "" : "es"}
               </span>
             </div>
 
             {publishedAnnouncements.length === 0 ? (
               <EmptyState
-                title="No Published Announcements"
+                title="No published announcements"
                 description="No items to show."
               />
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {publishedAnnouncements.map((announcement) => (
                   <AnnouncementCard
                     key={announcement.id}
