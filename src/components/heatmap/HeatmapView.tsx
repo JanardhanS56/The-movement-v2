@@ -233,26 +233,43 @@ export function HeatmapView() {
               </p>
             </div>
 
-            <Button
-              id="check-in-button"
-              type="button"
-              variant="default"
-              size="lg"
-              onClick={handleCheckInClick}
-              loading={isLocating || checkInMutation.isPending}
-              disabled={isLocating || checkInMutation.isPending}
-              className="min-h-[48px] h-12 px-6 rounded-md font-semibold text-sm shadow-lg gap-2 text-primary-foreground bg-primary hover:bg-primary/90"
-              aria-label="Check in your current location"
-            >
-              <MapPin className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span>
-                {isLocating
-                  ? "Detecting GPS..."
-                  : checkInMutation.isPending
-                  ? "Recording..."
-                  : "Check In Here"}
-              </span>
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                id="simulate-check-in-button"
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={handleSimulateCheckIn}
+                loading={checkInMutation.isPending}
+                disabled={isLocating || checkInMutation.isPending}
+                className="min-h-[48px] h-12 px-4 rounded-md font-semibold text-sm shadow-md gap-2 border border-border/80 bg-background/95 hover:bg-secondary text-foreground backdrop-blur-md"
+                aria-label="Simulate demo check-in with mock coordinates"
+              >
+                <Radio className="w-4 h-4 text-primary shrink-0 animate-pulse" aria-hidden="true" />
+                <span>Simulate Check-in</span>
+              </Button>
+
+              <Button
+                id="check-in-button"
+                type="button"
+                variant="default"
+                size="lg"
+                onClick={handleCheckInClick}
+                loading={isLocating || checkInMutation.isPending}
+                disabled={isLocating || checkInMutation.isPending}
+                className="min-h-[48px] h-12 px-6 rounded-md font-semibold text-sm shadow-lg gap-2 text-primary-foreground bg-primary hover:bg-primary/90"
+                aria-label="Check in your current location"
+              >
+                <MapPin className="w-4 h-4 shrink-0" aria-hidden="true" />
+                <span>
+                  {isLocating
+                    ? "Detecting GPS..."
+                    : checkInMutation.isPending
+                    ? "Recording..."
+                    : "Check In Here"}
+                </span>
+              </Button>
+            </div>
           </div>
         </div>
       )}

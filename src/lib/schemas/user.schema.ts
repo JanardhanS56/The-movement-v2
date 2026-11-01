@@ -1,7 +1,5 @@
 import { z } from "zod"
-
-const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-const uuidField = z.string().regex(uuidPattern, "Invalid UUID")
+import { uuidField } from "./common"
 
 export const UserTierSchema = z.union([z.literal(1), z.literal(2), z.literal(3)])
 export type UserTier = z.infer<typeof UserTierSchema>

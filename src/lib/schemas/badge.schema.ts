@@ -1,7 +1,5 @@
 import { z } from "zod"
-
-const uuidPattern = /^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$/
-const uuidField = z.string().regex(uuidPattern, "Invalid UUID")
+import { uuidField } from "./common"
 
 export const BadgeTypeSchema = z.enum([
   "task_complete",
