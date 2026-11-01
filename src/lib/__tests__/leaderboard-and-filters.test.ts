@@ -29,14 +29,14 @@ describe("Leaderboard Pure Functions", () => {
     expect(yearBoard.length).toBeGreaterThan(0)
     expect(allBoard.length).toBeGreaterThan(0)
 
-    // Priya Rao: 2 tasks in last 30 days (100 + 60 = 160)
-    const priyaMonth = monthBoard.find((e) => e.handle === "priya-rao")
-    const priyaYear = yearBoard.find((e) => e.handle === "priya-rao")
-    const priyaAll = allBoard.find((e) => e.handle === "priya-rao")
+    // Janardhan: 2 tasks in last 30 days (100 + 60 = 160)
+    const janardhanMonth = monthBoard.find((e) => e.handle === "janardhan")
+    const janardhanYear = yearBoard.find((e) => e.handle === "janardhan")
+    const janardhanAll = allBoard.find((e) => e.handle === "janardhan")
 
-    expect(priyaMonth?.periodScore).toBe(160)
-    expect(priyaYear?.periodScore).toBe(230) // 160 + 70 from June 2026
-    expect(priyaAll?.periodScore).toBe(280) // 230 + 50 from Nov 2025
+    expect(janardhanMonth?.periodScore).toBe(160)
+    expect(janardhanYear?.periodScore).toBe(230) // 160 + 70 from June 2026
+    expect(janardhanAll?.periodScore).toBe(280) // 230 + 50 from Nov 2025
 
     // Ranks should be 1-indexed integers
     expect(monthBoard[0].rank).toBe(1)
@@ -60,13 +60,15 @@ describe("Leaderboard Pure Functions", () => {
 
 describe("User Handle Lookup", () => {
   it("resolves user by handle case-insensitively and handles @ prefix", () => {
-    const priya1 = getUserByHandle("priya-rao")
-    const priya2 = getUserByHandle("@Priya-Rao")
+    const janardhan1 = getUserByHandle("janardhan")
+    const janardhan2 = getUserByHandle("@Janardhan")
+    const oldPriya = getUserByHandle("priya-rao")
     const marcus = getUserByHandle("marcus-chen")
 
-    expect(priya1).toBeDefined()
-    expect(priya1?.display_name).toBe("Priya Rao")
-    expect(priya2?.id).toBe(priya1?.id)
+    expect(janardhan1).toBeDefined()
+    expect(janardhan1?.display_name).toBe("Janardhan")
+    expect(janardhan2?.id).toBe(janardhan1?.id)
+    expect(oldPriya?.id).toBe(janardhan1?.id)
     expect(marcus?.handle).toBe("marcus-chen")
 
     const nonExistent = getUserByHandle("non-existent-user")
@@ -75,15 +77,15 @@ describe("User Handle Lookup", () => {
 })
 
 describe("Badge Progress Evaluation", () => {
-  it("evaluates all 12 distinct badges with accurate progress for Priya Rao", () => {
-    const priya = FICTIONAL_USERS.find((u) => u.handle === "priya-rao")!
-    const badges = getBadgeProgress(priya)
+  it("evaluates all 12 distinct badges with accurate progress for Janardhan", () => {
+    const janardhan = FICTIONAL_USERS.find((u) => u.handle === "janardhan")!
+    const badges = getBadgeProgress(janardhan)
 
     expect(badges.length).toBe(12)
     const earnedBadges = badges.filter((b) => b.earned)
     expect(earnedBadges.length).toBeGreaterThanOrEqual(3)
 
-    // Priya is Tier 3 and rank 2, so Movement Founder, Point collector, and Podium must be earned
+    // Janardhan is Tier 3 and rank 2, so Movement Founder, Point collector, and Podium must be earned
     const founderBadge = badges.find((b) => b.badgeId === "movement-founder" || b.badgeId === "movement-pillar")
     expect(founderBadge?.earned).toBe(true)
 
@@ -101,8 +103,8 @@ describe("Task Filtering and Counts Pure Functions", () => {
   const fixedNow = new Date("2026-10-31T12:00:00Z")
 
   it("calculates accurate tab counts for all, mine, saved, and needs verification", () => {
-    const priya = FICTIONAL_USERS.find((u) => u.handle === "priya-rao")!
-    const counts = getTaskCounts(priya, SEED_TASKS, SEED_TASK_CLAIMS, [
+    const janardhan = FICTIONAL_USERS.find((u) => u.handle === "janardhan")!
+    const counts = getTaskCounts(janardhan, SEED_TASKS, SEED_TASK_CLAIMS, [
       "c1111111-1111-4111-8111-111111111111",
     ])
 

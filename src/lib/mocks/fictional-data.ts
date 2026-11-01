@@ -344,9 +344,9 @@ export function getTaskMetadata(taskId: string): TaskMetadata {
 export const FICTIONAL_USERS: DemoUser[] = [
   {
     id: "11111111-1111-4111-8111-111111111111",
-    handle: "priya-rao",
-    display_name: "Priya Rao",
-    avatar_url: "https://api.dicebear.com/7.x/shapes/svg?seed=PriyaRao",
+    handle: "janardhan",
+    display_name: "Janardhan",
+    avatar_url: "https://api.dicebear.com/7.x/shapes/svg?seed=Janardhan",
     tier: 3,
     movement_id: "00000000-0000-4000-8000-000000000001",
     showOnLeaderboards: true,
@@ -786,7 +786,7 @@ export function getLeaderboard(
       periodScore,
       periodCompletions,
       hoursContributed: Math.round(periodCompletions * 2.8),
-      isCurrentUser: currentUserId ? user.id === currentUserId : user.handle === "priya-rao",
+      isCurrentUser: currentUserId ? user.id === currentUserId : user.handle === "janardhan",
       latestCompletionAt,
       earliestCompletionMs,
     }
@@ -824,7 +824,10 @@ export function getLeaderboard(
 export function getUserByHandle(handle: string): DemoUser | undefined {
   const normalized = handle.toLowerCase().replace(/^@/, "").trim()
   return FICTIONAL_USERS.find(
-    (u) => u.handle.toLowerCase() === normalized || u.id === normalized
+    (u) =>
+      u.handle.toLowerCase() === normalized ||
+      u.id === normalized ||
+      (u.handle === "janardhan" && normalized === "priya-rao")
   )
 }
 

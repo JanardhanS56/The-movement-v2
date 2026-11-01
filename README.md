@@ -122,7 +122,7 @@ Follow this step-by-step walkthrough to exercise all core platform features in u
 
 1. **Sign In as Lead Organizer:**
    - Navigate to `/sign-in`.
-   - Select **Priya Rao** (Tier 3 Organizer, Mangalore chapter).
+   - Select **Janardhan** (Tier 3 Organizer, Mangalore chapter).
    - You will be redirected to `/feed`. Notice the active Tier 3 badge in the sidebar and header.
 2. **Draft a Multi-Signature Announcement:**
    - In `/feed`, tap **New Announcement**.
@@ -142,7 +142,7 @@ Follow this step-by-step walkthrough to exercise all core platform features in u
    - Tap **Claim Task** on `Water Station Distribution Setup` (40 pts). The claim updates optimistically.
    - Tap **Mark Complete**, enter a field note, and submit. The task moves to `pending_verification`.
 6. **Peer Review & Verification:**
-   - In the Demo Panel, switch persona back to **Priya Rao** (Tier 3 Organizer).
+   - In the Demo Panel, switch persona back to **Janardhan** (Tier 3 Organizer).
    - On the same task card, tap **Verify Task Claim**.
    - Choose **Organizer Override (Approve)** and confirm.
    - The task transitions to **Completed** with distinct ledger styling.

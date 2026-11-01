@@ -24,10 +24,10 @@ export const SEED_USERS: User[] = [
   // 3 Organizers (Tier 3)
   {
     id: "11111111-1111-4111-8111-111111111111",
-    display_name: "Priya Rao",
-    avatar_url: "https://api.dicebear.com/7.x/shapes/svg?seed=PriyaRao",
+    display_name: "Janardhan",
+    avatar_url: "https://api.dicebear.com/7.x/shapes/svg?seed=Janardhan",
     tier: 3,
-    handle: "priya-rao",
+    handle: "janardhan",
     created_at: "2026-10-01T08:00:00Z",
   },
   {
@@ -419,7 +419,7 @@ export const SEED_TASK_CLAIMS: TaskClaim[] = [
     claimed_at: "2026-10-30T10:00:00Z",
     completed_at: "2026-10-30T12:00:00Z",
   },
-  // Claim for Task 11 (completed / verified by Priya Rao)
+  // Claim for Task 11 (completed / verified by Janardhan)
   {
     id: "dbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
     task_id: "cbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
@@ -584,7 +584,7 @@ export const SEED_IMPACT_ENTRIES: ImpactLedgerEntry[] = [
     task_id: undefined,
     task_title: "Emergency Medical Camp Setup",
     verification_method: "organizer_override",
-    verified_by_detail: "Verified by Priya Rao",
+    verified_by_detail: "Verified by Janardhan",
     reward_points: 150,
     verified_at: "2026-10-05T12:00:00Z",
   },

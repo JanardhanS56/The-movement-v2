@@ -39,7 +39,7 @@ Default Movement ID: `00000000-0000-4000-8000-000000000001` (Coastal Action Fron
 
 | Persona | Role | Tier | Email | Password | User ID |
 |---|---|---|---|---|---|
-| **Priya** | Organizer | 3 | `organizer@demo.com` | `password123` | `14e91ea8-02db-4063-b3e9-3161348d2141` |
+| **Janardhan** | Organizer | 3 | `organizer@demo.com` | `password123` | `14e91ea8-02db-4063-b3e9-3161348d2141` |
 | **Alex** | Senior Volunteer | 2 | `volunteer1@demo.com` | `password123` | `86a641ba-ca37-4597-be7e-d6c904f46363` |
 | **Sam** | Senior Volunteer | 2 | `volunteer2@demo.com` | `password123` | `df7e163a-610c-4451-b5c9-d703b45ca11b` |
 | **Jordan** | Volunteer / Bystander | 1 | `user@demo.com` | `password123` | `346dbaf9-0d06-4931-989e-75e0047a3baa` |

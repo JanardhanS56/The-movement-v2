@@ -37,13 +37,13 @@ describe("Phase 8: Profile and Impact Ledger Integrity Tests", () => {
     expect(t2Ledger.some((e) => e.task_title === "Emergency Medical Camp Setup")).toBe(true)
     expect(t2Stats.impactPoints).toBe(150)
 
-    // Tier 3: Priya Rao
-    const tier3User = SEED_USERS.find((u) => u.tier === 3 && u.display_name === "Priya Rao")!
+    // Tier 3: Janardhan
+    const tier3User = SEED_USERS.find((u) => u.tier === 3 && u.display_name === "Janardhan")!
     const t3Profile = await api.getUserProfile(tier3User.id)
     const t3Stats = await api.getUserStats(tier3User.id)
 
     expect(t3Profile.tier).toBe(3)
-    expect(t3Profile.display_name).toBe("Priya Rao")
+    expect(t3Profile.display_name).toBe("Janardhan")
     expect(t3Stats.announcementsSigned).toBeGreaterThanOrEqual(1)
   })
 
@@ -103,7 +103,7 @@ describe("Phase 8: Profile and Impact Ledger Integrity Tests", () => {
     expect(completedClaim.status).toBe("pending_verification")
 
     // Step 3: Tier 3 Organizer approves via override
-    const organizerId = "11111111-1111-4111-8111-111111111111" // Priya Rao
+    const organizerId = "11111111-1111-4111-8111-111111111111" // Janardhan
     const verifiedClaim = await api.organizerOverride(claim.id, organizerId, true, "Verified on site.")
     expect(verifiedClaim.status).toBe("verified")
 
@@ -113,7 +113,7 @@ describe("Phase 8: Profile and Impact Ledger Integrity Tests", () => {
     expect(updatedLedger[0].task_title).toBe(task.title)
     expect(updatedLedger[0].reward_points).toBe(task.reward_points)
     expect(updatedLedger[0].verification_method).toBe("organizer_override")
-    expect(updatedLedger[0].verified_by_detail).toContain("Verified by Priya Rao")
+    expect(updatedLedger[0].verified_by_detail).toContain("Verified by Janardhan")
 
     // Step 5: Verify points and badges are awarded
     const updatedStats = await api.getUserStats(volunteerId)
