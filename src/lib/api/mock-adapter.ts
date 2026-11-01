@@ -38,8 +38,9 @@ import {
 import { User, UserSchema } from "../schemas/user.schema"
 import { Badge, BadgeSchema } from "../schemas/badge.schema"
 import { ImpactLedgerEntry, ImpactLedgerEntrySchema } from "../schemas/impact-ledger.schema"
+import { uuidField } from "../schemas/common"
 
-const idSchema = z.string().uuid()
+const idSchema = uuidField
 
 export class MockApiAdapter implements ApiClient {
   public async getAnnouncements(movementId: string): Promise<Announcement[]> {

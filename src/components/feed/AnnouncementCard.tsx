@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ShieldAlert } from "lucide-react"
+import { Check, ShieldAlert, Sparkles } from "lucide-react"
 import { Announcement } from "@/lib/schemas/announcement.schema"
 import { AnnouncementSignature } from "@/lib/schemas/signature.schema"
 import { User } from "@/lib/schemas/user.schema"
@@ -21,6 +21,7 @@ export interface AnnouncementCardProps {
   currentUserId: string | null
   currentUserTier?: number
   onSign: (announcementId: string) => Promise<void> | void
+  onSimulateCoSign?: (announcementId: string) => Promise<void> | void
   isSigning?: boolean
 }
 
@@ -31,6 +32,7 @@ export function AnnouncementCard({
   currentUserId,
   currentUserTier,
   onSign,
+  onSimulateCoSign,
   isSigning = false,
 }: AnnouncementCardProps) {
   const [confirmOpen, setConfirmOpen] = React.useState(false)
@@ -52,9 +54,8 @@ export function AnnouncementCard({
   const handleConfirmSign = async () => {
     try {
       await onSign(announcement.id)
+    } finally {
       setConfirmOpen(false)
-    } catch {
-      // Handled by parent mutation toast
     }
   }
 
@@ -166,9 +167,9 @@ export function AnnouncementCard({
         </div>
       </CardContent>
 
-      {/* Card Footer with Sign Action (Visible ONLY for Tier 3 on Pending Items) */}
-      {!isPublished && isTier3 && (
-        <CardFooter className="pt-2 pb-4 border-t border-border/40 flex items-center justify-between gap-3">
+      {/* Card Footer with Sign & Simulation Actions (Visible on Pending Items) */}
+      {!isPublished && (
+        <CardFooter className="pt-2 pb-4 border-t border-border/40 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 text-xs text-sun">
             <ShieldAlert className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>
@@ -177,19 +178,15 @@ export function AnnouncementCard({
             </span>
           </div>
 
-          <div>
-            {hasSigned ? (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled
-                className="gap-1.5 text-xs text-muted-foreground border-border/80 cursor-not-allowed"
-                aria-label="You have already signed this announcement"
-              >
+          <div className="flex flex-wrap items-center gap-2">
+            {hasSigned && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-medium bg-muted text-muted-foreground border border-border/80">
                 <Check className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
                 <span>Signed by You</span>
-              </Button>
-            ) : (
+              </span>
+            )}
+
+            {!hasSigned && isTier3 && (
               <Button
                 variant="default"
                 size="sm"
@@ -199,6 +196,20 @@ export function AnnouncementCard({
                 className="text-xs"
               >
                 Sign Announcement
+              </Button>
+            )}
+
+            {onSimulateCoSign && signatures.length < announcement.required_signatures && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onSimulateCoSign(announcement.id)}
+                disabled={isSigning}
+                className="gap-1.5 text-xs border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-foreground"
+                aria-label="Simulate co-signature by another organizer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" aria-hidden="true" />
+                <span>Simulate Co-Sign</span>
               </Button>
             )}
           </div>

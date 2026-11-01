@@ -67,13 +67,35 @@ export function LeafletMap({
         0.6: "#FFB81C", // sun
         1.0: "#FF4D2E", // tomato
       },
-    }).addTo(map)
+    })
+
+    // Safely guard _redraw against unmounted map in animation frame
+    if ((heat as unknown as { _redraw?: () => void })._redraw) {
+      const origRedraw = (heat as unknown as { _redraw: () => void })._redraw.bind(heat)
+      ;(heat as unknown as { _redraw: () => void })._redraw = function () {
+        if (!(heat as unknown as { _map?: unknown })._map) return
+        try {
+          origRedraw()
+        } catch {
+          // Ignore redraw if map container was destroyed
+        }
+      }
+    }
+
+    heat.addTo(map)
 
     heatLayerRef.current = heat
     mapInstanceRef.current = map
 
     return () => {
-      map.remove()
+      try {
+        if (mapInstanceRef.current && heatLayerRef.current) {
+          mapInstanceRef.current.removeLayer(heatLayerRef.current)
+        }
+        map.remove()
+      } catch {
+        // Safe cleanup
+      }
       mapInstanceRef.current = null
       heatLayerRef.current = null
       userMarkerRef.current = null
@@ -83,7 +105,7 @@ export function LeafletMap({
 
   // 2. Update heat layer with setLatLngs on points change (Do NOT recreate)
   React.useEffect(() => {
-    if (!heatLayerRef.current) return
+    if (!heatLayerRef.current || !mapInstanceRef.current) return
 
     const heatData: Array<[number, number, number]> = points.map((p) => [
       p.lat,
@@ -91,7 +113,11 @@ export function LeafletMap({
       p.intensity,
     ])
 
-    heatLayerRef.current.setLatLngs(heatData)
+    try {
+      heatLayerRef.current.setLatLngs(heatData)
+    } catch {
+      // Safe update
+    }
   }, [points])
 
   // 3. User's Own Dot: Show ONLY current user's dot immediately
