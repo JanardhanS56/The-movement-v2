@@ -226,3 +226,4 @@ GRANT SELECT ON public.tasks TO anon;
 GRANT SELECT ON public.users TO anon;
 GRANT SELECT ON public.movements TO anon;
 GRANT SELECT ON public.check_ins TO anon;
+

@@ -40,3 +40,4 @@ CREATE TRIGGER on_profile_handle_sync
   AFTER INSERT OR UPDATE OF username ON public.profiles
   FOR EACH ROW
   EXECUTE FUNCTION public.sync_handle_from_profile();
+
