@@ -76,16 +76,16 @@ export function VerifyTaskDialog({
       <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-xs text-[11px] tabular-nums font-semibold tracking-wide uppercase bg-primary/10 text-primary border border-primary/25">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs text-xs tabular-nums font-bold bg-lime text-ink border border-ink">
               <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-              Demo: Peer Verification Protocol
+              Demo: peer verification protocol
             </span>
           </div>
           <DialogTitle className="text-lg font-bold">
-            Verify Task: {task.title}
+            Verify task: {task.title}
           </DialogTitle>
           <DialogDescription>
-            Decentralized consensus verification. Reaching {VERIFICATION_RULES.approvalThreshold} of{" "}
+            Peer verification. Reaching {VERIFICATION_RULES.approvalThreshold} of{" "}
             {VERIFICATION_RULES.requiredVerifiers} peer approvals confirms completion and awards{" "}
             {task.reward_points} PTS.
           </DialogDescription>
@@ -94,8 +94,8 @@ export function VerifyTaskDialog({
         <div className="space-y-5 py-2 text-sm">
           {/* Claimant Completion Summary */}
           <div className="p-3.5 rounded-md bg-muted/30 border border-border/80 space-y-2">
-            <div className="text-xs tabular-nums text-muted-foreground uppercase tracking-wider">
-              Completed Claim Submission
+            <div className="text-xs tabular-nums text-muted-foreground font-semibold">
+              Completed claim submission
             </div>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
@@ -124,7 +124,7 @@ export function VerifyTaskDialog({
             {claim.note && (
               <div className="pt-2 text-xs text-foreground/90 bg-background/60 p-2.5 rounded-sm border border-border/40">
                 <span className="font-medium text-muted-foreground block mb-0.5">
-                  Claimant Notes:
+                  Claimant notes:
                 </span>
                 {claim.note}
               </div>
@@ -134,11 +134,11 @@ export function VerifyTaskDialog({
           {/* Assigned Verifiers Consensus Status */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs tabular-nums">
-              <span className="font-semibold text-foreground uppercase tracking-wider">
-                Assigned Peer Verifiers ({verifications.length})
+              <span className="font-semibold text-foreground">
+                Assigned peer verifiers ({verifications.length})
               </span>
               <span className="text-primary font-medium">
-                {approvalsCount} / {VERIFICATION_RULES.approvalThreshold} Approvals Required
+                {approvalsCount} of {VERIFICATION_RULES.approvalThreshold} approvals required
               </span>
             </div>
 
@@ -161,7 +161,7 @@ export function VerifyTaskDialog({
                       <UserAvatar
                         name={verifierUser.display_name}
                         avatarUrl={verifierUser.avatar_url}
-                        className="h-6 w-6 text-[10px]"
+                        className="h-6 w-6 text-xs"
                       />
                       <span className="font-medium truncate text-foreground">
                         {verifierUser.display_name}
@@ -169,13 +169,13 @@ export function VerifyTaskDialog({
                       <TierBadge tier={verifierUser.tier} />
                     </div>
 
-                    <div className="shrink-0 tabular-nums text-[11px]">
-                      {v.vote === "approve" && (
-                        <span className="inline-flex items-center gap-1 text-lime font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-                          Approved
-                        </span>
-                      )}
+                      <div className="shrink-0 tabular-nums text-xs">
+                        {v.vote === "approve" && (
+                          <span className="inline-flex items-center gap-1 bg-lime text-ink px-2 py-0.5 rounded-sm font-bold text-xs border border-ink">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-ink" aria-hidden="true" />
+                            Approved
+                          </span>
+                        )}
                       {v.vote === "reject" && (
                         <span className="inline-flex items-center gap-1 text-destructive font-medium">
                           <XCircle className="w-3.5 h-3.5" aria-hidden="true" />

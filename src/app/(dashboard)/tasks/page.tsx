@@ -4,7 +4,7 @@ import * as React from "react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { Bug, CheckCircle2, Clock, Compass, Filter } from "lucide-react"
+import { CheckCircle2, Clock, Compass, Filter } from "lucide-react"
 import { api } from "@/lib/api"
 import { QueryKeys } from "@/lib/query-keys"
 import { useAuth } from "@/components/providers/AuthProvider"
@@ -18,45 +18,42 @@ import { ErrorAlert } from "@/components/shared/ErrorAlert"
 import { TaskSkeleton } from "@/components/tasks/TaskSkeleton"
 import { TaskCard } from "@/components/tasks/TaskCard"
 import { PostTaskDialog, PostTaskFormData } from "@/components/tasks/PostTaskDialog"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type TaskFilter = "all" | "open" | "in_progress" | "completed"
 
 const FILTER_OPTIONS: { id: TaskFilter; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "all", label: "All Tasks", icon: Filter },
+  { id: "all", label: "All tasks", icon: Filter },
   { id: "open", label: "Open", icon: Compass },
-  { id: "in_progress", label: "In Progress", icon: Clock },
+  { id: "in_progress", label: "In progress", icon: Clock },
   { id: "completed", label: "Completed", icon: CheckCircle2 },
 ]
 
 const EMPTY_STATES: Record<TaskFilter, { title: string; description: string }> = {
   all: {
-    title: "No Tasks Found",
+    title: "No tasks found",
     description: "No tasks found in this movement.",
   },
   open: {
-    title: "No Open Tasks",
+    title: "No open tasks",
     description: "No open tasks available to claim right now.",
   },
   in_progress: {
-    title: "No Active Tasks",
+    title: "No active tasks",
     description: "No tasks are currently in progress.",
   },
   completed: {
-    title: "No Completed Tasks",
+    title: "No completed tasks",
     description: "No completed tasks on record yet.",
   },
 }
 
 function TasksContent() {
-  const { user, movementId } = useAuth()
+  const { user, movementId, simulateFailure } = useAuth()
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
   const queryClient = useQueryClient()
-
-  const [simulateFailure, setSimulateFailure] = React.useState(false)
 
   // URL search params filter binding
   const currentFilter: TaskFilter = React.useMemo(() => {
@@ -358,27 +355,13 @@ function TasksContent() {
   const isTier3 = user?.tier === 3
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+    <div className="space-y-12 max-w-5xl mx-auto pb-16">
       {/* Page Header */}
       <PageHeader
-        title="Bounty Board"
-        description="Community tasks and operational missions verified through decentralized peer consensus."
+        title="Community tasks"
+        description="Community tasks verified by organizers and volunteers."
         action={
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Simulation Toggle */}
-            <Button
-              variant={simulateFailure ? "destructive" : "outline"}
-              size="sm"
-              onClick={() => setSimulateFailure((prev) => !prev)}
-              className="text-xs gap-1.5 h-8"
-              aria-label="Toggle mutation simulated failure"
-            >
-              <Bug className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>
-                {simulateFailure ? "Simulated Failure: ON" : "Simulate Failure: OFF"}
-              </span>
-            </Button>
-
+          <div className="flex flex-wrap items-center gap-3">
             {/* Tier 3: Post Task Dialog */}
             {isTier3 && (
               <PostTaskDialog
@@ -395,7 +378,7 @@ function TasksContent() {
 
       {/* Filter Chips Bar (Stored in URL with useSearchParams) */}
       <section aria-label="Task status filters" className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           {FILTER_OPTIONS.map((option) => {
             const isActive = currentFilter === option.id
             const Icon = option.icon
@@ -407,13 +390,13 @@ function TasksContent() {
                 onClick={() => handleFilterChange(option.id)}
                 aria-pressed={isActive}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-colors border outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-sm text-sm font-bold transition-all border-2 border-ink outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   isActive
-                    ? "bg-primary text-primary-foreground border-primary font-semibold shadow-xs"
-                    : "bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+                    ? "bg-cobalt text-white shadow-hard-xs"
+                    : "bg-white text-ink hover:bg-ivory shadow-xs"
                 )}
               >
-                <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+                <Icon className="w-4 h-4" aria-hidden="true" />
                 <span>{option.label}</span>
               </button>
             )
@@ -437,7 +420,7 @@ function TasksContent() {
         />
       )}
 
-      {/* Tasks Grid: 2 columns from 768px, 1 below */}
+      {/* Tasks Ledger: Ruled full-width rows with 24px gap */}
       {!tasksLoading && !tasksError && (
         <div>
           {filteredTasks.length === 0 ? (
@@ -446,7 +429,7 @@ function TasksContent() {
               description={EMPTY_STATES[currentFilter].description}
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
               {filteredTasks.map((task) => {
                 const claim = claimsByTaskId[task.id]
                 const taskVerifications = claim ? verificationsByClaimId[claim.id] || [] : []

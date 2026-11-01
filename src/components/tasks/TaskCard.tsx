@@ -2,27 +2,21 @@
 
 import * as React from "react"
 import {
-  Compass,
-  PlayCircle,
-  ShieldAlert,
-  ShieldCheck,
   CheckCircle2,
-  XCircle,
-  Award,
   Users,
   ChevronDown,
   ChevronUp,
+  ShieldCheck,
 } from "lucide-react"
 import { Task } from "@/lib/schemas/task.schema"
 import { TaskClaim } from "@/lib/schemas/task.schema"
 import { PeerVerification } from "@/lib/schemas/verification.schema"
 import { User } from "@/lib/schemas/user.schema"
-import { formatDateTime } from "@/lib/date"
-import { cn } from "@/lib/utils"
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
+import { formatCleanDateTime, formatDateTime } from "@/lib/date"
 import { Button } from "@/components/ui/button"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { TierBadge } from "@/components/shared/TierBadge"
+import { StatusLabel } from "@/components/shared/StatusLabel"
 import { VerifyTaskDialog } from "./VerifyTaskDialog"
 
 export interface TaskCardProps {
@@ -75,107 +69,70 @@ export function TaskCard({
   )
   const canVerify = (isAssignedVerifier && !isClaimant) || isTier3
 
-  // Status Badge Helper
-  const renderStatusBadge = () => {
-    switch (task.status) {
-      case "open":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-primary/10 text-primary border border-primary/25">
-            <Compass className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Open</span>
-          </span>
-        )
-      case "in_progress":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-sun/20 text-sun border border-sun/40">
-            <PlayCircle className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>In Progress</span>
-          </span>
-        )
-      case "pending_verification":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-accent/20 text-accent border border-accent/35">
-            <ShieldAlert className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Pending Verification</span>
-          </span>
-        )
-      case "completed":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-lime/20 text-lime border border-lime/40">
-            <CheckCircle2 className="w-3.5 h-3.5 text-lime" aria-hidden="true" />
-            <span className="font-semibold uppercase tracking-wider text-[11px]">Completed</span>
-          </span>
-        )
-      case "cancelled":
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-muted text-muted-foreground border border-border">
-            <XCircle className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Cancelled</span>
-          </span>
-        )
-      default:
-        return null
-    }
+  // Determine if this task needs the current user's action
+  const needsYou =
+    (isInProgress && isClaimant) ||
+    (isPendingVerification && canVerify)
+
+  // Status strip color on the left
+  const getStatusStripClass = () => {
+    if (needsYou) return "border-l-8 border-l-tomato"
+    if (isCompleted) return "border-l-8 border-l-lime"
+    if (isPendingVerification) return "border-l-8 border-l-lavender"
+    if (isInProgress) return "border-l-8 border-l-sun"
+    return "border-l-8 border-l-cobalt"
   }
 
-  // Visual variety styling based on density and completion
-  const cardBorderClasses = isCompleted
-    ? "border-l-4 border-l-lime bg-muted/25 border-t border-r border-b border-border/70"
-    : isPendingVerification
-    ? "border-l-4 border-l-accent bg-card border-t border-r border-b border-border/80"
-    : isInProgress
-    ? "border-l-4 border-l-sun bg-card border-t border-r border-b border-border/80"
-    : "border-l-4 border-l-primary/60 bg-card border-t border-r border-b border-border/80"
-
-  const hasLongDescription = (task.description?.length || 0) > 85
+  const cleanCreatedTime = formatCleanDateTime(task.created_at)
+  const exactCreatedTime = formatDateTime(task.created_at)
+  const hasLongDescription = (task.description?.length || 0) > 90
 
   return (
-    <Card
-      className={cn(
-        "text-card-foreground shadow-sm transition-all duration-150 flex flex-col justify-between overflow-hidden",
-        cardBorderClasses
-      )}
+    <article
+      aria-labelledby={`task-${task.id}-title`}
+      className={`p-6 bg-white border-2 border-ink shadow-hard-sm transition-all ${getStatusStripClass()} ${
+        needsYou ? "ring-2 ring-tomato" : ""
+      }`}
     >
-      <div>
-        <CardHeader className="pb-3 space-y-2.5">
-          {/* Header row: Status badge + Reward points */}
-          <div className="flex items-center justify-between gap-3">
-            {renderStatusBadge()}
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+        {/* Left Side: Status, Title, Description, Claimant */}
+        <div className="flex-1 space-y-3 min-w-0">
+          {/* Status Label + Optional Needs You Badge */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <StatusLabel status={task.status} />
 
-            {/* Reward Points Badge */}
-            <span
-              className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tabular-nums font-bold border",
-                task.reward_points >= 60
-                  ? "bg-primary/20 text-primary border-primary/40 shadow-xs"
-                  : "bg-muted/80 text-foreground/90 border-border"
-              )}
+            {needsYou && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm bg-tomato text-white border border-ink text-xs font-bold shadow-hard-xs animate-pulse">
+                Needs you
+              </span>
+            )}
+
+            <time
+              dateTime={task.created_at}
+              title={exactCreatedTime}
+              className="text-xs text-ink/60 font-semibold cursor-help ml-auto md:ml-0"
             >
-              <Award className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
-              <span>+{task.reward_points} PTS</span>
-            </span>
+              {cleanCreatedTime}
+            </time>
           </div>
 
           {/* Task Title */}
           <h3
-            className={cn(
-              "font-bold text-base sm:text-lg tracking-tight",
-              isCompleted ? "text-foreground/90 line-through decoration-muted-foreground/60" : "text-foreground"
-            )}
+            id={`task-${task.id}-title`}
+            className={`text-lg md:text-xl font-black tracking-tight font-sans text-ink ${
+              isCompleted ? "line-through text-ink/60" : ""
+            }`}
           >
             {task.title}
           </h3>
-        </CardHeader>
 
-        <CardContent className="space-y-3 pt-0 pb-3">
-          {/* 2-line Description with 'Read more' toggle */}
+          {/* Expandable Description */}
           {task.description && (
             <div className="space-y-1">
               <p
-                className={cn(
-                  "text-xs sm:text-sm text-muted-foreground leading-relaxed",
-                  !isExpanded && hasLongDescription && "line-clamp-2"
-                )}
+                className={`text-sm text-ink/80 leading-relaxed max-w-prose ${
+                  !isExpanded && hasLongDescription ? "line-clamp-2" : ""
+                }`}
               >
                 {task.description}
               </p>
@@ -183,53 +140,37 @@ export function TaskCard({
                 <button
                   type="button"
                   onClick={() => setIsExpanded((prev) => !prev)}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-cobalt hover:underline focus:outline-none"
                 >
                   <span>{isExpanded ? "Show less" : "Read more"}</span>
                   {isExpanded ? (
-                    <ChevronUp className="w-3 h-3" aria-hidden="true" />
+                    <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
                   ) : (
-                    <ChevronDown className="w-3 h-3" aria-hidden="true" />
+                    <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
                   )}
                 </button>
               )}
             </div>
           )}
 
-          {/* Distinct Ledger-Row Treatment for Completed Tasks */}
-          {isCompleted && (
-            <div className="p-2.5 rounded-sm bg-background/50 border border-lime/40 text-xs tabular-nums space-y-1">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="uppercase text-[11px] text-lime font-semibold">
-                  Verification Ledger Stamped
-                </span>
-                <span>{formatDateTime(claim?.verified_at || task.created_at)}</span>
-              </div>
-              <p className="text-[11px] text-foreground/80">
-                Reward points credited to claimant impact profile.
-              </p>
-            </div>
-          )}
-
-          {/* Claimant / Volunteers info row */}
-          <div className="pt-2 flex items-center justify-between gap-3 text-xs border-t border-border/40">
+          {/* Claimant / Creator info row */}
+          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs border-t border-ink/10 text-ink/70">
             {claimant ? (
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-ink/60">Claimant:</span>
                 <UserAvatar
                   name={claimant.display_name}
                   avatarUrl={claimant.avatar_url}
-                  className="h-6 w-6 text-[10px]"
+                  className="h-6 w-6 text-xs"
                 />
-                <div className="min-w-0 flex items-center gap-1.5 truncate">
-                  <span className="font-medium text-foreground truncate">
-                    {claimant.display_name}
-                  </span>
-                  <TierBadge tier={claimant.tier} />
-                </div>
+                <span className="font-bold text-ink truncate max-w-[140px]">
+                  {claimant.display_name}
+                </span>
+                <TierBadge tier={claimant.tier} />
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Users className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+              <div className="flex items-center gap-1.5 font-semibold">
+                <Users className="w-4 h-4 text-cobalt shrink-0" aria-hidden="true" />
                 <span>
                   {task.required_volunteers} volunteer slot
                   {task.required_volunteers === 1 ? "" : "s"}
@@ -237,109 +178,117 @@ export function TaskCard({
               </div>
             )}
 
-            <span className="text-[11px] tabular-nums text-muted-foreground shrink-0">
-              {formatDateTime(task.created_at)}
-            </span>
+            {isCreator && (
+              <span className="text-xs text-ink/50 font-medium italic">
+                Created by you
+              </span>
+            )}
           </div>
-        </CardContent>
+        </div>
+
+        {/* Right Side: Giant Points Numeral & Exactly ONE Action */}
+        <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 shrink-0 border-t md:border-t-0 pt-4 md:pt-0 border-ink/10">
+          {/* Giant Points Numeral */}
+          <div className="text-right">
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl md:text-4xl font-black tabular-nums text-ink font-sans tracking-tight">
+                +{task.reward_points}
+              </span>
+              <span className="text-xs font-bold text-ink/60">pts</span>
+            </div>
+            <div className="text-xs font-semibold text-ink/50 hidden md:block">
+              reward score
+            </div>
+          </div>
+
+          {/* ONE Action Button / Stamp */}
+          <div className="flex items-center justify-end">
+            {/* State 1: Open task -> Claim */}
+            {isOpen && (
+              <>
+                {isCreator ? (
+                  <span className="text-xs text-ink/50 font-medium italic">
+                    Created by you
+                  </span>
+                ) : isClaimant ? (
+                  <span className="text-xs text-ink/70 font-bold bg-ivory px-3 py-1.5 rounded-sm border border-ink">
+                    Claimed by you
+                  </span>
+                ) : (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => onClaim(task.id)}
+                    loading={isClaiming}
+                    disabled={isClaiming}
+                    className="text-xs font-bold bg-lime text-ink border-2 border-ink shadow-hard-sm hover:bg-lime/90 hover:shadow-hard px-4 h-9"
+                  >
+                    Claim task
+                  </Button>
+                )}
+              </>
+            )}
+
+            {/* State 2: In progress task -> Mark Complete */}
+            {isInProgress && (
+              <>
+                {isClaimant && claim ? (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => onMarkComplete(claim.id)}
+                    loading={isCompleting}
+                    disabled={isCompleting}
+                    className="text-xs font-bold bg-lime text-ink border-2 border-ink shadow-hard-sm hover:bg-lime/90 hover:shadow-hard gap-2 px-4 h-9"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-ink" aria-hidden="true" />
+                    <span>Mark complete</span>
+                  </Button>
+                ) : (
+                  <span className="text-xs font-semibold text-ink/70 bg-ivory px-3 py-1.5 rounded-sm border border-ink">
+                    In progress by volunteer
+                  </span>
+                )}
+              </>
+            )}
+
+            {/* State 3: Pending verification -> Verify */}
+            {isPendingVerification && claim && (
+              <>
+                {canVerify ? (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => setVerifyOpen(true)}
+                    loading={isVerifying}
+                    disabled={isVerifying}
+                    className="text-xs font-bold bg-lime text-ink border-2 border-ink shadow-hard-sm hover:bg-lime/90 hover:shadow-hard gap-2 px-4 h-9"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-ink" aria-hidden="true" />
+                    <span>Verify task</span>
+                  </Button>
+                ) : isClaimant ? (
+                  <span className="text-xs font-bold text-ink bg-sun px-3 py-1.5 rounded-sm border-2 border-ink shadow-hard-xs">
+                    Awaiting peer verifiers
+                  </span>
+                ) : (
+                  <span className="text-xs font-semibold text-ink/70 bg-ivory px-3 py-1.5 rounded-sm border border-ink">
+                    Peer review in progress
+                  </span>
+                )}
+              </>
+            )}
+
+            {/* State 4: Completed -> Verified stamp */}
+            {isCompleted && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-lime text-ink border-2 border-ink shadow-hard-xs text-xs font-bold">
+                <CheckCircle2 className="w-4 h-4 text-ink shrink-0" aria-hidden="true" />
+                <span>Verified & credited</span>
+              </span>
+            )}
+          </div>
+        </div>
       </div>
-
-      {/* Primary Action Button */}
-      <CardFooter className="pt-2 pb-4 border-t border-border/40 flex items-center justify-end gap-2">
-        {/* State 1: Open task -> Claim */}
-        {isOpen && (
-          <div>
-            {isCreator ? (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled
-                className="text-xs opacity-75 cursor-not-allowed"
-              >
-                Created by You
-              </Button>
-            ) : isClaimant ? (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled
-                className="text-xs opacity-75 cursor-not-allowed"
-              >
-                Already Claimed
-              </Button>
-            ) : (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => onClaim(task.id)}
-                loading={isClaiming}
-                disabled={isClaiming}
-                className="text-xs"
-              >
-                Claim Task
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* State 2: In progress task -> Mark Complete (current claimant only) */}
-        {isInProgress && (
-          <div>
-            {isClaimant && claim ? (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => onMarkComplete(claim.id)}
-                loading={isCompleting}
-                disabled={isCompleting}
-                className="text-xs gap-1.5"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Mark Complete</span>
-              </Button>
-            ) : (
-              <span className="text-xs text-muted-foreground tabular-nums">
-                Assigned to volunteer
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* State 3: Pending verification -> Verify (verifier or Tier 3) */}
-        {isPendingVerification && claim && (
-          <div>
-            {canVerify ? (
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setVerifyOpen(true)}
-                loading={isVerifying}
-                disabled={isVerifying}
-                className="text-xs gap-1.5"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Verify Task</span>
-              </Button>
-            ) : isClaimant ? (
-              <span className="text-xs text-sun tabular-nums">
-                Awaiting peer verifiers
-              </span>
-            ) : (
-              <span className="text-xs text-muted-foreground tabular-nums">
-                Peer review in progress
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* State 4: Completed -> Verified stamp */}
-        {isCompleted && (
-          <span className="inline-flex items-center gap-1 text-xs text-lime tabular-nums font-medium">
-            <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-            Verified & Credited
-          </span>
-        )}
-      </CardFooter>
 
       {/* Verification Dialog */}
       {claim && (
@@ -363,6 +312,6 @@ export function TaskCard({
           isPending={isVerifying}
         />
       )}
-    </Card>
+    </article>
   )
 }

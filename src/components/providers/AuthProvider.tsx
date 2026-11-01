@@ -30,6 +30,12 @@ export interface AuthContextType {
   signOut: () => void
   switchDemoUser: (userId: string) => void
   resetDemoData: () => void
+  simulateFailure: boolean
+  setSimulateFailure: React.Dispatch<React.SetStateAction<boolean>>
+  isDemoDrawerOpen: boolean
+  setIsDemoDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>
+  openDemoDrawer: () => void
+  closeDemoDrawer: () => void
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
@@ -40,6 +46,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   // In-memory demo user session (defaults to Priya Rao)
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(DEFAULT_DEMO_USER_ID)
+  const [simulateFailure, setSimulateFailure] = React.useState(false)
+  const [isDemoDrawerOpen, setIsDemoDrawerOpen] = React.useState(false)
+
+  const openDemoDrawer = React.useCallback(() => setIsDemoDrawerOpen(true), [])
+  const closeDemoDrawer = React.useCallback(() => setIsDemoDrawerOpen(false), [])
 
   const user = React.useMemo(() => {
     if (!currentUserId) return null
@@ -78,8 +89,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signOut,
       switchDemoUser,
       resetDemoData,
+      simulateFailure,
+      setSimulateFailure,
+      isDemoDrawerOpen,
+      setIsDemoDrawerOpen,
+      openDemoDrawer,
+      closeDemoDrawer,
     }),
-    [user, signIn, signOut, switchDemoUser, resetDemoData]
+    [
+      user,
+      signIn,
+      signOut,
+      switchDemoUser,
+      resetDemoData,
+      simulateFailure,
+      isDemoDrawerOpen,
+      openDemoDrawer,
+      closeDemoDrawer,
+    ]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
