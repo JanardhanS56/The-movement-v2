@@ -1,9 +1,12 @@
 import { z } from "zod"
 
+const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+const uuidField = z.string().regex(uuidPattern, "Invalid UUID")
+
 export const CheckInSchema = z.object({
-  id: z.string().uuid(),
-  movement_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  id: uuidField,
+  movement_id: uuidField,
+  user_id: uuidField,
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   accuracy: z.number().optional(),
@@ -13,7 +16,7 @@ export const CheckInSchema = z.object({
 export type CheckIn = z.infer<typeof CheckInSchema>
 
 export const CreateCheckInSchema = z.object({
-  movement_id: z.string().uuid(),
+  movement_id: uuidField,
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   accuracy: z.number().optional(),

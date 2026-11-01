@@ -8,7 +8,7 @@ import { AggregatedCheckInPoint, CheckIn } from "../schemas/check-in.schema"
 import { Badge } from "../schemas/badge.schema"
 import { ImpactLedgerEntry } from "../schemas/impact-ledger.schema"
 
-export const SEED_MOVEMENT_ID = "00000000-0000-0000-0000-000000000001"
+export const SEED_MOVEMENT_ID = "00000000-0000-4000-8000-000000000001"
 
 export const SEED_MOVEMENT: Movement = {
   id: SEED_MOVEMENT_ID,

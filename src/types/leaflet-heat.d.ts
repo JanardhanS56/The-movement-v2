@@ -16,10 +16,21 @@ declare module 'leaflet' {
     gradient?: Record<number, string>
   }
 
+  export interface HeatLayer extends Layer {
+    setLatLngs(
+      latlngs: Array<[number, number, number?] | [number, number] | HeatLatLngTuple>
+    ): this
+    addLatLng(
+      latlng: [number, number, number?] | [number, number] | HeatLatLngTuple
+    ): this
+    setOptions(options: HeatMapOptions): this
+    redraw(): this
+  }
+
   export function heatLayer(
     latlngs: Array<[number, number, number?] | [number, number] | HeatLatLngTuple>,
     options?: HeatMapOptions
-  ): Layer
+  ): HeatLayer
 }
 
 declare module 'leaflet.heat'

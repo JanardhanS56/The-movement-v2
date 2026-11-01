@@ -168,7 +168,7 @@ export class MockApiAdapter implements ApiClient {
 
   public async checkIn(input: CreateCheckInInput, userId: string): Promise<CheckIn> {
     const validatedInput = CreateCheckInSchema.parse(input)
-    z.string().uuid().parse(userId)
+    z.string().min(1).parse(userId)
     const raw = mockStore.checkIn(validatedInput, userId)
     return CheckInSchema.parse(raw)
   }
