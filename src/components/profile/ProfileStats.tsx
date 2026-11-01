@@ -26,7 +26,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
             </span>
             <CheckSquare className="h-4 w-4 text-primary" aria-hidden="true" />
           </div>
-          <div className="text-2xl font-bold font-mono text-foreground">
+          <div className="text-2xl font-bold tabular-nums text-foreground">
             {stats.tasksCompleted}
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
@@ -42,7 +42,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
             </span>
             <Megaphone className="h-4 w-4 text-caution" aria-hidden="true" />
           </div>
-          <div className="text-2xl font-bold font-mono text-foreground">
+          <div className="text-2xl font-bold tabular-nums text-foreground">
             {stats.announcementsSigned}
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
@@ -58,7 +58,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
             </span>
             <MapPin className="h-4 w-4 text-verified" aria-hidden="true" />
           </div>
-          <div className="text-2xl font-bold font-mono text-foreground">
+          <div className="text-2xl font-bold tabular-nums text-foreground">
             {stats.checkInsCount}
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground">
@@ -75,7 +75,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
               </span>
               <Zap className="h-4 w-4 text-primary fill-primary/20" aria-hidden="true" />
             </div>
-            <div className="text-2xl font-bold font-mono text-primary-light">
+            <div className="text-2xl font-bold tabular-nums text-primary-light">
               +{stats.impactPoints}
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">

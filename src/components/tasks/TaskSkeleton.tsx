@@ -19,7 +19,7 @@ export function TaskSkeleton() {
             key={index}
             className={`border bg-card shadow-sm transition-all ${
               isCompletedLedger
-                ? "border-l-4 border-l-emerald-500/40 bg-muted/20"
+                ? "border-l-4 border-l-lime bg-muted/20"
                 : "border-border/80"
             }`}
           >

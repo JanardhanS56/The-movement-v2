@@ -63,10 +63,9 @@ export function LeafletMap({
       maxZoom: 16,
       max: 1.0,
       gradient: {
-        0.2: "#0284c7",
-        0.5: "#eab308",
-        0.8: "#f97316",
-        1.0: "#ef4444",
+        0.2: "#D4FF24", // lime
+        0.6: "#FFB81C", // sun
+        1.0: "#FF4D2E", // tomato
       },
     }).addTo(map)
 
@@ -109,10 +108,10 @@ export function LeafletMap({
     if (userCheckIn) {
       // Distinct beacon circle for user's own check-in
       const marker = L.circleMarker([userCheckIn.lat, userCheckIn.lng], {
-        radius: 9,
-        color: "#2563eb",
-        fillColor: "#38bdf8",
-        fillOpacity: 0.95,
+        radius: 10,
+        color: "#0047FF",
+        fillColor: "#D4FF24",
+        fillOpacity: 1.0,
         weight: 3,
       })
         .bindPopup(

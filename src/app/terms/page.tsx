@@ -50,7 +50,7 @@ export default function TermsPage() {
         <header className="border-b border-border pb-6 space-y-3">
           <div className="flex items-center gap-2">
             <Scale className="h-6 w-6 text-primary" aria-hidden="true" />
-            <span className="font-mono text-xs uppercase tracking-widest text-primary-light">
+            <span className="tabular-nums text-xs uppercase tracking-widest text-primary-light">
               Terms of Engagement
             </span>
           </div>
@@ -58,7 +58,7 @@ export default function TermsPage() {
             Terms of Service (Draft)
           </h1>
           <p className="text-sm text-muted-foreground">
-            Effective Date: <span className="font-mono text-foreground font-semibold">[EFFECTIVE_DATE]</span> | Jurisdiction: <span className="font-mono text-foreground font-semibold">[LEGAL_JURISDICTION]</span>
+            Effective Date: <span className="tabular-nums text-foreground font-semibold">[EFFECTIVE_DATE]</span> | Jurisdiction: <span className="tabular-nums text-foreground font-semibold">[LEGAL_JURISDICTION]</span>
           </p>
         </header>
 
@@ -71,7 +71,7 @@ export default function TermsPage() {
             </h2>
             <p>
               By accessing or using the platform provided by <strong className="text-foreground">[LEGAL_ENTITY_NAME]</strong>, located at{" "}
-              <span className="font-mono text-xs text-foreground bg-secondary px-1.5 py-0.5 rounded-sm">
+              <span className="tabular-nums text-xs text-foreground bg-secondary px-1.5 py-0.5 rounded-sm">
                 [PHYSICAL_MAILING_ADDRESS]
               </span>{" "}
               (&quot;The Movement&quot;, &quot;we&quot;, &quot;us&quot;), you agree to be bound by these Terms of Service subject to the jurisdiction of{" "}
@@ -142,7 +142,7 @@ export default function TermsPage() {
             <div className="p-4 rounded-md border border-border bg-card flex items-center gap-3">
               <Mail className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
               <div>
-                <p className="text-xs text-muted-foreground font-mono">
+                <p className="text-xs text-muted-foreground tabular-nums">
                   Placeholder: [LEGAL_CONTACT_EMAIL]
                 </p>
                 <a

@@ -336,11 +336,11 @@ export default function FeedPage() {
           {isTier3 && pendingAnnouncements.length > 0 && (
             <section
               aria-labelledby="pending-signatures-heading"
-              className="space-y-4 p-4 sm:p-5 rounded-lg border border-amber-500/30 bg-amber-500/5 shadow-xs"
+              className="space-y-4 p-4 sm:p-5 rounded-lg border border-sun/40 bg-sun/20 shadow-xs"
             >
-              <div className="flex items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
+              <div className="flex items-center justify-between gap-3 border-b border-sun/40 pb-3">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" aria-hidden="true" />
+                  <AlertTriangle className="w-5 h-5 text-sun shrink-0" aria-hidden="true" />
                   <h2
                     id="pending-signatures-heading"
                     className="text-base sm:text-lg font-bold tracking-tight text-foreground"
@@ -348,7 +348,7 @@ export default function FeedPage() {
                     Pending Signatures ({pendingAnnouncements.length})
                   </h2>
                 </div>
-                <span className="text-xs font-mono text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-sm border border-amber-500/30">
+                <span className="text-xs tabular-nums text-sun bg-sun/20 px-2 py-0.5 rounded-sm border border-sun/40">
                   Organizer Action Required
                 </span>
               </div>
@@ -394,7 +394,7 @@ export default function FeedPage() {
                   Published Dispatches
                 </h2>
               </div>
-              <span className="text-xs font-mono text-muted-foreground">
+              <span className="text-xs tabular-nums text-muted-foreground">
                 {publishedAnnouncements.length} Verified Dispatch
                 {publishedAnnouncements.length === 1 ? "" : "es"}
               </span>

@@ -9,8 +9,8 @@ export function MapSkeleton() {
       aria-label="Loading geographic heatmap"
       className="w-full h-[560px] min-h-[500px] rounded-md border border-border/80 bg-card/60 p-4 relative flex flex-col items-center justify-center space-y-4 overflow-hidden"
     >
-      {/* Background grid texture representing map tiles */}
-      <div className="absolute inset-0 opacity-15 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]" />
+      {/* Flat texture representing map grid */}
+      <div className="absolute inset-0 bg-muted/30" />
 
       <div className="relative z-10 flex flex-col items-center space-y-3">
         <div className="p-3 rounded-full bg-primary/10 border border-primary/20 text-primary animate-pulse">

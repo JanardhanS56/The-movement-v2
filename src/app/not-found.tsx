@@ -18,7 +18,7 @@ export default function NotFound() {
 
         {/* Heading hierarchy: single h1 */}
         <div className="space-y-2">
-          <p className="font-mono text-xs font-semibold uppercase tracking-widest text-primary-light">
+          <p className="tabular-nums text-xs font-semibold uppercase tracking-widest text-primary-light">
             Status Code 404
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">

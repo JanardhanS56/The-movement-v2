@@ -112,7 +112,7 @@ export default function LandingPage() {
             Terms of Service
           </Link>
         </div>
-        <p className="font-mono text-[11px]">DEMO ENVIRONMENT</p>
+        <p className="tabular-nums text-[11px]">DEMO ENVIRONMENT</p>
       </footer>
     </div>
   )

@@ -20,7 +20,7 @@ export function ImpactLedger({ entries }: ImpactLedgerProps) {
             Impact Ledger
           </h3>
         </div>
-        <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground border border-border">
+        <span className="text-xs tabular-nums font-medium px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground border border-border">
           {entries.length} {entries.length === 1 ? "Record" : "Records"}
         </span>
       </div>
@@ -74,7 +74,7 @@ export function ImpactLedger({ entries }: ImpactLedgerProps) {
 
                     <span className="text-muted-foreground">•</span>
 
-                    <span className="font-mono text-[11px]">
+                    <span className="tabular-nums text-[11px]">
                       {entry.verification_method === "peer_vote"
                         ? "Peer Consensus"
                         : "Organizer Override"}
@@ -82,7 +82,7 @@ export function ImpactLedger({ entries }: ImpactLedgerProps) {
 
                     <span className="text-muted-foreground">•</span>
 
-                    <span className="font-mono text-[11px]">
+                    <span className="tabular-nums text-[11px]">
                       {formatDateTime(entry.verified_at)}
                     </span>
                   </div>
@@ -90,7 +90,7 @@ export function ImpactLedger({ entries }: ImpactLedgerProps) {
 
                 {/* Points badge */}
                 <div className="shrink-0 flex items-center gap-2">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-sm bg-primary/10 border border-primary/30 text-primary-light font-mono font-bold text-xs tracking-tight">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-sm bg-primary/10 border border-primary/30 text-primary-light tabular-nums font-bold text-xs tracking-tight">
                     +{entry.reward_points} pts
                   </span>
                 </div>

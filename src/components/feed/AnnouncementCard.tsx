@@ -65,7 +65,7 @@ export function AnnouncementCard({
         /* Ledger-line distinctiveness element: continuous verification anchor */
         isPublished
           ? "border-l-4 border-l-primary border-t border-r border-b border-border/80"
-          : "border-l-4 border-l-amber-500 border-t border-r border-b border-border/80"
+          : "border-l-4 border-l-sun border-t border-r border-b border-border/80"
       )}
     >
       <CardHeader className="pb-3 space-y-3">
@@ -86,7 +86,7 @@ export function AnnouncementCard({
               </div>
               <time
                 dateTime={announcement.published_at || announcement.created_at}
-                className="text-xs text-muted-foreground block font-mono"
+                className="text-xs text-muted-foreground block tabular-nums"
               >
                 {formatDateTime(announcement.published_at || announcement.created_at)}
               </time>
@@ -115,7 +115,7 @@ export function AnnouncementCard({
 
         {/* Cryptographic Signatures Ledger Line Treatment */}
         <div className="p-3 rounded-md bg-muted/30 border border-border/60 space-y-2">
-          <div className="flex items-center justify-between text-xs font-mono text-muted-foreground">
+          <div className="flex items-center justify-between text-xs tabular-nums text-muted-foreground">
             <span className="font-medium text-foreground uppercase tracking-wider text-[11px]">
               Co-Signatures Ledger
             </span>
@@ -155,7 +155,7 @@ export function AnnouncementCard({
                       </span>
                       <TierBadge tier={signer.tier} />
                     </div>
-                    <span className="font-mono text-[11px] text-muted-foreground shrink-0">
+                    <span className="tabular-nums text-[11px] text-muted-foreground shrink-0">
                       {formatDateTime(sig.signed_at)}
                     </span>
                   </div>
@@ -169,7 +169,7 @@ export function AnnouncementCard({
       {/* Card Footer with Sign Action (Visible ONLY for Tier 3 on Pending Items) */}
       {!isPublished && isTier3 && (
         <CardFooter className="pt-2 pb-4 border-t border-border/40 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-amber-400">
+          <div className="flex items-center gap-1.5 text-xs text-sun">
             <ShieldAlert className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>
               Pending {Math.max(0, announcement.required_signatures - signatures.length)} organizer co-signature

@@ -22,7 +22,7 @@ export function ProfileNotFound({ userId }: ProfileNotFoundProps) {
       </h2>
       <p className="mt-2 text-sm text-muted-foreground max-w-md">
         No registered volunteer or organizer was found with identifier{" "}
-        <span className="font-mono text-xs text-foreground bg-secondary px-1.5 py-0.5 rounded-sm">
+        <span className="tabular-nums text-xs text-foreground bg-secondary px-1.5 py-0.5 rounded-sm">
           {userId}
         </span>
         . The member record may not exist or could be unregistered.

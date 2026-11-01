@@ -76,7 +76,7 @@ export function VerifyTaskDialog({
       <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-xs text-[11px] font-mono font-semibold tracking-wide uppercase bg-primary/10 text-primary border border-primary/25">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-xs text-[11px] tabular-nums font-semibold tracking-wide uppercase bg-primary/10 text-primary border border-primary/25">
               <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
               Demo: Peer Verification Protocol
             </span>
@@ -94,7 +94,7 @@ export function VerifyTaskDialog({
         <div className="space-y-5 py-2 text-sm">
           {/* Claimant Completion Summary */}
           <div className="p-3.5 rounded-md bg-muted/30 border border-border/80 space-y-2">
-            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+            <div className="text-xs tabular-nums text-muted-foreground uppercase tracking-wider">
               Completed Claim Submission
             </div>
             <div className="flex items-center justify-between gap-3">
@@ -111,12 +111,12 @@ export function VerifyTaskDialog({
                     </span>
                     <TierBadge tier={claimant.tier} />
                   </div>
-                  <span className="text-xs text-muted-foreground font-mono">
+                  <span className="text-xs text-muted-foreground tabular-nums">
                     Completed {formatDateTime(claim.completed_at || claim.claimed_at)}
                   </span>
                 </div>
               </div>
-              <span className="font-mono text-xs font-bold px-2 py-1 rounded-sm bg-primary/10 text-primary border border-primary/30">
+              <span className="tabular-nums text-xs font-bold px-2 py-1 rounded-sm bg-primary/10 text-primary border border-primary/30">
                 +{task.reward_points} PTS
               </span>
             </div>
@@ -133,7 +133,7 @@ export function VerifyTaskDialog({
 
           {/* Assigned Verifiers Consensus Status */}
           <div className="space-y-2.5">
-            <div className="flex items-center justify-between text-xs font-mono">
+            <div className="flex items-center justify-between text-xs tabular-nums">
               <span className="font-semibold text-foreground uppercase tracking-wider">
                 Assigned Peer Verifiers ({verifications.length})
               </span>
@@ -169,9 +169,9 @@ export function VerifyTaskDialog({
                       <TierBadge tier={verifierUser.tier} />
                     </div>
 
-                    <div className="shrink-0 font-mono text-[11px]">
+                    <div className="shrink-0 tabular-nums text-[11px]">
                       {v.vote === "approve" && (
-                        <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
+                        <span className="inline-flex items-center gap-1 text-lime font-medium">
                           <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
                           Approved
                         </span>
@@ -257,9 +257,9 @@ export function VerifyTaskDialog({
 
           {/* Tier 3 Organizer Override Section */}
           {isTier3 && (
-            <div className="p-3.5 rounded-md bg-amber-500/10 border border-amber-500/30 space-y-3">
+            <div className="p-3.5 rounded-md bg-sun/20 border border-sun/40 space-y-3">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" aria-hidden="true" />
+                <ShieldAlert className="w-4 h-4 text-sun shrink-0" aria-hidden="true" />
                 <h4 className="font-semibold text-sm text-foreground">
                   Organizer Override (Tier 3 Only)
                 </h4>

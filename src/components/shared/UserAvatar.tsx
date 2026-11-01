@@ -28,7 +28,7 @@ export function UserAvatar({
       {avatarUrl && <AvatarImage src={avatarUrl} alt={name} />}
       <AvatarFallback
         className={cn(
-          "bg-secondary text-secondary-foreground font-mono text-xs rounded-sm font-semibold",
+          "bg-secondary text-secondary-foreground tabular-nums text-xs rounded-sm font-semibold",
           fallbackClassName
         )}
       >

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Decentralized coordination for verified announcements, field check-ins, and community tasks.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0b0f17",
-    theme_color: "#0b0f17",
+    background_color: "#060814",
+    theme_color: "#0047FF",
     icons: [
       {
         src: "/icon.svg",

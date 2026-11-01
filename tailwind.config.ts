@@ -9,7 +9,34 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "sans-serif"],
+        display: ["var(--font-sans)", "sans-serif"],
+        serif: ["var(--font-serif)", "serif"],
+      },
       colors: {
+        ink: "#060814",
+        ivory: "#F6F0E4",
+        cobalt: {
+          DEFAULT: "#0047FF",
+          soft: "#7C9BFF",
+        },
+        lime: {
+          DEFAULT: "#D4FF24",
+          foreground: "#060814",
+        },
+        tomato: {
+          DEFAULT: "#FF4D2E",
+          foreground: "#060814",
+        },
+        sun: {
+          DEFAULT: "#FFB81C",
+          foreground: "#060814",
+        },
+        lavender: {
+          DEFAULT: "#C9B6FF",
+          foreground: "#060814",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -23,7 +50,6 @@ const config: Config = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
-          light: "hsl(var(--primary-light))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -41,19 +67,14 @@ const config: Config = {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
-        verified: {
-          DEFAULT: "hsl(var(--verified))",
-          bg: "hsl(var(--verified-bg))",
-          foreground: "hsl(var(--verified-foreground))",
-        },
-        caution: {
-          DEFAULT: "hsl(var(--caution))",
-          bg: "hsl(var(--caution-bg))",
-          foreground: "hsl(var(--caution-foreground))",
-        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+      },
+      boxShadow: {
+        hard: "3px 3px 0px 0px var(--hard-shadow, #060814)",
+        "hard-sm": "2px 2px 0px 0px var(--hard-shadow, #060814)",
+        "hard-lg": "5px 5px 0px 0px var(--hard-shadow, #060814)",
       },
       spacing: {
         "1": "4px",
@@ -65,11 +86,15 @@ const config: Config = {
         "12": "48px",
         "16": "64px",
         "24": "96px",
+        "32": "128px",
       },
       borderRadius: {
-        sm: "var(--radius)",
-        md: "calc(var(--radius) + 2px)",
-        lg: "calc(var(--radius) + 4px)",
+        chunky: "12px",
+        stamp: "9999px",
+        band: "0px",
+        sm: "6px",
+        md: "12px",
+        lg: "16px",
       },
     },
   },
