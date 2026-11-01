@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Users, Calendar, Share2, Camera, Trash2 } from "lucide-react"
+import { Users, Calendar, Share2, Camera, Trash2, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { User } from "@/lib/schemas/user.schema"
 import { UserAvatar } from "@/components/shared/UserAvatar"
@@ -9,6 +9,7 @@ import { TierBadge } from "@/components/shared/TierBadge"
 import { formatDateOnly } from "@/lib/date"
 import { Button } from "@/components/ui/button"
 import { PhotoCropDialog } from "./PhotoCropDialog"
+import { ImpactCardDialog } from "./ImpactCardDialog"
 import {
   getStoredProfilePhoto,
   setStoredProfilePhoto,
@@ -21,6 +22,7 @@ export interface ProfileHeaderProps {
 
 export function ProfileHeader({ user, isCurrentUser = false }: ProfileHeaderProps) {
   const [photoCropOpen, setPhotoCropOpen] = React.useState(false)
+  const [impactCardOpen, setImpactCardOpen] = React.useState(false)
   const [customPhoto, setCustomPhoto] = React.useState<string | null>(() => {
     return getStoredProfilePhoto(user.id)
   })
@@ -138,10 +140,22 @@ export function ProfileHeader({ user, isCurrentUser = false }: ProfileHeaderProp
               variant="outline"
               size="sm"
               onClick={handleShareProfile}
-              className="h-8 px-3 rounded-sm border-2 border-ink text-xs font-bold bg-white text-ink shadow-hard-xs hover:bg-lime gap-1.5"
+              className="h-8 px-3 rounded-sm border-2 border-ink text-xs font-bold bg-white text-ink shadow-hard-xs hover:bg-lime gap-1.5 cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>Share profile</span>
+            </Button>
+
+            {/* Share Impact Card poster button */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setImpactCardOpen(true)}
+              className="h-8 px-3 rounded-sm border-2 border-ink text-xs font-black bg-lime text-ink shadow-hard-xs hover:bg-lime/90 gap-1.5 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Share impact</span>
             </Button>
 
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm bg-card border border-ink/20 text-[11px]">
@@ -162,6 +176,13 @@ export function ProfileHeader({ user, isCurrentUser = false }: ProfileHeaderProp
         onClose={() => setPhotoCropOpen(false)}
         onSavePhoto={handleSavePhoto}
         userName={user.display_name}
+      />
+
+      {/* Impact Card 1080x1920 Poster Generator Dialog */}
+      <ImpactCardDialog
+        isOpen={impactCardOpen}
+        onClose={() => setImpactCardOpen(false)}
+        user={user}
       />
     </section>
   )

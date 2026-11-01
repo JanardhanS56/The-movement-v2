@@ -65,8 +65,10 @@
   - Files Changed: `src/components/feed/VerifyMediaDialog.tsx` (created), `src/app/(dashboard)/feed/page.tsx`
   - Notes: Added "Verify media" button directly beside "New announcement" in Feed page header. Implemented accessible VerifyMediaDialog with drag-and-drop zone and "Choose image" button, clean object URL previewing with automatic revocation on close. Added explicit disclaimers: "Demo only. No analysis ran." with zero mention of real AI services. Built deterministic evaluation algorithm based on filename and size returning one of 4 non-binary categories: 1) Verified original (lime fill, ink text), 2) Unverified but unmodified (outlined), 3) Flagged for community review (amber fill), and 4) High manipulation detected (tomato fill, white text). Included interactive "See example results" row allowing instant testing of all 4 outcome states. Added "Add community context" textarea persisted in demo sessionStorage. Verified with full verify pipeline.
 
-- [ ] **Phase 11: Impact Card (Profile Page)**
-  - Status: NOT DONE
+- [x] **Phase 11: Impact Card (Profile Page)**
+  - Status: DONE
+  - Files Changed: `src/components/profile/ImpactCardDialog.tsx` (created), `src/components/profile/ProfileHeader.tsx`
+  - Notes: Added "Share impact" button in ProfileHeader near the member name. Built 1080x1920 poster generation engine using the native HTML5 Canvas API awaiting `document.fonts.ready`. Extracted all palette tokens dynamically from CSS variables (Ivory, Ink, Lime, Cobalt, Sun Amber). Content includes The Movement logo monogram, member display name, @handle, tier badge, big tabular numerals for tasks completed and ledger impact points, up to 2 earned badge cards with descriptions, and the profile link using the `/u/[handle]` URL. Enforced privacy check where member photo is drawn only when profile visibility is set to Public; otherwise falls back to clean initials circle. Provided modal preview with "Download image" (`canvas.toBlob`), "Copy link", and calm error state on failure. Verified with full verify pipeline.
 
 - [ ] **Phase 12: Final Audit**
   - Status: NOT DONE
