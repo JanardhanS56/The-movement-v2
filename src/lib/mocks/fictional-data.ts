@@ -1008,9 +1008,37 @@ export const FICTIONAL_MOVEMENTS: Movement[] = [
   },
 ]
 
+export function addFictionalMovement(movement: Movement): void {
+  const existing = FICTIONAL_MOVEMENTS.find((m) => m.id === movement.id)
+  if (!existing) {
+    FICTIONAL_MOVEMENTS.push(movement)
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored: Movement[] = JSON.parse(
+        sessionStorage.getItem("the-movement:custom-movements") || "[]"
+      )
+      if (!stored.some((m) => m.id === movement.id)) {
+        stored.push(movement)
+        sessionStorage.setItem("the-movement:custom-movements", JSON.stringify(stored))
+      }
+      window.dispatchEvent(new CustomEvent("the-movement:movement-added", { detail: movement }))
+    } catch {}
+  }
+}
+
 export function getActiveMovementId(): string {
   if (typeof window === "undefined") return SEED_MOVEMENT_ID
   try {
+    // Hydrate any stored custom movements first
+    const stored: Movement[] = JSON.parse(
+      sessionStorage.getItem("the-movement:custom-movements") || "[]"
+    )
+    stored.forEach((m) => {
+      if (!FICTIONAL_MOVEMENTS.some((existing) => existing.id === m.id)) {
+        FICTIONAL_MOVEMENTS.push(m)
+      }
+    })
     return sessionStorage.getItem("the-movement:active-movement-id") || SEED_MOVEMENT_ID
   } catch {
     return SEED_MOVEMENT_ID
@@ -1021,5 +1049,6 @@ export function setActiveMovementId(id: string): void {
   if (typeof window === "undefined") return
   try {
     sessionStorage.setItem("the-movement:active-movement-id", id)
+    window.dispatchEvent(new CustomEvent("the-movement:movement-changed", { detail: id }))
   } catch {}
 }

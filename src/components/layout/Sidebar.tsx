@@ -24,6 +24,7 @@ import {
   Bookmark,
   ShieldCheck,
   ListTodo,
+  PlusCircle,
 } from "lucide-react"
 
 export function Sidebar() {
@@ -192,9 +193,22 @@ export function Sidebar() {
             {!collapsed && <span>Report from the field</span>}
           </Link>
 
-          {!collapsed && user?.tier === 3 && (
+          {user?.tier === 3 && (
             <div className="pt-1">
-              <CreateMovementDialog />
+              <CreateMovementDialog
+                trigger={
+                  collapsed ? (
+                    <button
+                      type="button"
+                      title="Create Movement"
+                      className="w-10 h-10 mx-auto rounded-sm border-2 border-dashed border-ink/40 hover:border-ink hover:bg-ink/5 flex items-center justify-center text-ink cursor-pointer transition-colors"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      <span className="sr-only">Create Movement</span>
+                    </button>
+                  ) : undefined
+                }
+              />
             </div>
           )}
         </div>
