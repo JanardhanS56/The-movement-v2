@@ -23,6 +23,7 @@ const STORAGE_KEYS = {
   THEME: "the-movement:theme",
   TEXT_SIZE: "the-movement:text-size",
   SIDEBAR_COLLAPSED: "the-movement:sidebar-collapsed",
+  SAVED_TASKS: "the-movement:saved-tasks",
 } as const
 
 export function getStoredTheme(): ThemeMode {
@@ -119,6 +120,29 @@ export function applyTextSize(size: TextSize): void {
     root.style.fontSize = "112.5%"
   } else {
     root.style.fontSize = "100%"
+  }
+}
+
+export function getStoredSavedTasks(): string[] {
+  if (typeof window === "undefined") return []
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.SAVED_TASKS)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch {
+    // Storage access blocked or invalid JSON
+  }
+  return []
+}
+
+export function setStoredSavedTasks(ids: string[]): void {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(STORAGE_KEYS.SAVED_TASKS, JSON.stringify(ids))
+  } catch {
+    // Storage access blocked
   }
 }
 

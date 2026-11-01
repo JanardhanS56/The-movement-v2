@@ -30,7 +30,14 @@ export interface ApiClient {
   createTask(input: CreateTaskInput, creatorId: string): Promise<Task>
   getTaskClaims(taskId?: string): Promise<TaskClaim[]>
   claimTask(input: ClaimTaskInput, claimantId: string): Promise<TaskClaim>
-  markClaimComplete(claimId: string, claimantId: string, note?: string): Promise<TaskClaim>
+  markClaimComplete(
+    claimId: string,
+    claimantId: string,
+    note?: string,
+    proofUrl?: string
+  ): Promise<TaskClaim>
+  withdrawClaim(claimId: string, claimantId: string): Promise<TaskClaim>
+  cancelTask(taskId: string, organizerId: string): Promise<Task>
 
   // Verifications
   getPeerVerifications(claimId?: string): Promise<PeerVerification[]>

@@ -35,8 +35,10 @@
   - Files Changed: `src/components/tasks/TaskFilterRail.tsx` (created), `src/components/tasks/TaskFilterDrawer.tsx` (created), `src/app/(dashboard)/tasks/page.tsx`
   - Notes: Implemented desktop sticky left filter rail (280px, visible at 1024px+) and mobile bottom sheet drawer (<1024px) with matching count display. Wired all 7 filter controls (debounced text search with clear button, status, category, reward score, volunteer spots, when, difficulty) plus "Clear all filters" reset. Added 4 quick tabs ("All tasks", "Mine", "Saved", "Needs my verification") with live reactive counts. Added 4-option Sort dropdown (Soonest/Urgency, Highest points, Newest, Fewest spots left). Added friendly empty state with Reset Filters action. All filter parameters and sort orders persist in URL query parameters.
 
-- [ ] **Phase 5: Task Detail, Claim Flow, Board View, Saved**
-  - Status: NOT DONE
+- [x] **Phase 5: Task Detail, Claim Flow, Board View, Saved**
+  - Status: DONE
+  - Files Changed: `src/lib/calendar.ts` (created), `src/lib/image-utils.ts` (created), `src/components/tasks/TaskBoardView.tsx` (created), `src/components/tasks/TaskDetailDrawer.tsx` (created), `src/components/tasks/TaskCard.tsx`, `src/lib/mocks/mock-store.ts`, `src/lib/api/types.ts`, `src/lib/api/mock-adapter.ts`, `src/lib/api/supabase-stub.ts`, `src/lib/ui-prefs.ts`, `src/app/(dashboard)/tasks/page.tsx`
+  - Notes: Added List and Board view switcher next to Sort. Built 4 ruled columns Kanban board view with mobile horizontal snap scrolling. Built accessible TaskDetailDrawer (right slide-out on desktop, full-screen on mobile) triggered via card click or URL `?task=<UUID>`. Implemented full claim lifecycle with plain language checks: Claim task, Withdraw claim, Mark as done with optional note and optional canvas-processed photo (EXIF and GPS metadata stripped), Peer verification consensus bar with Approve and Reject (with reason confirmation), Tier 3 Organizer overrides and Task Cancellation. Added Save/Bookmark toggle to cards and drawer with storage persistence. Added real .ics calendar generation and export (`downloadTaskIcs`) and task link sharing. Verified with 0 errors across full verify pipeline.
 
 - [ ] **Phase 6: Profile Photo and Share Link**
   - Status: NOT DONE

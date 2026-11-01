@@ -111,13 +111,29 @@ export class MockApiAdapter implements ApiClient {
   public async markClaimComplete(
     claimId: string,
     claimantId: string,
-    note?: string
+    note?: string,
+    proofUrl?: string
   ): Promise<TaskClaim> {
     idSchema.parse(claimId)
     idSchema.parse(claimantId)
     if (note) z.string().max(500).parse(note)
-    const raw = mockStore.markClaimComplete(claimId, claimantId, note)
+    if (proofUrl) z.string().parse(proofUrl)
+    const raw = mockStore.markClaimComplete(claimId, claimantId, note, proofUrl)
     return TaskClaimSchema.parse(raw)
+  }
+
+  public async withdrawClaim(claimId: string, claimantId: string): Promise<TaskClaim> {
+    idSchema.parse(claimId)
+    idSchema.parse(claimantId)
+    const raw = mockStore.withdrawClaim(claimId, claimantId)
+    return TaskClaimSchema.parse(raw)
+  }
+
+  public async cancelTask(taskId: string, organizerId: string): Promise<Task> {
+    idSchema.parse(taskId)
+    idSchema.parse(organizerId)
+    const raw = mockStore.cancelTask(taskId, organizerId)
+    return TaskSchema.parse(raw)
   }
 
   public async getPeerVerifications(claimId?: string): Promise<PeerVerification[]> {

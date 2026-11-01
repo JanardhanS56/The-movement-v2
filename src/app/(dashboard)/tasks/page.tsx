@@ -9,6 +9,8 @@ import {
   Trophy,
   SlidersHorizontal,
   RotateCcw,
+  List,
+  LayoutGrid,
 } from "lucide-react"
 import { api } from "@/lib/api"
 import { QueryKeys } from "@/lib/query-keys"
@@ -21,6 +23,8 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { ErrorAlert } from "@/components/shared/ErrorAlert"
 import { TaskSkeleton } from "@/components/tasks/TaskSkeleton"
 import { TaskCard } from "@/components/tasks/TaskCard"
+import { TaskBoardView } from "@/components/tasks/TaskBoardView"
+import { TaskDetailDrawer } from "@/components/tasks/TaskDetailDrawer"
 import { TasksLeaderboard } from "@/components/tasks/TasksLeaderboard"
 import { TaskFilterRail } from "@/components/tasks/TaskFilterRail"
 import { TaskFilterDrawer } from "@/components/tasks/TaskFilterDrawer"
@@ -34,6 +38,7 @@ import {
   getFilteredTasks,
   getTaskCounts,
 } from "@/lib/mocks/fictional-data"
+import { getStoredSavedTasks, setStoredSavedTasks } from "@/lib/ui-prefs"
 import { cn } from "@/lib/utils"
 
 export type TaskTab = "all" | "mine" | "saved" | "verification"
@@ -49,13 +54,34 @@ function TasksContent() {
   const currentView = searchParams.get("view") === "leaderboard" ? "leaderboard" : "tasks"
   const currentTab: TaskTab = (searchParams.get("tab") as TaskTab) || "all"
   const currentSort: TaskSortOption = (searchParams.get("sort") as TaskSortOption) || "soonest"
+  const currentLayout: "list" | "board" =
+    searchParams.get("layout") === "board" ? "board" : "list"
+  const selectedTaskId = searchParams.get("task") || null
   const [mobileFilterOpen, setMobileFilterOpen] = React.useState(false)
 
-  // Seeded saved task IDs (bookmarked)
-  const [savedTaskIds] = React.useState<string[]>([
-    "c1111111-1111-4111-8111-111111111111",
-    "c8888888-8888-4888-8888-888888888888",
-  ])
+  // Seeded saved task IDs with storage persistence
+  const [savedTaskIds, setSavedTaskIds] = React.useState<string[]>(() => {
+    const stored = getStoredSavedTasks()
+    if (stored.length > 0) return stored
+    return [
+      "c1111111-1111-4111-8111-111111111111",
+      "c8888888-8888-4888-8888-888888888888",
+    ]
+  })
+
+  const handleToggleSave = React.useCallback((taskId: string) => {
+    setSavedTaskIds((prev) => {
+      const exists = prev.includes(taskId)
+      const next = exists ? prev.filter((id) => id !== taskId) : [...prev, taskId]
+      setStoredSavedTasks(next)
+      if (exists) {
+        toast.info("Task removed from saved.")
+      } else {
+        toast.success("Task saved to bookmarks.")
+      }
+      return next
+    })
+  }, [])
 
   // Multi-criteria filter options from URL query
   const filters: TaskFilterOptions = React.useMemo(() => {
@@ -231,6 +257,22 @@ function TasksContent() {
     return getFilteredTasks(base, filters, currentSort)
   }, [tasks, currentTab, user, claims, savedTaskIds, filters, currentSort])
 
+  // Selected task data for TaskDetailDrawer
+  const selectedTask = React.useMemo(() => {
+    if (!selectedTaskId) return undefined
+    return tasks.find((t) => t.id === selectedTaskId)
+  }, [tasks, selectedTaskId])
+
+  const selectedClaim = React.useMemo(() => {
+    if (!selectedTaskId) return undefined
+    return claimsByTaskId[selectedTaskId]
+  }, [claimsByTaskId, selectedTaskId])
+
+  const selectedVerifications = React.useMemo(() => {
+    if (!selectedClaim) return []
+    return verificationsByClaimId[selectedClaim.id] || []
+  }, [verificationsByClaimId, selectedClaim])
+
   // 1. Post Task Mutation
   const postTaskMutation = useMutation({
     mutationFn: async (data: PostTaskFormData) => {
@@ -366,12 +408,20 @@ function TasksContent() {
 
   // 3. Mark Complete Mutation (moves claim and task to pending_verification)
   const markCompleteMutation = useMutation({
-    mutationFn: async ({ claimId }: { claimId: string }) => {
+    mutationFn: async ({
+      claimId,
+      note,
+      proofUrl,
+    }: {
+      claimId: string
+      note?: string
+      proofUrl?: string
+    }) => {
       if (!user) throw new Error("Authentication required")
       if (simulateFailure) {
         throw new Error("Simulated network failure: Completion report aborted.")
       }
-      return await api.markClaimComplete(claimId, user.id)
+      return await api.markClaimComplete(claimId, user.id, note, proofUrl)
     },
     onMutate: async ({ claimId }) => {
       await queryClient.cancelQueries({ queryKey: QueryKeys.tasks(movementId) })
@@ -481,6 +531,48 @@ function TasksContent() {
       queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(movementId) })
       queryClient.invalidateQueries({ queryKey: QueryKeys.taskClaims() })
       queryClient.invalidateQueries({ queryKey: QueryKeys.peerVerifications() })
+    },
+  })
+
+  // 6. Withdraw Claim Mutation
+  const withdrawMutation = useMutation({
+    mutationFn: async (claimId: string) => {
+      if (!user) throw new Error("Authentication required")
+      if (simulateFailure) {
+        throw new Error("Simulated network failure: Withdrawal failed.")
+      }
+      return await api.withdrawClaim(claimId, user.id)
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to withdraw claim.")
+    },
+    onSuccess: () => {
+      toast.success("Claim withdrawn. Your spot has been returned to the open pool.")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(movementId) })
+      queryClient.invalidateQueries({ queryKey: QueryKeys.taskClaims() })
+    },
+  })
+
+  // 7. Cancel Task Mutation
+  const cancelTaskMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      if (!user) throw new Error("Authentication required")
+      if (simulateFailure) {
+        throw new Error("Simulated network failure: Cancellation failed.")
+      }
+      return await api.cancelTask(taskId, user.id)
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to cancel task.")
+    },
+    onSuccess: () => {
+      toast.success("Task cancelled by organizer.")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(movementId) })
+      queryClient.invalidateQueries({ queryKey: QueryKeys.taskClaims() })
     },
   })
 
@@ -596,8 +688,46 @@ function TasksContent() {
                 })}
               </div>
 
-              {/* Sort Select */}
-              <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              {/* Sort Select & View Mode (List vs Board) */}
+              <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+                {/* View switcher next to Sort: List and Board */}
+                <div
+                  role="group"
+                  aria-label="Task layout switcher"
+                  className="inline-flex items-center rounded-sm border-2 border-ink bg-white overflow-hidden shadow-hard-xs"
+                >
+                  <button
+                    type="button"
+                    onClick={() => updateQueryParam("layout", undefined)}
+                    aria-pressed={currentLayout === "list"}
+                    title="List view"
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs font-black transition-colors flex items-center gap-1",
+                      currentLayout === "list"
+                        ? "bg-cobalt text-white"
+                        : "text-ink hover:bg-ivory"
+                    )}
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">List</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateQueryParam("layout", "board")}
+                    aria-pressed={currentLayout === "board"}
+                    title="Board view"
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs font-black transition-colors flex items-center gap-1 border-l-2 border-ink",
+                      currentLayout === "board"
+                        ? "bg-cobalt text-white"
+                        : "text-ink hover:bg-ivory"
+                    )}
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Board</span>
+                  </button>
+                </div>
+
                 <span className="text-xs font-semibold text-ink/60 hidden md:inline">Sort:</span>
                 <select
                   value={currentSort}
@@ -723,6 +853,16 @@ function TasksContent() {
                       <span>Reset filters</span>
                     </Button>
                   </div>
+                ) : currentLayout === "board" ? (
+                  <TaskBoardView
+                    tasks={filteredTasks}
+                    claimsByTaskId={claimsByTaskId}
+                    usersMap={usersMap}
+                    savedTaskIds={savedTaskIds}
+                    onToggleSave={handleToggleSave}
+                    onSelectTask={(taskId) => updateQueryParam("task", taskId)}
+                    currentUserId={user ? user.id : null}
+                  />
                 ) : (
                   <div className="space-y-6">
                     {filteredTasks.map((task) => {
@@ -740,11 +880,14 @@ function TasksContent() {
                           usersMap={usersMap}
                           currentUserId={user ? user.id : null}
                           currentUserTier={user ? user.tier : undefined}
+                          isSaved={savedTaskIds.includes(task.id)}
+                          onToggleSave={handleToggleSave}
+                          onSelectTask={(taskId) => updateQueryParam("task", taskId)}
                           onClaim={async (taskId) => {
                             await claimMutation.mutateAsync(taskId)
                           }}
-                          onMarkComplete={async (claimId) => {
-                            await markCompleteMutation.mutateAsync({ claimId })
+                          onMarkComplete={async (claimId, note, proofUrl) => {
+                            await markCompleteMutation.mutateAsync({ claimId, note, proofUrl })
                           }}
                           onPeerVote={async (claimId, vote) => {
                             await peerVoteMutation.mutateAsync({ claimId, vote })
@@ -792,6 +935,47 @@ function TasksContent() {
             activeFilterCount={activeFilterCount}
             matchingCount={filteredTasks.length}
             totalCount={tasks.length}
+          />
+
+          {/* Task Detail Drawer */}
+          <TaskDetailDrawer
+            taskId={selectedTaskId}
+            isOpen={Boolean(selectedTaskId)}
+            onClose={() => updateQueryParam("task", undefined)}
+            task={selectedTask}
+            claim={selectedClaim}
+            verifications={selectedVerifications}
+            usersMap={usersMap}
+            currentUser={user}
+            isSaved={Boolean(selectedTaskId && savedTaskIds.includes(selectedTaskId))}
+            onToggleSave={handleToggleSave}
+            onClaim={async (taskId) => {
+              await claimMutation.mutateAsync(taskId)
+            }}
+            onWithdraw={async (claimId) => {
+              await withdrawMutation.mutateAsync(claimId)
+            }}
+            onMarkComplete={async (claimId, note, proofUrl) => {
+              await markCompleteMutation.mutateAsync({ claimId, note, proofUrl })
+            }}
+            onPeerVote={async (claimId, vote) => {
+              await peerVoteMutation.mutateAsync({ claimId, vote })
+            }}
+            onOrganizerOverride={async (claimId, approve, note) => {
+              await organizerOverrideMutation.mutateAsync({ claimId, approve, note })
+            }}
+            onCancelTask={async (taskId) => {
+              await cancelTaskMutation.mutateAsync(taskId)
+            }}
+            isLoading={tasksLoading}
+            isActionPending={
+              claimMutation.isPending ||
+              withdrawMutation.isPending ||
+              markCompleteMutation.isPending ||
+              peerVoteMutation.isPending ||
+              organizerOverrideMutation.isPending ||
+              cancelTaskMutation.isPending
+            }
           />
         </div>
       )}

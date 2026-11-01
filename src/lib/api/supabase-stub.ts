@@ -79,12 +79,26 @@ export class SupabaseStubAdapter implements ApiClient {
   public async markClaimComplete(
     claimId: string,
     claimantId: string,
-    note?: string
+    note?: string,
+    proofUrl?: string
   ): Promise<TaskClaim> {
     void claimId
     void claimantId
     void note
+    void proofUrl
     throw new NotImplementedError("markClaimComplete")
+  }
+
+  public async withdrawClaim(claimId: string, claimantId: string): Promise<TaskClaim> {
+    void claimId
+    void claimantId
+    throw new NotImplementedError("withdrawClaim")
+  }
+
+  public async cancelTask(taskId: string, organizerId: string): Promise<Task> {
+    void taskId
+    void organizerId
+    throw new NotImplementedError("cancelTask")
   }
 
   public async getPeerVerifications(claimId?: string): Promise<PeerVerification[]> {

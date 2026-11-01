@@ -8,6 +8,7 @@ import {
   ChevronUp,
   Sparkles,
   ShieldCheck,
+  Bookmark,
 } from "lucide-react"
 import { Task } from "@/lib/schemas/task.schema"
 import { TaskClaim } from "@/lib/schemas/task.schema"
@@ -19,6 +20,7 @@ import { UserAvatar } from "@/components/shared/UserAvatar"
 import { TierBadge } from "@/components/shared/TierBadge"
 import { StatusLabel } from "@/components/shared/StatusLabel"
 import { VerifyTaskDialog } from "./VerifyTaskDialog"
+import { cn } from "@/lib/utils"
 
 export interface TaskCardProps {
   task: Task
@@ -27,8 +29,11 @@ export interface TaskCardProps {
   usersMap: Record<string, User>
   currentUserId: string | null
   currentUserTier?: number
+  isSaved?: boolean
+  onToggleSave?: (taskId: string) => void
+  onSelectTask?: (taskId: string) => void
   onClaim: (taskId: string) => Promise<void> | void
-  onMarkComplete: (claimId: string) => Promise<void> | void
+  onMarkComplete: (claimId: string, note?: string, proofUrl?: string) => Promise<void> | void
   onPeerVote: (claimId: string, vote: "approve" | "reject") => Promise<void> | void
   onOrganizerOverride: (claimId: string, approve: boolean, note?: string) => Promise<void> | void
   onSmartAssign?: (taskId: string) => Promise<void> | void
@@ -45,6 +50,9 @@ export function TaskCard({
   usersMap,
   currentUserId,
   currentUserTier,
+  isSaved = false,
+  onToggleSave,
+  onSelectTask,
   onClaim,
   onMarkComplete,
   onPeerVote,
@@ -124,9 +132,20 @@ export function TaskCard({
           {/* Task Title */}
           <h3
             id={`task-${task.id}-title`}
-            className={`text-lg md:text-xl font-black tracking-tight font-sans text-ink ${
-              isCompleted ? "line-through text-ink/60" : ""
-            }`}
+            onClick={() => onSelectTask?.(task.id)}
+            role={onSelectTask ? "button" : undefined}
+            tabIndex={onSelectTask ? 0 : undefined}
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && onSelectTask) {
+                e.preventDefault()
+                onSelectTask(task.id)
+              }
+            }}
+            className={cn(
+              "text-lg md:text-xl font-black tracking-tight font-sans text-ink transition-colors",
+              isCompleted && "line-through text-ink/60",
+              onSelectTask && "cursor-pointer hover:text-cobalt focus:outline-none focus:underline"
+            )}
           >
             {task.title}
           </h3>
@@ -207,16 +226,33 @@ export function TaskCard({
 
         {/* Right Side: Giant Points Numeral & Exactly ONE Action */}
         <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 shrink-0 border-t md:border-t-0 pt-4 md:pt-0 border-ink/10">
-          {/* Giant Points Numeral */}
-          <div className="text-right">
-            <div className="flex items-baseline gap-1">
-              <span className="text-3xl md:text-4xl font-black tabular-nums text-ink font-sans tracking-tight">
-                +{task.reward_points}
-              </span>
-              <span className="text-xs font-bold text-ink/60">pts</span>
-            </div>
-            <div className="text-xs font-semibold text-ink/50 hidden md:block">
-              reward score
+          {/* Giant Points Numeral & Bookmark Toggle */}
+          <div className="flex items-center gap-3 md:flex-col md:items-end">
+            {onToggleSave && (
+              <button
+                type="button"
+                aria-label={isSaved ? "Remove from saved" : "Save task"}
+                onClick={() => onToggleSave(task.id)}
+                className="p-1.5 rounded-sm border border-ink/20 hover:border-ink bg-white text-ink/60 hover:text-ink transition-colors shadow-xs"
+              >
+                <Bookmark
+                  className={cn(
+                    "w-4 h-4",
+                    isSaved ? "fill-sun text-sun" : "text-ink/60"
+                  )}
+                />
+              </button>
+            )}
+            <div className="text-right">
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl md:text-4xl font-black tabular-nums text-ink font-sans tracking-tight">
+                  +{task.reward_points}
+                </span>
+                <span className="text-xs font-bold text-ink/60">pts</span>
+              </div>
+              <div className="text-xs font-semibold text-ink/50 hidden md:block">
+                reward score
+              </div>
             </div>
           </div>
 
