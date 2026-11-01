@@ -21,10 +21,12 @@ export interface ApiClient {
   getTasks(movementId: string): Promise<Task[]>
   getTask(taskId: string): Promise<Task>
   createTask(input: CreateTaskInput, creatorId: string): Promise<Task>
+  getTaskClaims(taskId?: string): Promise<TaskClaim[]>
   claimTask(input: ClaimTaskInput, claimantId: string): Promise<TaskClaim>
   markClaimComplete(claimId: string, claimantId: string, note?: string): Promise<TaskClaim>
 
   // Verifications
+  getPeerVerifications(claimId?: string): Promise<PeerVerification[]>
   getPendingVerifications(verifierId: string): Promise<PeerVerification[]>
   submitVerificationVote(
     claimId: string,

@@ -282,7 +282,21 @@ class MockStore {
     return clone(claim)
   }
 
+  public getTaskClaims(taskId?: string): TaskClaim[] {
+    if (taskId) {
+      return clone(this.taskClaims.filter((c) => c.task_id === taskId))
+    }
+    return clone(this.taskClaims)
+  }
+
   // --- Verifications ---
+  public getPeerVerifications(claimId?: string): PeerVerification[] {
+    if (claimId) {
+      return clone(this.peerVerifications.filter((v) => v.claim_id === claimId))
+    }
+    return clone(this.peerVerifications)
+  }
+
   public getPendingVerifications(verifierId: string): PeerVerification[] {
     return clone(this.peerVerifications.filter((v) => v.verifier_id === verifierId && v.vote === null))
   }

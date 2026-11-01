@@ -65,6 +65,11 @@ export class SupabaseStubAdapter implements ApiClient {
     throw new NotImplementedError("createTask")
   }
 
+  public async getTaskClaims(taskId?: string): Promise<TaskClaim[]> {
+    void taskId
+    throw new NotImplementedError("getTaskClaims")
+  }
+
   public async claimTask(input: ClaimTaskInput, claimantId: string): Promise<TaskClaim> {
     void input
     void claimantId
@@ -80,6 +85,11 @@ export class SupabaseStubAdapter implements ApiClient {
     void claimantId
     void note
     throw new NotImplementedError("markClaimComplete")
+  }
+
+  public async getPeerVerifications(claimId?: string): Promise<PeerVerification[]> {
+    void claimId
+    throw new NotImplementedError("getPeerVerifications")
   }
 
   public async getPendingVerifications(verifierId: string): Promise<PeerVerification[]> {

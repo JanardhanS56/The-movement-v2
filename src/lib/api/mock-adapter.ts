@@ -92,6 +92,12 @@ export class MockApiAdapter implements ApiClient {
     return TaskSchema.parse(raw)
   }
 
+  public async getTaskClaims(taskId?: string): Promise<TaskClaim[]> {
+    if (taskId) z.string().uuid().parse(taskId)
+    const raw = mockStore.getTaskClaims(taskId)
+    return z.array(TaskClaimSchema).parse(raw)
+  }
+
   public async claimTask(input: ClaimTaskInput, claimantId: string): Promise<TaskClaim> {
     const validatedInput = ClaimTaskSchema.parse(input)
     z.string().uuid().parse(claimantId)
@@ -109,6 +115,12 @@ export class MockApiAdapter implements ApiClient {
     if (note) z.string().max(500).parse(note)
     const raw = mockStore.markClaimComplete(claimId, claimantId, note)
     return TaskClaimSchema.parse(raw)
+  }
+
+  public async getPeerVerifications(claimId?: string): Promise<PeerVerification[]> {
+    if (claimId) z.string().uuid().parse(claimId)
+    const raw = mockStore.getPeerVerifications(claimId)
+    return z.array(PeerVerificationSchema).parse(raw)
   }
 
   public async getPendingVerifications(verifierId: string): Promise<PeerVerification[]> {
