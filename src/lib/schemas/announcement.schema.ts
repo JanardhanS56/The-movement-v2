@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { uuidField } from "./common"
+import { uuidField, isoDateTime } from "./common"
 
 export const AnnouncementSchema = z.object({
   id: uuidField,
@@ -9,10 +9,10 @@ export const AnnouncementSchema = z.object({
   body: z.string().min(10),
   required_signatures: z.number().int().min(1).max(10),
   is_published: z.boolean(),
-  published_at: z.string().datetime().nullable().optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime().optional(),
+  published_at: isoDateTime.nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).nullable().optional(),
+  created_at: isoDateTime,
+  updated_at: isoDateTime.nullable().optional(),
 })
 
 export type Announcement = z.infer<typeof AnnouncementSchema>
