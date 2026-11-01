@@ -30,8 +30,10 @@
   - Files Changed: `src/components/tasks/TasksLeaderboard.tsx` (created), `src/app/(dashboard)/tasks/page.tsx`
   - Notes: Added Leaderboard toggle pill beside status filters on /tasks with URL query persistence (`?view=leaderboard | tasks`) and filter preservation. Created TasksLeaderboard with 3 period tabs ("This month", "This year", "All time"), top 3 podium layout with custom SVG medals in token palette colors (Sun amber, Lavender, Acid lime), tabular numerals, ruled rows for ranks 4-10 with hover states, pinned "Your rank" summary card with points delta from #1, tie rule note, and Tier 3 expandable Organizer Recognition action panel with demo recognition toast. Fully responsive across 375px, 768px, and 1280px with 0 contrast or hydration errors.
 
-- [ ] **Phase 4: Task Board, Filter Rail and Sort**
-  - Status: NOT DONE
+- [x] **Phase 4: Task Board, Filter Rail and Sort**
+  - Status: DONE
+  - Files Changed: `src/components/tasks/TaskFilterRail.tsx` (created), `src/components/tasks/TaskFilterDrawer.tsx` (created), `src/app/(dashboard)/tasks/page.tsx`
+  - Notes: Implemented desktop sticky left filter rail (280px, visible at 1024px+) and mobile bottom sheet drawer (<1024px) with matching count display. Wired all 7 filter controls (debounced text search with clear button, status, category, reward score, volunteer spots, when, difficulty) plus "Clear all filters" reset. Added 4 quick tabs ("All tasks", "Mine", "Saved", "Needs my verification") with live reactive counts. Added 4-option Sort dropdown (Soonest/Urgency, Highest points, Newest, Fewest spots left). Added friendly empty state with Reset Filters action. All filter parameters and sort orders persist in URL query parameters.
 
 - [ ] **Phase 5: Task Detail, Claim Flow, Board View, Saved**
   - Status: NOT DONE
