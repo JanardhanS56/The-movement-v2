@@ -11,19 +11,15 @@ const CreateMovementSchema = z.object({
   slug: z.string().optional(),
 })
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const admin = getAdminClient()
-    const { searchParams } = new URL(req.url)
-    const userId = searchParams.get("userId")
 
-    let query = admin
+    const { data: movements, error } = await admin
       .from("movements")
       .select("*")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
-
-    const { data: movements, error } = await query
     if (error) return apiError("Failed to fetch movements", 500)
 
     return apiSuccess(movements || [])
