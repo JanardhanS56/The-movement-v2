@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Megaphone, MapPin, CheckSquare, ArrowRight } from "lucide-react"
+import { Megaphone, MapPin, CheckSquare } from "lucide-react"
 import { Monogram } from "@/components/shared/Monogram"
 
 export default function LandingPage() {
@@ -53,22 +53,8 @@ export default function LandingPage() {
           Coordinate field operations with cryptographic multi-signature bulletins, real-time geographic check-in maps, and community-verified volunteer bounties.
         </p>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Link href="/sign-up">
-            <Button size="lg" className="gap-2 font-semibold text-base px-6">
-              <span>Create Account</span>
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Button>
-          </Link>
-          <Link href="/sign-in">
-            <Button variant="outline" size="lg" className="font-semibold text-base px-6">
-              <span>Sign in</span>
-            </Button>
-          </Link>
-        </div>
-
         {/* The Three Features Section */}
-        <section aria-labelledby="features-heading" className="pt-12 space-y-6">
+        <section aria-labelledby="features-heading" className="pt-8 space-y-6">
           <h2 id="features-heading" className="text-xl font-semibold tracking-tight text-foreground">
             Core Movement Capabilities
           </h2>
