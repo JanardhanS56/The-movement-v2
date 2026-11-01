@@ -124,7 +124,7 @@
   - Files Changed: `src/components/chat/ChatSearchBar.tsx` (created), `src/components/chat/TaskPickerModal.tsx` (created), `src/components/chat/RoomInfoDrawer.tsx` (created), `src/components/chat/ChatComposer.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
   - Notes: Implemented ChatSearchBar with live matching from searchMessages, match count display, and Enter/Shift+Enter navigation. Built RoomInfoDrawer side drawer/bottom sheet displaying room description, rules, tier 3 room organizers, mute room toggle switch, and "Mark all as read" action. Wired sessionStorage persistence for muted room ids (the-movement:chat:muted-rooms) suppressing room unread counts. Built TaskPickerModal integrating with TaskDetailDrawer allowing volunteers to share open tasks with title and reward points.
 
-- [ ] **Phase 6: Sidebar Extras and Audit**
-  - Status: NOT DONE
-  - Files Changed: None
-  - Notes: Starting next.
+- [x] **Phase 6: Sidebar Extras and Audit**
+  - Status: DONE
+  - Files Changed: `src/components/layout/CommandPalette.tsx`, `src/components/layout/NotificationInbox.tsx`, `src/components/layout/Sidebar.tsx`, `README.md`, `PROGRESS.md`
+  - Notes: Indexed chat pages and individual rooms in Command Palette. Expanded NotificationInbox with chat mention and pinned room alert tracking. Added 3 room sub-links under Chat in expanded sidebar ("Everyone", "Coastal Action Front", "Help and questions") with active highlights, unread count chips, and Tomato @mention badges. Added collapsed sidebar chat icon unread badge. Documented full chat functionality and backend handover requirements in README.md. Ran full quality gates with 0 errors across security, types, lint, tests, build, and bans checks.
