@@ -112,6 +112,13 @@ export default function SignInPage() {
           </CardContent>
         </Card>
 
+        <div className="text-center text-xs text-muted-foreground">
+          New volunteer?{" "}
+          <a href="/sign-up" className="text-primary hover:underline font-semibold">
+            Create an account
+          </a>
+        </div>
+
         {user && (
           <div className="text-center">
             <Button
