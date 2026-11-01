@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { MobileTabBar } from "@/components/layout/MobileTabBar"
+import { TopBar } from "@/components/layout/TopBar"
 import { Button } from "@/components/ui/button"
 import { Monogram } from "@/components/shared/Monogram"
 
@@ -56,6 +57,7 @@ export default function DashboardLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
+        <TopBar />
         <main
           id="main-content"
           className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 max-w-5xl w-full mx-auto"

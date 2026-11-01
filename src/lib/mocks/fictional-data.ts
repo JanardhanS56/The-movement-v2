@@ -1,6 +1,8 @@
 import { demoNow } from "./clock"
 import { Task, TaskClaim, TaskStatus } from "../schemas/task.schema"
 import { User } from "../schemas/user.schema"
+import { Movement } from "../schemas/movement.schema"
+import { SEED_MOVEMENT, SEED_MOVEMENT_ID } from "./seed-data"
 
 export type TaskCategory = "Setup" | "Outreach" | "Cleanup" | "Safety" | "Logistics"
 export type TaskDifficulty = "Easy" | "Medium" | "Hard"
@@ -988,4 +990,33 @@ export function getFilteredTasks(
     // Then estimated minutes
     return metaA.estimatedMinutes - metaB.estimatedMinutes
   })
+}
+
+export const FICTIONAL_MOVEMENTS: Movement[] = [
+  SEED_MOVEMENT,
+  {
+    id: "00000000-0000-4000-8000-000000000002",
+    name: "Metro Solidarity Network",
+    description: "Decentralized mutual aid and civic coordination across urban metro districts.",
+    slug: "metro-solidarity-network",
+    is_active: true,
+    created_by: "22222222-2222-4222-8222-222222222222",
+    created_at: "2026-10-02T10:00:00Z",
+  },
+]
+
+export function getActiveMovementId(): string {
+  if (typeof window === "undefined") return SEED_MOVEMENT_ID
+  try {
+    return sessionStorage.getItem("the-movement:active-movement-id") || SEED_MOVEMENT_ID
+  } catch {
+    return SEED_MOVEMENT_ID
+  }
+}
+
+export function setActiveMovementId(id: string): void {
+  if (typeof window === "undefined") return
+  try {
+    sessionStorage.setItem("the-movement:active-movement-id", id)
+  } catch {}
 }

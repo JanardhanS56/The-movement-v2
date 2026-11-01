@@ -50,11 +50,15 @@
   - Files Changed: `src/components/profile/BadgeGallery.tsx`, `src/lib/mocks/fictional-data.ts`, `src/lib/__tests__/leaderboard-and-filters.test.ts`, `src/components/profile/ProfileView.tsx`
   - Notes: Replaced generic star with 12 distinct inline SVG sticker badges styled from theme tokens (Cobalt, Acid Lime, Tomato, Sun Amber, Lavender, Ink, Ivory): First step (1 task), Getting going (5 tasks), Task master (15 tasks), Point collector (100 points), Point hero (500 points), Field eyes (5 check-ins), Co-signer (3 signatures), Team player (verify 3 tasks for others), Steady hands (tasks on 3 different days), Podium (monthly top 3), Champion (monthly or yearly), and Movement Founder. Earned badges render in full color with thick ink borders and drop shadows; locked badges render with muted dashed borders, lock icon, and progress bars (e.g. "2 of 5 tasks"). Heading displays "Badges" with sentence case and "N of 12 earned". Clicking any badge opens an accessible dialog with description and progress metrics. Unlocked badges trigger a session toast notification once per badge per session. All 60 tests pass; Next.js build passes cleanly.
 
-- [ ] **Phase 8: Sidebar and Top Bar (Core)**
-  - Status: NOT DONE
+- [x] **Phase 8: Sidebar and Top Bar (Core)**
+  - Status: DONE
+  - Files Changed: `src/components/layout/MovementSwitcher.tsx` (created), `src/components/layout/CommandPalette.tsx` (created), `src/components/layout/NotificationInbox.tsx` (created), `src/components/layout/UserMenu.tsx` (created), `src/components/layout/ShortcutsDialog.tsx` (created), `src/components/layout/Sidebar.tsx`, `src/components/layout/TopBar.tsx` (created), `src/components/layout/MobileTabBar.tsx`, `src/app/(dashboard)/layout.tsx`, `src/lib/mocks/fictional-data.ts`
+  - Notes: Added Movement Switcher at the top of the sidebar with 2 fictional movements ("Coastal Action Front" and "Metro Solidarity Network") with sessionStorage persistence. Added 3 task sub-links under Tasks with live counts ("My tasks", "Saved", "Needs my verification") linking to matching tabs, hidden when count is 0, collapsing when sidebar is collapsed. Added Ctrl/Cmd+K Command Palette indexing pages, tasks, and members with keyboard navigation. Added Notification Bell with dynamic counts derived from pending announcements awaiting signature and tasks awaiting peer verification. Added "Needs you" count chips on Feed and Tasks. Added bottom User Menu with text size selector (Small, Normal, Large), Discreet Mode toggle (hides photos, sets tab title to "Notes"), keyboard shortcuts modal, and sign out. Added mobile bottom tab bar with 4 primary tabs plus 5th "More" menu with min 44px tap targets.
 
-- [ ] **Phase 9: Sidebar and Top Bar (Safety and Support)**
-  - Status: NOT DONE
+- [x] **Phase 9: Sidebar and Top Bar (Safety and Support)**
+  - Status: DONE
+  - Files Changed: `src/components/layout/SupportDialog.tsx` (created), `src/components/layout/TopBar.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`
+  - Notes: Added "Support the movement" modal with payee details area and an accessible decorative SVG QR code boldly watermarked "Demo QR, not scannable" and explicit note that no real donations or payments are processed. Added "Report from the field" quick action in sidebar linking directly to heatmap check-in. Added Quick Exit button and double-Escape keyboard listener clearing sessionStorage and redirecting via `window.location.replace("https://weather.com")` with accessible tooltip disclaimer. Added reactive offline status banner appearing whenever `navigator.onLine === false`.
 
 - [ ] **Phase 10: Verify Media (Honest Demo, Feed Page)**
   - Status: NOT DONE
