@@ -26,6 +26,7 @@ import { logUserSession, getStoredAuthUser, setStoredAuthUser } from "@/lib/sess
 export interface AuthContextType {
   user: User | null
   movementId: string
+  setMovementId: (id: string) => void
   isAuthenticated: boolean
   signIn: (userId: string, customUser?: User) => void
   signOut: () => void
@@ -46,7 +47,8 @@ const DEFAULT_DEMO_USER_ID = "11111111-1111-4111-8111-111111111111" // Priya Rao
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   // Active user session
-  const [currentUserId, setCurrentUserId] = React.useState<string | null>(DEFAULT_DEMO_USER_ID)
+  const [currentUserId, setCurrentUserId] = React.useState<string | null>(null)
+  const [movementId, setMovementId] = React.useState<string>(SEED_MOVEMENT_ID)
   const [customUser, setCustomUser] = React.useState<User | null>(null)
   const [simulateFailure, setSimulateFailure] = React.useState(false)
   const [isDemoDrawerOpen, setIsDemoDrawerOpen] = React.useState(false)
@@ -110,7 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = React.useMemo(
     () => ({
       user,
-      movementId: SEED_MOVEMENT_ID,
+      movementId,
+      setMovementId,
       isAuthenticated: user !== null,
       signIn,
       signOut,
@@ -125,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       user,
+      movementId,
       signIn,
       signOut,
       switchDemoUser,

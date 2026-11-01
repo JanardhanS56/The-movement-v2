@@ -28,11 +28,18 @@ export default function LandingPage() {
           <Monogram className="h-8 w-8" />
           <span className="font-black text-xl tracking-tight text-foreground font-sans">The Movement</span>
         </div>
-        <Link href="/sign-in">
-          <Button variant="outline" size="sm" className="font-bold">
-            Sign in
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/sign-up">
+            <Button size="sm" className="font-bold">
+              Create Account
+            </Button>
+          </Link>
+          <Link href="/sign-in">
+            <Button variant="outline" size="sm" className="font-bold">
+              Sign in
+            </Button>
+          </Link>
+        </div>
       </header>
 
       {/* Hero Section */}
@@ -46,11 +53,16 @@ export default function LandingPage() {
           Coordinate field operations with cryptographic multi-signature bulletins, real-time geographic check-in maps, and community-verified volunteer bounties.
         </p>
 
-        <div>
-          <Link href="/sign-in">
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/sign-up">
             <Button size="lg" className="gap-2 font-semibold text-base px-6">
-              <span>Join the movement</span>
+              <span>Create Account</span>
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </Link>
+          <Link href="/sign-in">
+            <Button variant="outline" size="lg" className="font-semibold text-base px-6">
+              <span>Sign in</span>
             </Button>
           </Link>
         </div>
