@@ -9,6 +9,7 @@ import { TierBadge } from "@/components/shared/TierBadge"
 import { Monogram } from "@/components/shared/Monogram"
 import { Button } from "@/components/ui/button"
 import { UserTier } from "@/lib/schemas/user.schema"
+import { CreateMovementDialog } from "./CreateMovementDialog"
 import {
   Megaphone,
   MapPin,
@@ -107,6 +108,12 @@ export function Sidebar() {
             </Link>
           )
         })}
+
+        {!collapsed && user?.tier === 3 && (
+          <div className="pt-3">
+            <CreateMovementDialog />
+          </div>
+        )}
       </nav>
 
       {/* User Footer Profile & Sign Out */}
