@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { AuthProvider } from "./AuthProvider"
+import { DemoPanel } from "./DemoPanel"
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(
@@ -18,5 +20,12 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       })
   )
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        {children}
+        <DemoPanel />
+      </AuthProvider>
+    </QueryClientProvider>
+  )
 }
