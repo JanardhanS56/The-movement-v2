@@ -154,14 +154,15 @@ function TasksContent() {
       if (simulateFailure) {
         throw new Error("Simulated network failure: Task creation rejected.")
       }
+      const targetMovementId = movementId || "00000000-0000-4000-8000-000000000001"
       const newTask = await api.createTask(
         {
-          movement_id: movementId,
+          movement_id: targetMovementId,
           title: data.title,
-          description: data.description,
-          reward_points: data.reward_points,
-          required_volunteers: data.required_volunteers,
-          required_skills: data.required_skills,
+          description: data.description || undefined,
+          reward_points: data.reward_points ?? 50,
+          required_volunteers: data.required_volunteers ?? 1,
+          required_skills: data.required_skills ?? [],
         },
         user.id
       )

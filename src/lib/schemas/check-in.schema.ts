@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { uuidField } from "./common"
+import { uuidField, isoDateTime } from "./common"
 
 export const CheckInSchema = z.object({
   id: uuidField,
@@ -7,9 +7,9 @@ export const CheckInSchema = z.object({
   user_id: uuidField,
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
-  accuracy: z.number().optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-  checked_in_at: z.string().datetime(),
+  accuracy: z.number().nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).nullable().optional(),
+  checked_in_at: isoDateTime,
 })
 export type CheckIn = z.infer<typeof CheckInSchema>
 

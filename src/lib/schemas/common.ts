@@ -5,3 +5,6 @@ export const uuidPattern =
 
 export const uuidField = z.string().regex(uuidPattern, "Invalid UUID")
 export const idField = uuidField
+
+export const isoDateTime = z.string().datetime({ offset: true })
+
