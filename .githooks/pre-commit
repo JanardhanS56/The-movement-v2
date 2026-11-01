@@ -19,3 +19,4 @@ fi
 
 echo "✅ Pre-commit security verification passed."
 exit 0
+
