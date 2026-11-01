@@ -16,6 +16,7 @@ export interface ChatComposerProps {
   onCancelReply?: () => void
   users?: User[]
   disabled?: boolean
+  slowModeCountdown?: number
 }
 
 export function ChatComposer({
@@ -25,6 +26,7 @@ export function ChatComposer({
   onCancelReply,
   users = [],
   disabled = false,
+  slowModeCountdown = 0,
 }: ChatComposerProps) {
   const [text, setText] = React.useState("")
   const [mentionQuery, setMentionQuery] = React.useState<string | null>(null)
@@ -34,7 +36,8 @@ export function ChatComposer({
   const charCount = text.length
   const isOverLimit = charCount > 500
   const isEmpty = text.trim().length === 0
-  const canSend = !isEmpty && !isOverLimit && !isSending && !disabled
+  const isCoolingDown = slowModeCountdown > 0
+  const canSend = !isEmpty && !isOverLimit && !isSending && !disabled && !isCoolingDown
 
   // Filter mention suggestions when typing @
   const mentionSuggestions = React.useMemo(() => {
@@ -197,9 +200,13 @@ export function ChatComposer({
             value={text}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
-            placeholder="Write a message... (Enter to send, Shift+Enter for new line)"
+            placeholder={
+              isCoolingDown
+                ? `Slow mode active (${slowModeCountdown}s remaining)...`
+                : "Write a message... (Enter to send, Shift+Enter for new line)"
+            }
             aria-label="Write a message"
-            disabled={disabled || isSending}
+            disabled={disabled || isSending || isCoolingDown}
             className={`w-full p-2.5 rounded-sm border-2 text-xs sm:text-sm text-ink placeholder:text-ink/40 resize-none transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt ${
               isOverLimit ? "border-tomato bg-tomato/5" : "border-ink bg-ivory/50"
             }`}
@@ -227,7 +234,13 @@ export function ChatComposer({
             className="gap-2 bg-ink text-white hover:bg-ink/90 font-bold border-2 border-ink shadow-hard-xs cursor-pointer disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Send</span>
+            <span>
+              {isSending
+                ? "Sending..."
+                : isCoolingDown
+                ? `Cooldown (${slowModeCountdown}s)`
+                : "Send"}
+            </span>
           </Button>
         </div>
 

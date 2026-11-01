@@ -8,7 +8,7 @@ import { ChatMessageItem } from "./ChatMessageItem"
 import { ChatComposer } from "./ChatComposer"
 import { PinnedMessageStrip } from "./PinnedMessageStrip"
 import { getDayLabel } from "@/lib/date"
-import { ArrowLeft, ArrowDown, Info } from "lucide-react"
+import { ArrowLeft, ArrowDown, Info, Shield, Clock, UserX } from "lucide-react"
 import { EmptyState } from "@/components/shared/EmptyState"
 
 export interface ChatConversationProps {
@@ -19,6 +19,11 @@ export interface ChatConversationProps {
   currentUserTier?: number
   pinnedMessage?: Message | null
   blockedIds?: string[]
+  isSlowMode?: boolean
+  slowModeCountdown?: number
+  onToggleSlowMode?: () => void
+  onOpenRules?: () => void
+  onOpenBlocked?: () => void
   onBackToRooms?: () => void
   onSendMessage: (text: string, replyToId?: string | null) => Promise<void>
   onToggleReaction?: (messageId: string, key: ReactionKey) => void
@@ -39,6 +44,11 @@ export function ChatConversation({
   currentUserTier = 1,
   pinnedMessage,
   blockedIds = [],
+  isSlowMode = false,
+  slowModeCountdown = 0,
+  onToggleSlowMode,
+  onOpenRules,
+  onOpenBlocked,
   onBackToRooms,
   onSendMessage,
   onToggleReaction,
@@ -148,6 +158,54 @@ export function ChatConversation({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {/* Slow mode badge / toggle button */}
+          {isSlowMode && (
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-xs bg-sun/30 border border-ink text-ink">
+              <Clock className="w-3 h-3 text-ink" />
+              <span>Slow mode: 10s</span>
+            </span>
+          )}
+
+          {isOrganizer && onToggleSlowMode && (
+            <button
+              type="button"
+              onClick={onToggleSlowMode}
+              aria-label={isSlowMode ? "Disable slow mode" : "Enable slow mode (10s)"}
+              className={`p-1.5 rounded-sm border-2 border-ink text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+                isSlowMode ? "bg-sun text-ink shadow-hard-xs" : "bg-white text-ink/70 hover:bg-ivory"
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">{isSlowMode ? "Slow mode on" : "Slow mode"}</span>
+            </button>
+          )}
+
+          {/* Blocked Users button */}
+          {onOpenBlocked && (
+            <button
+              type="button"
+              onClick={onOpenBlocked}
+              aria-label="View blocked people"
+              className="p-1.5 rounded-sm border-2 border-ink bg-white text-ink/70 hover:text-ink hover:bg-ivory transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold"
+            >
+              <UserX className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Blocked</span>
+            </button>
+          )}
+
+          {/* Rules button */}
+          {onOpenRules && (
+            <button
+              type="button"
+              onClick={onOpenRules}
+              aria-label="View community chat rules"
+              className="p-1.5 rounded-sm border-2 border-ink bg-white text-ink/70 hover:text-ink hover:bg-ivory transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Rules</span>
+            </button>
+          )}
+
           <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-xs bg-sun/30 border border-ink text-ink">
             Demo
           </span>
@@ -276,6 +334,7 @@ export function ChatConversation({
       <ChatComposer
         onSendMessage={handleSend}
         isSending={isSending}
+        slowModeCountdown={slowModeCountdown}
         replyingToMessage={
           replyingTo
             ? {

@@ -114,15 +114,15 @@
   - Files Changed: `src/components/chat/EmojiPickerPopover.tsx` (created), `src/components/chat/ReactionChipsRow.tsx` (created), `src/components/chat/MessageActionsMenu.tsx` (created), `src/components/chat/PinnedMessageStrip.tsx` (created), `src/components/chat/ChatMessageItem.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
   - Notes: Added Reply with quote preview (first 80 chars) and smooth scrolling to referenced message. Added @mention keyboard navigable autocomplete and "Mentions you" badge. Implemented the fixed set of 6 reaction emoji (thumbs_up, heart, thanks, celebrate, laugh, surprised) with reaction chips row, aria-pressed, screen-reader labels with name and count, 44px tap targets, keyboard arrow movement, "Who reacted" tooltips, 320px flex-wrapping, and toggle handling. Added Tier 3 organizer message pinning with pinned message banner in room header and jump-to link.
 
-- [ ] **Phase 4: Safety and Control**
-  - Status: NOT DONE
-  - Files Changed: None
-  - Notes: Starting next.
+- [x] **Phase 4: Safety and Control**
+  - Status: DONE
+  - Files Changed: `src/components/chat/ReportMessageDialog.tsx` (created), `src/components/chat/ConfirmDeleteDialog.tsx` (created), `src/components/chat/BlockedUsersDialog.tsx` (created), `src/components/chat/ChatRulesDialog.tsx` (created), `src/components/chat/ChatComposer.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
+  - Notes: Implemented ReportMessageDialog with 5 category options, optional note, and Rule 8 honest demo toast ("Report saved on this device (demo). Organizers do not receive it yet."). Implemented ConfirmDeleteDialog for own message deletion and Tier 3 organizer removal ("Message removed by an organizer"). Built BlockedUsersDialog with sessionStorage persistence hiding messages and reactions for blocked users. Created ChatRulesDialog with session acknowledgement on first open and header button. Added Slow mode toggle per room for Tier 3 organizers with visible 10s countdown cooldown on composer. Enforced privacy: zero email, phone, or exact location exposure.
 
 - [ ] **Phase 5: Room Tools**
   - Status: NOT DONE
   - Files Changed: None
-  - Notes: Pending.
+  - Notes: Starting next.
 
 - [ ] **Phase 6: Sidebar Extras and Audit**
   - Status: NOT DONE

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
-import { CHAT_ROOMS, ReactionKey } from "@/lib/constants/chat"
+import { CHAT_ROOMS, ReactionKey, ReportReason } from "@/lib/constants/chat"
 import { chatApi, ChatRateLimitError } from "@/lib/api/chat"
 import { Message } from "@/lib/schemas/chat.schema"
 import { User } from "@/lib/schemas/user.schema"
@@ -11,6 +11,10 @@ import { SEED_USERS, SEED_TASKS } from "@/lib/mocks/seed-data"
 import { FICTIONAL_USERS } from "@/lib/mocks/fictional-data"
 import { ChatRoomList } from "@/components/chat/ChatRoomList"
 import { ChatConversation } from "@/components/chat/ChatConversation"
+import { ReportMessageDialog } from "@/components/chat/ReportMessageDialog"
+import { ConfirmDeleteDialog } from "@/components/chat/ConfirmDeleteDialog"
+import { BlockedUsersDialog } from "@/components/chat/BlockedUsersDialog"
+import { ChatRulesDialog } from "@/components/chat/ChatRulesDialog"
 import { TaskDetailDrawer } from "@/components/tasks/TaskDetailDrawer"
 import { toast } from "sonner"
 
@@ -31,11 +35,45 @@ export default function ChatPage() {
   const [pinnedMessage, setPinnedMessage] = React.useState<Message | null>(null)
   const [isSending, setIsSending] = React.useState(false)
 
+  // Safety & Dialog States
+  const [rulesOpen, setRulesOpen] = React.useState(false)
+  const [blockedOpen, setBlockedOpen] = React.useState(false)
+  const [reportTargetId, setReportTargetId] = React.useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; isOrganizer: boolean } | null>(null)
+  const [blockedUserIds, setBlockedUserIds] = React.useState<string[]>([])
+  const [slowModeActive, setSlowModeActive] = React.useState(false)
+  const [slowModeCountdown, setSlowModeCountdown] = React.useState(0)
+
   // Selected task state for TaskDetailDrawer
   const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null)
   const selectedTask = React.useMemo(() => {
     return SEED_TASKS.find((t) => t.id === selectedTaskId)
   }, [selectedTaskId])
+
+  // Hydrate blocked users, rules acknowledgement, and slow mode from sessionStorage
+  React.useEffect(() => {
+    try {
+      const storedBlocked = sessionStorage.getItem("the-movement:chat:blocked-users")
+      if (storedBlocked) {
+        setBlockedUserIds(JSON.parse(storedBlocked))
+      }
+      const rulesAck = sessionStorage.getItem("the-movement:chat:rules-acknowledged")
+      if (rulesAck !== "true") {
+        setRulesOpen(true)
+      }
+      const slow = sessionStorage.getItem(`the-movement:chat:slow-mode:${activeRoom.id}`) === "true"
+      setSlowModeActive(slow)
+    } catch {}
+  }, [activeRoom.id])
+
+  // Countdown timer for slow mode
+  React.useEffect(() => {
+    if (slowModeCountdown <= 0) return
+    const timer = setInterval(() => {
+      setSlowModeCountdown((prev) => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [slowModeCountdown])
 
   // Build users map for fast lookup
   const usersMap = React.useMemo<Record<string, User>>(() => {
@@ -119,7 +157,7 @@ export default function ChatPage() {
     setMobileView("conversation")
   }
 
-  // Handle message submission (supports replies)
+  // Handle message submission (supports replies and slow mode cooldown)
   const handleSendMessage = async (text: string, replyToId?: string | null) => {
     setIsSending(true)
     try {
@@ -142,6 +180,11 @@ export default function ChatPage() {
         ...prev,
         [activeRoom.id]: new Date().toISOString(),
       }))
+
+      // If slow mode is active, trigger 10s cooldown
+      if (slowModeActive) {
+        setSlowModeCountdown(10)
+      }
     } catch (err: unknown) {
       if (err instanceof ChatRateLimitError) {
         toast.warning(err.message)
@@ -193,32 +236,67 @@ export default function ChatPage() {
     }
   }
 
-  // Handle message deletion
-  const handleDeleteMessage = async (messageId: string) => {
-    try {
-      await chatApi.deleteMessage(messageId)
-      setMessages((prev) => prev.filter((m) => m.id !== messageId))
-      toast.success("Message deleted.")
-    } catch {
-      toast.error("Could not delete message.")
+  // Toggle slow mode for room (Tier 3 organizers)
+  const handleToggleSlowMode = () => {
+    if (user?.tier !== 3) {
+      toast.error("Only Tier 3 organizers can toggle slow mode.")
+      return
     }
+    const next = !slowModeActive
+    setSlowModeActive(next)
+    try {
+      sessionStorage.setItem(`the-movement:chat:slow-mode:${activeRoom.id}`, String(next))
+    } catch {}
+    toast.success(next ? "Slow mode enabled (10s cooldown)." : "Slow mode disabled.")
   }
 
-  // Handle organizer removal
-  const handleRemoveByOrganizer = async (messageId: string) => {
-    try {
-      await chatApi.removeMessageByOrganizer(messageId)
+  // Handle confirmed deletion or organizer removal
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+    const { id, isOrganizer } = deleteTarget
+    if (isOrganizer) {
+      await chatApi.removeMessageByOrganizer(id)
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === messageId
+          m.id === id
             ? { ...m, status: "removed", text: "Message removed by an organizer", reactions: {} }
             : m
         )
       )
       toast.success("Message removed by organizer.")
-    } catch {
-      toast.error("Could not remove message.")
+    } else {
+      await chatApi.deleteMessage(id)
+      setMessages((prev) => prev.filter((m) => m.id !== id))
+      toast.success("Message deleted.")
     }
+  }
+
+  // Handle blocking a person
+  const handleBlockUser = (authorId: string) => {
+    if (blockedUserIds.includes(authorId)) return
+    const next = [...blockedUserIds, authorId]
+    setBlockedUserIds(next)
+    try {
+      sessionStorage.setItem("the-movement:chat:blocked-users", JSON.stringify(next))
+    } catch {}
+    const blockedName = usersMap[authorId]?.display_name || "Volunteer"
+    toast.info(`Blocked ${blockedName}. Their messages are now hidden on this device.`)
+  }
+
+  // Handle unblocking a person
+  const handleUnblockUser = (userId: string) => {
+    const next = blockedUserIds.filter((id) => id !== userId)
+    setBlockedUserIds(next)
+    try {
+      sessionStorage.setItem("the-movement:chat:blocked-users", JSON.stringify(next))
+    } catch {}
+    const unblockedName = usersMap[userId]?.display_name || "Volunteer"
+    toast.info(`Unblocked ${unblockedName}.`)
+  }
+
+  // Handle submitting report
+  const handleSubmitReport = async (messageId: string, reason: ReportReason, note?: string) => {
+    await chatApi.reportMessage(messageId, reason, note)
   }
 
   return (
@@ -239,6 +317,7 @@ export default function ChatPage() {
             messagesMap={messagesMap}
             lastReadMap={lastReadMap}
             currentUserId={user?.id}
+            blockedIds={blockedUserIds}
           />
         </div>
 
@@ -255,19 +334,53 @@ export default function ChatPage() {
             currentUserId={user?.id}
             currentUserTier={user?.tier || 1}
             pinnedMessage={pinnedMessage}
+            blockedIds={blockedUserIds}
+            isSlowMode={slowModeActive}
+            slowModeCountdown={slowModeCountdown}
+            onToggleSlowMode={handleToggleSlowMode}
+            onOpenRules={() => setRulesOpen(true)}
+            onOpenBlocked={() => setBlockedOpen(true)}
             onBackToRooms={() => setMobileView("rooms")}
             onSendMessage={handleSendMessage}
             onToggleReaction={handleToggleReaction}
             onTogglePin={handleTogglePin}
-            onDeleteMessage={handleDeleteMessage}
-            onRemoveMessageByOrganizer={handleRemoveByOrganizer}
-            onReportMessage={() => {}}
-            onBlockUser={() => {}}
+            onDeleteMessage={(id) => setDeleteTarget({ id, isOrganizer: false })}
+            onRemoveMessageByOrganizer={(id) => setDeleteTarget({ id, isOrganizer: true })}
+            onReportMessage={(id) => setReportTargetId(id)}
+            onBlockUser={handleBlockUser}
             isSending={isSending}
             onSelectTask={(taskId) => setSelectedTaskId(taskId)}
           />
         </div>
       </div>
+
+      {/* Safety & Moderation Dialogs */}
+      <ReportMessageDialog
+        open={Boolean(reportTargetId)}
+        onOpenChange={(open) => !open && setReportTargetId(null)}
+        messageId={reportTargetId}
+        onSubmitReport={handleSubmitReport}
+      />
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        isOrganizerRemoval={deleteTarget?.isOrganizer}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <BlockedUsersDialog
+        open={blockedOpen}
+        onOpenChange={setBlockedOpen}
+        blockedUserIds={blockedUserIds}
+        usersMap={usersMap}
+        onUnblock={handleUnblockUser}
+      />
+
+      <ChatRulesDialog
+        open={rulesOpen}
+        onOpenChange={setRulesOpen}
+      />
 
       {/* Shared Task Drawer integration */}
       {selectedTaskId && (
