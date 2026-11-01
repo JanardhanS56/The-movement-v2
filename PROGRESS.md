@@ -134,3 +134,60 @@
   - Status: DONE
   - Files Changed: `src/config/donation.ts` (created), `public/donate-qr.png` (created), `src/components/layout/SupportDialog.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `PROGRESS.md`
   - Notes: Added Donate option to left sidebar with Heart icon, matching existing action items (near Report from the field), with collapsed icon tooltip and aria-label. Put Donate in mobile More sheet. Replaced SupportDialog contents with the configured donation details (The Movement Foundation), contacts at the top, big un-stretched QR image on plain white background, tap-to-enlarge full-screen view, download link, accessible focus trap and keyboard control (Esc/backdrop close, focus return), and three plain honesty disclaimer lines.
+
+---
+
+## Backend Wiring: Hackathon Emergency Integration
+
+### Rules & Scope (Backend)
+- Switch from pure in-memory mocks to real Supabase persistence.
+- Fail-safe: `FallbackApiAdapter` → tries Supabase REST first, silently falls back to `MockApiAdapter`.
+- No UI/CSS changes. No new dependencies. Existing `RestApiAdapter` and all API routes remain intact.
+- Quality gate: `npm run build` must pass after each commit.
+
+### Backend Phase Status
+
+- [x] **Step 1: Scan & Inventory**
+  - Status: DONE
+  - Key mock data files: `src/lib/mocks/seed-data.ts` (12 users, 14 tasks, 3 announcements, etc.), `src/lib/mocks/mock-store.ts` (in-memory CRUD), `src/lib/api/index.ts` (mock/real switch via `NEXT_PUBLIC_USE_MOCKS`).
+  - RestApiAdapter and all 12+ API routes were pre-built but never activated (env flag was `true`).
+
+- [x] **Step 2: Database Schema SQL**
+  - Status: DONE
+  - Files Created: `supabase/migrations/20261102_phase2_seed_auth_users.sql`, `supabase/migrations/20261102_phase2_seed_demo_data.sql`, `supabase/migrations/20261102_phase2_users_handle_and_prefs.sql`
+  - Notes: Seed creates 6 demo auth users (janardhan@demo.com / demo1234, etc.), seeds public.users + profiles + 1 movement + 3 announcements + 5 signatures + 9 tasks + 4 task_claims + 6 check_ins with ON CONFLICT DO NOTHING (idempotent). Added `handle` and `show_on_leaderboards` columns to `public.users` with trigger to auto-sync from `profiles.username`.
+
+- [x] **Step 3: Supabase Service Layer**
+  - Status: DONE
+  - Files Created: `src/lib/api/fallback-adapter.ts`
+  - Files Modified: `src/lib/api/index.ts`, `src/lib/api/rest-adapter.ts`, `.env`
+  - Notes: Created `FallbackApiAdapter` wrapping all 20+ `ApiClient` methods with `withFallback(rest, mock)`. Fixed `RestApiAdapter.getAggregatedCheckInPoints()` response shape. Updated `api/index.ts` to use `FallbackApiAdapter` when `NEXT_PUBLIC_USE_MOCKS=false`. Updated `.env` to set `NEXT_PUBLIC_USE_MOCKS=false`.
+
+- [x] **Step 4: Component Integration**
+  - Status: DONE (zero component changes needed)
+  - Notes: Feed, Tasks, Profile, Heatmap pages already call `api.*` methods via React Query — they are already wired. The switch is transparent: flipping `NEXT_PUBLIC_USE_MOCKS=false` + running migrations is all that's needed. Optimistic updates, loading states, and error retries are all pre-built.
+
+### Micro-Commits Made
+1. `857863c` — `feat(db): add phase 2 migrations - seed data, auth users, handle column`
+2. `52d9393` — `feat(api): add FallbackApiAdapter with MockApiAdapter safety net, wire as default`
+3. `718b65d` — `fix(api): fix RestApiAdapter.getAggregatedCheckInPoints response shape`
+
+### Demo Credentials (after running SQL migrations on Supabase)
+| Username | Email | Password | Tier |
+|---|---|---|---|
+| janardhan | janardhan@demo.com | demo1234 | Tier 3 Organizer |
+| rohan-shetty | rohan@demo.com | demo1234 | Tier 3 Organizer |
+| ananya-kamath | ananya@demo.com | demo1234 | Tier 3 Organizer |
+| devika-pai | devika@demo.com | demo1234 | Tier 2 Senior Volunteer |
+| karthik-bhat | karthik@demo.com | demo1234 | Tier 2 Senior Volunteer |
+| sneha-nayak | sneha@demo.com | demo1234 | Tier 1 Volunteer |
+
+### Steps to Activate Live Backend
+1. Open Supabase Dashboard → SQL Editor
+2. Run (in order): `20261101_phase1_init_schema.sql` → `20261101_phase1_profiles_and_logs.sql` → `20261101_phase1_fix_rls_recursion.sql` → `20261102_phase2_users_handle_and_prefs.sql` → `20261102_phase2_seed_auth_users.sql` → `20261102_phase2_seed_demo_data.sql`
+3. `.env` already has `NEXT_PUBLIC_USE_MOCKS=false`
+4. Restart dev server: `npm run dev`
+5. Sign in at `/sign-in` with `janardhan` / `demo1234` or use the persona selector
+
+### Fallback Safety Net
+If Supabase is unreachable during the demo, `FallbackApiAdapter` silently falls back to `MockApiAdapter` (in-memory mock store with all 14 tasks, 3 announcements, etc.). The UI **never crashes**.
