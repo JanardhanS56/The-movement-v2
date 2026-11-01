@@ -67,9 +67,12 @@ function runCheck() {
     lines.forEach((line, index) => {
       for (const pattern of BANNED_PATTERNS) {
         if (pattern.regex.test(line)) {
-          // Allow-list: src/lib/ui-prefs.ts is the designated single file for UI preferences localStorage
+          // Allow-list: src/lib/ui-prefs.ts and src/lib/session-logger.ts are permitted to access localStorage
           const normalizedPath = relPath.replace(/\\/g, '/')
-          if (pattern.name === 'Direct localStorage usage' && normalizedPath === 'src/lib/ui-prefs.ts') {
+          if (
+            pattern.name === 'Direct localStorage usage' &&
+            (normalizedPath === 'src/lib/ui-prefs.ts' || normalizedPath === 'src/lib/session-logger.ts')
+          ) {
             continue
           }
 

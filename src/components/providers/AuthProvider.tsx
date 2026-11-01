@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { User } from "@/lib/schemas/user.schema"
 import { SEED_USERS, SEED_MOVEMENT_ID } from "@/lib/mocks/seed-data"
 import { mockStore } from "@/lib/mocks/mock-store"
+import { logUserSession } from "@/lib/session-logger"
 
 /**
  * ============================================================================
@@ -55,9 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 
   const signOut = React.useCallback(() => {
+    if (currentUserId) {
+      void logUserSession(currentUserId, "logout")
+    }
     setCurrentUserId(null)
     router.push("/sign-in")
-  }, [router])
+  }, [currentUserId, router])
 
   const switchDemoUser = React.useCallback((userId: string) => {
     setCurrentUserId(userId)
