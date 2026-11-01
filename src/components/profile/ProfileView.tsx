@@ -158,7 +158,7 @@ export function ProfileView({ userId }: ProfileViewProps) {
       <ProfileStats stats={stats} />
 
       {/* 3. Badge Gallery: names visible on hover and keyboard focus */}
-      <BadgeGallery badges={badges} />
+      <BadgeGallery badges={badges} user={user} />
 
       {/* 4. Impact Ledger: task name linking to /tasks, verification method, date, verifier */}
       <ImpactLedger entries={ledger} />

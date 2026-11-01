@@ -83,15 +83,15 @@ describe("Badge Progress Evaluation", () => {
     const earnedBadges = badges.filter((b) => b.earned)
     expect(earnedBadges.length).toBeGreaterThanOrEqual(3)
 
-    // Priya is Tier 3, so Movement Pillar and Trusted Voice must be earned
-    const pillarBadge = badges.find((b) => b.badgeId === "movement-pillar")
-    expect(pillarBadge?.earned).toBe(true)
+    // Priya is Tier 3 and rank 2, so Movement Founder, Point collector, and Podium must be earned
+    const founderBadge = badges.find((b) => b.badgeId === "movement-founder" || b.badgeId === "movement-pillar")
+    expect(founderBadge?.earned).toBe(true)
 
-    const voiceBadge = badges.find((b) => b.badgeId === "verified-voice")
-    expect(voiceBadge?.earned).toBe(true)
+    const podiumBadge = badges.find((b) => b.badgeId === "podium")
+    expect(podiumBadge?.earned).toBe(true)
 
-    // Century Club (earned with 280 points)
-    const centuryBadge = badges.find((b) => b.badgeId === "century-club")
+    // Point collector (earned with 280 points >= 100)
+    const centuryBadge = badges.find((b) => b.badgeId === "point-collector" || b.badgeId === "century-club")
     expect(centuryBadge?.earned).toBe(true)
     expect(centuryBadge?.progress).toBe(100)
   })

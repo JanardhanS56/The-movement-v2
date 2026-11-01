@@ -52,155 +52,177 @@ export interface BadgeDefinition {
   description: string
   category: "participation" | "action" | "community" | "leadership"
   maxProgress: number
+  unit?: string
   evaluate: (user: DemoUser | User, completedTasks: CompletedTaskRecord[]) => { earned: boolean; progress: number }
 }
 
 export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
-    id: "first-response",
-    name: "First on Scene",
-    description: "Claim and complete a task within 2 hours of posting",
+    id: "first-step",
+    name: "First step",
+    description: "Complete your first verified task",
     category: "action",
     maxProgress: 1,
-    evaluate: (user) => {
-      const demoUser = user as DemoUser
-      const earned = demoUser.earnedBadgeIds?.includes("first-response") || false
-      return { earned, progress: earned ? 1 : 0 }
-    },
-  },
-  {
-    id: "water-bearer",
-    name: "Hydration Hero",
-    description: "Complete 3 logistics or supply tasks",
-    category: "action",
-    maxProgress: 3,
+    unit: "task",
     evaluate: (user, tasks) => {
       const demoUser = user as DemoUser
-      if (demoUser.earnedBadgeIds?.includes("water-bearer")) {
-        return { earned: true, progress: 3 }
-      }
-      const count = tasks.length
-      return { earned: count >= 3, progress: Math.min(count, 3) }
+      const count = demoUser.stats?.tasksCompleted || tasks.length || 0
+      const earned = count >= 1 || demoUser.earnedBadgeIds?.includes("first-step") || demoUser.earnedBadgeIds?.includes("first-response") || false
+      return { earned, progress: Math.min(count, 1) }
     },
   },
   {
-    id: "night-watch",
-    name: "Night Watch",
-    description: "Check in or complete a task between 22:00 and 05:00",
-    category: "participation",
-    maxProgress: 1,
-    evaluate: (user) => {
-      const demoUser = user as DemoUser
-      const earned = demoUser.earnedBadgeIds?.includes("night-watch") || false
-      return { earned, progress: earned ? 1 : 0 }
-    },
-  },
-  {
-    id: "peacemaker",
-    name: "De-escalator",
-    description: "Complete 2 safety-category tasks",
-    category: "community",
-    maxProgress: 2,
-    evaluate: (user) => {
-      const demoUser = user as DemoUser
-      const earned = demoUser.earnedBadgeIds?.includes("peacemaker") || false
-      return { earned, progress: earned ? 2 : 1 }
-    },
-  },
-  {
-    id: "megaphone",
-    name: "Signal Booster",
-    description: "Co-sign 5 announcements",
-    category: "community",
+    id: "getting-going",
+    name: "Getting going",
+    description: "Complete 5 community tasks",
+    category: "action",
     maxProgress: 5,
-    evaluate: (user) => {
+    unit: "tasks",
+    evaluate: (user, tasks) => {
       const demoUser = user as DemoUser
-      const count = (demoUser.metadata?.announcementsSigned as number) || (user.tier === 3 ? 4 : 2)
-      const earned = demoUser.earnedBadgeIds?.includes("megaphone") || count >= 5
+      const count = demoUser.stats?.tasksCompleted || tasks.length || 0
+      const earned = count >= 5 || demoUser.earnedBadgeIds?.includes("getting-going") || demoUser.earnedBadgeIds?.includes("water-bearer") || false
       return { earned, progress: Math.min(count, 5) }
     },
   },
   {
-    id: "mapmaker",
-    name: "Ground Mapper",
-    description: "5 field check-ins in distinct 100m grid cells",
+    id: "task-master",
+    name: "Task master",
+    description: "Complete 15 community tasks",
     category: "action",
-    maxProgress: 5,
-    evaluate: (user) => {
+    maxProgress: 15,
+    unit: "tasks",
+    evaluate: (user, tasks) => {
       const demoUser = user as DemoUser
-      const earned = demoUser.earnedBadgeIds?.includes("mapmaker") || false
-      const count = (demoUser.metadata?.checkInsCount as number) || 3
-      return { earned, progress: earned ? 5 : Math.min(count, 5) }
+      const count = demoUser.stats?.tasksCompleted || tasks.length || 0
+      const earned = count >= 15 || demoUser.earnedBadgeIds?.includes("task-master") || false
+      return { earned, progress: Math.min(count, 15) }
     },
   },
   {
-    id: "verified-voice",
-    name: "Trusted Voice",
-    description: "Reach Tier 2 (Senior Steward)",
-    category: "leadership",
-    maxProgress: 1,
-    evaluate: (user) => {
-      const isTier2Or3 = user.tier >= 2
-      return { earned: isTier2Or3, progress: isTier2Or3 ? 1 : 0 }
-    },
-  },
-  {
-    id: "movement-pillar",
-    name: "Movement Pillar",
-    description: "Reach Tier 3 (Organizer)",
-    category: "leadership",
-    maxProgress: 1,
-    evaluate: (user) => {
-      const isTier3 = user.tier === 3
-      return { earned: isTier3, progress: isTier3 ? 1 : 0 }
-    },
-  },
-  {
-    id: "consensus-builder",
-    name: "Consensus Builder",
-    description: "Cast 10 peer verification votes",
-    category: "community",
-    maxProgress: 10,
-    evaluate: (user) => {
-      const demoUser = user as DemoUser
-      const earned = demoUser.earnedBadgeIds?.includes("consensus-builder") || false
-      return { earned, progress: earned ? 10 : 4 }
-    },
-  },
-  {
-    id: "clean-slate",
-    name: "Leave No Trace",
-    description: "Complete 3 cleanup-category tasks",
-    category: "action",
-    maxProgress: 3,
-    evaluate: (user) => {
-      const demoUser = user as DemoUser
-      const earned = demoUser.earnedBadgeIds?.includes("clean-slate") || false
-      return { earned, progress: earned ? 3 : 1 }
-    },
-  },
-  {
-    id: "bridge-builder",
-    name: "Bridge Builder",
-    description: "Complete tasks in 3 different movement categories",
-    category: "participation",
-    maxProgress: 3,
-    evaluate: (user) => {
-      const demoUser = user as DemoUser
-      const earned = demoUser.earnedBadgeIds?.includes("bridge-builder") || false
-      return { earned, progress: earned ? 3 : 2 }
-    },
-  },
-  {
-    id: "century-club",
-    name: "Century Club",
-    description: "Earn 100+ impact points total",
+    id: "point-collector",
+    name: "Point collector",
+    description: "Earn 100 impact points",
     category: "leadership",
     maxProgress: 100,
+    unit: "points",
     evaluate: (user) => {
       const demoUser = user as DemoUser
       const pts = demoUser.stats?.impactScore || 0
-      return { earned: pts >= 100, progress: Math.min(pts, 100) }
+      const earned = pts >= 100 || demoUser.earnedBadgeIds?.includes("point-collector") || demoUser.earnedBadgeIds?.includes("century-club") || false
+      return { earned, progress: Math.min(pts, 100) }
+    },
+  },
+  {
+    id: "point-hero",
+    name: "Point hero",
+    description: "Earn 500 impact points",
+    category: "leadership",
+    maxProgress: 500,
+    unit: "points",
+    evaluate: (user) => {
+      const demoUser = user as DemoUser
+      const pts = demoUser.stats?.impactScore || 0
+      const earned = pts >= 500 || demoUser.earnedBadgeIds?.includes("point-hero") || false
+      return { earned, progress: Math.min(pts, 500) }
+    },
+  },
+  {
+    id: "field-eyes",
+    name: "Field eyes",
+    description: "Record 5 field check-ins",
+    category: "action",
+    maxProgress: 5,
+    unit: "check-ins",
+    evaluate: (user) => {
+      const demoUser = user as DemoUser
+      const count = (demoUser.metadata?.checkInsCount as number) || (demoUser.tier === 3 ? 5 : 3)
+      const earned = count >= 5 || demoUser.earnedBadgeIds?.includes("field-eyes") || demoUser.earnedBadgeIds?.includes("mapmaker") || false
+      return { earned, progress: Math.min(count, 5) }
+    },
+  },
+  {
+    id: "co-signer",
+    name: "Co-signer",
+    description: "Co-sign 3 movement announcements",
+    category: "community",
+    maxProgress: 3,
+    unit: "signatures",
+    evaluate: (user) => {
+      const demoUser = user as DemoUser
+      const count = (demoUser.metadata?.announcementsSigned as number) || (demoUser.tier >= 2 ? 4 : 2)
+      const earned = count >= 3 || demoUser.earnedBadgeIds?.includes("co-signer") || demoUser.earnedBadgeIds?.includes("megaphone") || false
+      return { earned, progress: Math.min(count, 3) }
+    },
+  },
+  {
+    id: "team-player",
+    name: "Team player",
+    description: "Verify 3 tasks for others",
+    category: "community",
+    maxProgress: 3,
+    unit: "tasks",
+    evaluate: (user) => {
+      const demoUser = user as DemoUser
+      const count = (demoUser.metadata?.verificationsCount as number) || (demoUser.tier >= 2 ? 4 : 1)
+      const earned = count >= 3 || demoUser.earnedBadgeIds?.includes("team-player") || demoUser.earnedBadgeIds?.includes("consensus-builder") || false
+      return { earned, progress: Math.min(count, 3) }
+    },
+  },
+  {
+    id: "steady-hands",
+    name: "Steady hands",
+    description: "Complete tasks on 3 different days",
+    category: "participation",
+    maxProgress: 3,
+    unit: "days",
+    evaluate: (user, tasks) => {
+      const demoUser = user as DemoUser
+      const distinctDays = new Set(tasks.map((t) => t.completedAt.slice(0, 10))).size
+      const count = Math.max(distinctDays, demoUser.completedTasks?.length ? 3 : 0)
+      const earned = count >= 3 || demoUser.earnedBadgeIds?.includes("steady-hands") || demoUser.earnedBadgeIds?.includes("night-watch") || false
+      return { earned, progress: Math.min(count, 3) }
+    },
+  },
+  {
+    id: "podium",
+    name: "Podium",
+    description: "Reach monthly top 3 on the leaderboard",
+    category: "leadership",
+    maxProgress: 3,
+    unit: "rank",
+    evaluate: (user) => {
+      const demoUser = user as DemoUser
+      const rank = demoUser.stats?.rank || 99
+      const earned = rank <= 3 || demoUser.earnedBadgeIds?.includes("podium") || false
+      return { earned, progress: earned ? 3 : 0 }
+    },
+  },
+  {
+    id: "champion",
+    name: "Champion",
+    description: "Monthly or yearly top rank champion",
+    category: "leadership",
+    maxProgress: 1,
+    unit: "rank",
+    evaluate: (user) => {
+      const demoUser = user as DemoUser
+      const rank = demoUser.stats?.rank || 99
+      const earned = rank === 1 || demoUser.earnedBadgeIds?.includes("champion") || false
+      return { earned, progress: earned ? 1 : 0 }
+    },
+  },
+  {
+    id: "movement-founder",
+    name: "Movement Founder",
+    description: "Movement founder status",
+    category: "leadership",
+    maxProgress: 1,
+    unit: "status",
+    evaluate: (user) => {
+      const demoUser = user as DemoUser
+      const isFounder = demoUser.tier === 3 || demoUser.earnedBadgeIds?.includes("movement-founder") || demoUser.earnedBadgeIds?.includes("movement-pillar") || false
+      return { earned: isFounder, progress: isFounder ? 1 : 0 }
     },
   },
 ]
@@ -818,6 +840,7 @@ export function getBadgeProgress(user: DemoUser | User) {
       earned,
       progress,
       maxProgress: def.maxProgress,
+      unit: def.unit || "tasks",
     }
   })
 }

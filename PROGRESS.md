@@ -45,8 +45,10 @@
   - Files Changed: `src/lib/ui-prefs.ts`, `src/components/profile/PhotoCropDialog.tsx` (created), `src/components/profile/ProfileSettingsCard.tsx` (created), `src/components/profile/ProfileHeader.tsx`, `src/components/profile/ProfileView.tsx`, `src/components/profile/ProfileNotFound.tsx`, `src/components/tasks/TasksLeaderboard.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `src/app/(dashboard)/u/[handle]/page.tsx` (created)
   - Notes: Added Change Photo and Remove Photo buttons with square crop preview dialog and zoom slider. Re-encoded through canvas to 512x512 stripping EXIF and GPS data with storage persistence in demo state and initials fallback. Updated avatar displays in ProfileHeader, Sidebar, and Leaderboard to reflect custom photos. Added Share Profile button beside movement organizer tag with Web Share API and clipboard copy (`Link copied` toast). Added new `/u/[handle]` dynamic route without breaking `/profile/[userId]`. Added profile settings card with "Who can see my profile" (Public vs Movement members only with gate) and "Show me on leaderboards" toggle. Removed visible raw UUIDs. Verified 0 errors across full verify pipeline.
 
-- [ ] **Phase 7: Badges (12)**
-  - Status: NOT DONE
+- [x] **Phase 7: Badges (12)**
+  - Status: DONE
+  - Files Changed: `src/components/profile/BadgeGallery.tsx`, `src/lib/mocks/fictional-data.ts`, `src/lib/__tests__/leaderboard-and-filters.test.ts`, `src/components/profile/ProfileView.tsx`
+  - Notes: Replaced generic star with 12 distinct inline SVG sticker badges styled from theme tokens (Cobalt, Acid Lime, Tomato, Sun Amber, Lavender, Ink, Ivory): First step (1 task), Getting going (5 tasks), Task master (15 tasks), Point collector (100 points), Point hero (500 points), Field eyes (5 check-ins), Co-signer (3 signatures), Team player (verify 3 tasks for others), Steady hands (tasks on 3 different days), Podium (monthly top 3), Champion (monthly or yearly), and Movement Founder. Earned badges render in full color with thick ink borders and drop shadows; locked badges render with muted dashed borders, lock icon, and progress bars (e.g. "2 of 5 tasks"). Heading displays "Badges" with sentence case and "N of 12 earned". Clicking any badge opens an accessible dialog with description and progress metrics. Unlocked badges trigger a session toast notification once per badge per session. All 60 tests pass; Next.js build passes cleanly.
 
 - [ ] **Phase 8: Sidebar and Top Bar (Core)**
   - Status: NOT DONE
