@@ -1,0 +1,63 @@
+import { z } from "zod"
+
+export const TaskStatusSchema = z.enum([
+  "open",
+  "in_progress",
+  "pending_verification",
+  "completed",
+  "cancelled",
+])
+export type TaskStatus = z.infer<typeof TaskStatusSchema>
+
+export const TaskSchema = z.object({
+  id: z.string().uuid(),
+  movement_id: z.string().uuid(),
+  title: z.string().min(5).max(120),
+  description: z.string().max(2000).optional(),
+  reward_points: z.number().int().min(0).max(10000),
+  required_volunteers: z.number().int().min(1).max(100),
+  status: TaskStatusSchema,
+  created_by: z.string().uuid(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime().optional(),
+})
+export type Task = z.infer<typeof TaskSchema>
+
+export const CreateTaskSchema = z.object({
+  movement_id: z.string().uuid(),
+  title: z.string().min(5).max(120),
+  description: z.string().max(2000).optional(),
+  reward_points: z.number().int().min(0).max(10000).default(50),
+  required_volunteers: z.number().int().min(1).max(100).default(1),
+})
+export type CreateTaskInput = z.infer<typeof CreateTaskSchema>
+
+export const TaskClaimStatusSchema = z.enum([
+  "in_progress",
+  "pending_verification",
+  "verified",
+  "rejected",
+  "withdrawn",
+])
+export type TaskClaimStatus = z.infer<typeof TaskClaimStatusSchema>
+
+export const ClaimTaskSchema = z.object({
+  task_id: z.string().uuid(),
+  note: z.string().max(500).optional(),
+})
+export type ClaimTaskInput = z.infer<typeof ClaimTaskSchema>
+
+export const TaskClaimSchema = z.object({
+  id: z.string().uuid(),
+  task_id: z.string().uuid(),
+  claimed_by: z.string().uuid(),
+  status: TaskClaimStatusSchema,
+  note: z.string().max(500).nullable().optional(),
+  proof_url: z.string().nullable().optional(),
+  claimed_at: z.string().datetime(),
+  completed_at: z.string().datetime().nullable().optional(),
+  verified_at: z.string().datetime().nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+})
+export type TaskClaim = z.infer<typeof TaskClaimSchema>
