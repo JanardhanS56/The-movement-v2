@@ -253,7 +253,12 @@ class MockStore {
     return clone(newClaim)
   }
 
-  public markClaimComplete(claimId: string, claimantId: string, note?: string): TaskClaim {
+  public markClaimComplete(
+    claimId: string,
+    claimantId: string,
+    note?: string,
+    proofUrl?: string
+  ): TaskClaim {
     const claim = this.taskClaims.find((c) => c.id === claimId)
     if (!claim) throw new Error("Claim not found")
 
@@ -266,6 +271,7 @@ class MockStore {
     claim.status = "pending_verification"
     claim.completed_at = now
     if (note) claim.note = note
+    if (proofUrl) claim.proof_url = proofUrl
 
     const task = this.getTask(claim.task_id)
     if (task) {
@@ -291,6 +297,44 @@ class MockStore {
     }
 
     return clone(claim)
+  }
+
+  public withdrawClaim(claimId: string, claimantId: string): TaskClaim {
+    const claim = this.taskClaims.find((c) => c.id === claimId)
+    if (!claim) throw new Error("Claim not found")
+    if (claim.claimed_by !== claimantId) {
+      throw new Error("You can only withdraw your own task claim")
+    }
+    if (claim.status === "verified") {
+      throw new Error("Cannot withdraw an already completed task")
+    }
+
+    claim.status = "withdrawn"
+
+    const task = this.getTask(claim.task_id)
+    if (task) {
+      const activeClaims = this.taskClaims.filter(
+        (c) => c.task_id === task.id && c.status !== "withdrawn" && c.status !== "rejected"
+      )
+      if (activeClaims.length < task.required_volunteers && task.status === "in_progress") {
+        task.status = "open"
+      }
+    }
+
+    return clone(claim)
+  }
+
+  public cancelTask(taskId: string, organizerId: string): Task {
+    const organizer = this.getUser(organizerId)
+    const task = this.getTask(taskId)
+    if (!task) throw new Error("Task not found")
+
+    if (!organizer || (organizer.tier < 3 && task.created_by !== organizerId)) {
+      throw new Error("Only organizers or the task creator can cancel this task")
+    }
+
+    task.status = "cancelled"
+    return clone(task)
   }
 
   public getTaskClaims(taskId?: string): TaskClaim[] {

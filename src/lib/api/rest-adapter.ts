@@ -141,17 +141,40 @@ export class RestApiAdapter implements ApiClient {
   public async markClaimComplete(
     claimId: string,
     claimantId: string,
-    note?: string
+    note?: string,
+    proofUrl?: string
   ): Promise<TaskClaim> {
     const data = await request<{ claim: TaskClaim }>(
       `/api/tasks/${encodeURIComponent(claimId)}/complete`,
       {
         method: "POST",
         headers: { "x-user-id": claimantId },
-        body: JSON.stringify({ note }),
+        body: JSON.stringify({ note, proofUrl }),
       }
     )
     return TaskClaimSchema.parse(data.claim)
+  }
+
+  public async withdrawClaim(claimId: string, claimantId: string): Promise<TaskClaim> {
+    const data = await request<TaskClaim>(
+      `/api/tasks/claims/${encodeURIComponent(claimId)}/withdraw`,
+      {
+        method: "POST",
+        headers: { "x-user-id": claimantId },
+      }
+    )
+    return TaskClaimSchema.parse(data)
+  }
+
+  public async cancelTask(taskId: string, organizerId: string): Promise<Task> {
+    const data = await request<Task>(
+      `/api/tasks/${encodeURIComponent(taskId)}/cancel`,
+      {
+        method: "POST",
+        headers: { "x-user-id": organizerId },
+      }
+    )
+    return TaskSchema.parse(data)
   }
 
   public async getPeerVerifications(claimId?: string): Promise<PeerVerification[]> {

@@ -19,8 +19,8 @@
     --primary: 71 100% 57%;
     --primary-foreground: 235 55% 5%;
 
-    /* Secondary / Brand: Cobalt #0047FF with white text */
-    --secondary: 223 100% 50%;
+    /* Secondary / Brand: Cobalt #255DEE with white text */
+    --secondary: 223 87% 54%;
     --secondary-foreground: 0 0% 100%;
 
     /* Muted: Soft tinted */
@@ -59,8 +59,8 @@
     --primary: 71 100% 57%;
     --primary-foreground: 235 55% 5%;
 
-    /* Secondary / Brand: Cobalt #0047FF with white text */
-    --secondary: 223 100% 50%;
+    /* Secondary / Brand: Calibrated Cobalt #255DEE with white text */
+    --secondary: 223 87% 54%;
     --secondary-foreground: 0 0% 100%;
 
     /* Muted: Dark ink muted with lavender tint */

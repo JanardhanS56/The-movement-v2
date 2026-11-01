@@ -13,8 +13,8 @@ export default function TasksError({
   return (
     <div className="py-8">
       <ErrorAlert
-        title="Could not load tasks"
-        message={error.message || "An unexpected error occurred while loading the bounty board."}
+        title="We could not load this"
+        message={error.message || "We could not load this. Check your connection and try again."}
         onRetry={reset}
       />
     </div>

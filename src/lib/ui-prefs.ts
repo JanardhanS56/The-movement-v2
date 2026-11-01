@@ -23,6 +23,9 @@ const STORAGE_KEYS = {
   THEME: "the-movement:theme",
   TEXT_SIZE: "the-movement:text-size",
   SIDEBAR_COLLAPSED: "the-movement:sidebar-collapsed",
+  SAVED_TASKS: "the-movement:saved-tasks",
+  PROFILE_PHOTOS: "the-movement:profile-photos",
+  PROFILE_SETTINGS: "the-movement:profile-settings",
 } as const
 
 export function getStoredTheme(): ThemeMode {
@@ -120,6 +123,83 @@ export function applyTextSize(size: TextSize): void {
   } else {
     root.style.fontSize = "100%"
   }
+}
+
+export function getStoredSavedTasks(): string[] {
+  if (typeof window === "undefined") return []
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.SAVED_TASKS)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch {
+    // Storage access blocked or invalid JSON
+  }
+  return []
+}
+
+export function setStoredSavedTasks(ids: string[]): void {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(STORAGE_KEYS.SAVED_TASKS, JSON.stringify(ids))
+  } catch {
+    // Storage access blocked
+  }
+}
+
+export interface ProfileSettings {
+  visibility: "public" | "members"
+  showOnLeaderboards: boolean
+}
+
+export function getStoredProfilePhoto(userId: string): string | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(`${STORAGE_KEYS.PROFILE_PHOTOS}:${userId}`)
+    return raw || null
+  } catch {
+    return null
+  }
+}
+
+export function setStoredProfilePhoto(userId: string, photoDataUrl: string | null): void {
+  if (typeof window === "undefined") return
+  try {
+    const key = `${STORAGE_KEYS.PROFILE_PHOTOS}:${userId}`
+    if (photoDataUrl) {
+      localStorage.setItem(key, photoDataUrl)
+    } else {
+      localStorage.removeItem(key)
+    }
+  } catch {}
+}
+
+export function getStoredProfileSettings(userId: string): ProfileSettings {
+  if (typeof window === "undefined") {
+    return { visibility: "public", showOnLeaderboards: true }
+  }
+  try {
+    const raw = localStorage.getItem(`${STORAGE_KEYS.PROFILE_SETTINGS}:${userId}`)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      return {
+        visibility: parsed.visibility === "members" ? "members" : "public",
+        showOnLeaderboards: parsed.showOnLeaderboards !== false,
+      }
+    }
+  } catch {}
+  return { visibility: "public", showOnLeaderboards: true }
+}
+
+export function setStoredProfileSettings(userId: string, settings: ProfileSettings): void {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(
+      `${STORAGE_KEYS.PROFILE_SETTINGS}:${userId}`,
+      JSON.stringify(settings)
+    )
+  } catch {}
 }
 
 /**

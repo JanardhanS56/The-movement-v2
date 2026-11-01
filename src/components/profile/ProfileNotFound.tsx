@@ -8,6 +8,8 @@ export interface ProfileNotFoundProps {
 }
 
 export function ProfileNotFound({ userId }: ProfileNotFoundProps) {
+  const isHandle = userId.startsWith("@") || (!userId.includes("-") && userId.length < 30)
+
   return (
     <div
       role="region"
@@ -18,27 +20,31 @@ export function ProfileNotFound({ userId }: ProfileNotFoundProps) {
         <UserX className="h-8 w-8" aria-hidden="true" />
       </div>
       <h2 className="text-xl font-bold tracking-tight text-foreground">
-        Volunteer Profile Not Found
+        Volunteer profile not found
       </h2>
       <p className="mt-2 text-sm text-muted-foreground max-w-md">
-        No registered volunteer or organizer was found with identifier{" "}
-        <span className="tabular-nums text-xs text-foreground bg-secondary px-1.5 py-0.5 rounded-sm">
-          {userId}
-        </span>
-        . The member record may not exist or could be unregistered.
+        No registered volunteer or organizer was found for{" "}
+        {isHandle ? (
+          <span className="font-bold text-foreground">
+            {userId.startsWith("@") ? userId : `@${userId}`}
+          </span>
+        ) : (
+          "this member link"
+        )}
+        . The profile may be set to members only, not exist, or could be unregistered.
       </p>
 
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <Link href="/feed">
           <Button variant="outline" className="min-h-[44px] gap-2 border-border">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            <span>Return to Feed</span>
+            <span>Return to feed</span>
           </Button>
         </Link>
         <Link href="/tasks">
           <Button className="min-h-[44px] gap-2">
             <CheckSquare className="h-4 w-4" aria-hidden="true" />
-            <span>Browse Tasks Board</span>
+            <span>Browse tasks</span>
           </Button>
         </Link>
       </div>

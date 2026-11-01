@@ -4,49 +4,44 @@ import * as React from "react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { CheckCircle2, Clock, Compass, Filter } from "lucide-react"
+import {
+  Filter,
+  Trophy,
+  SlidersHorizontal,
+  RotateCcw,
+  List,
+  LayoutGrid,
+} from "lucide-react"
 import { api } from "@/lib/api"
 import { QueryKeys } from "@/lib/query-keys"
 import { useAuth } from "@/components/providers/AuthProvider"
-import { Task } from "@/lib/schemas/task.schema"
+import { Task, TaskStatus } from "@/lib/schemas/task.schema"
 import { TaskClaim } from "@/lib/schemas/task.schema"
 import { PeerVerification } from "@/lib/schemas/verification.schema"
 import { User } from "@/lib/schemas/user.schema"
 import { PageHeader } from "@/components/shared/PageHeader"
-import { EmptyState } from "@/components/shared/EmptyState"
 import { ErrorAlert } from "@/components/shared/ErrorAlert"
 import { TaskSkeleton } from "@/components/tasks/TaskSkeleton"
 import { TaskCard } from "@/components/tasks/TaskCard"
+import { TaskBoardView } from "@/components/tasks/TaskBoardView"
+import { TaskDetailDrawer } from "@/components/tasks/TaskDetailDrawer"
+import { TasksLeaderboard } from "@/components/tasks/TasksLeaderboard"
+import { TaskFilterRail } from "@/components/tasks/TaskFilterRail"
+import { TaskFilterDrawer } from "@/components/tasks/TaskFilterDrawer"
 import { PostTaskDialog, PostTaskFormData } from "@/components/tasks/PostTaskDialog"
+import { Button } from "@/components/ui/button"
+import {
+  TaskCategory,
+  TaskDifficulty,
+  TaskFilterOptions,
+  TaskSortOption,
+  getFilteredTasks,
+  getTaskCounts,
+} from "@/lib/mocks/fictional-data"
+import { getStoredSavedTasks, setStoredSavedTasks } from "@/lib/ui-prefs"
 import { cn } from "@/lib/utils"
 
-type TaskFilter = "all" | "open" | "in_progress" | "completed"
-
-const FILTER_OPTIONS: { id: TaskFilter; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "all", label: "All tasks", icon: Filter },
-  { id: "open", label: "Open", icon: Compass },
-  { id: "in_progress", label: "In progress", icon: Clock },
-  { id: "completed", label: "Completed", icon: CheckCircle2 },
-]
-
-const EMPTY_STATES: Record<TaskFilter, { title: string; description: string }> = {
-  all: {
-    title: "No tasks found",
-    description: "No tasks found in this movement.",
-  },
-  open: {
-    title: "No open tasks",
-    description: "No open tasks available to claim right now.",
-  },
-  in_progress: {
-    title: "No active tasks",
-    description: "No tasks are currently in progress.",
-  },
-  completed: {
-    title: "No completed tasks",
-    description: "No completed tasks on record yet.",
-  },
-}
+export type TaskTab = "all" | "mine" | "saved" | "verification"
 
 function TasksContent() {
   const { user, movementId, simulateFailure } = useAuth()
@@ -55,25 +50,129 @@ function TasksContent() {
   const pathname = usePathname()
   const queryClient = useQueryClient()
 
-  // URL search params filter binding
-  const currentFilter: TaskFilter = React.useMemo(() => {
-    const statusParam = searchParams.get("status")?.toLowerCase()
-    if (statusParam === "open" || statusParam === "in_progress" || statusParam === "completed") {
-      return statusParam
+  // Tab & View state
+  const currentView = searchParams.get("view") === "leaderboard" ? "leaderboard" : "tasks"
+  const currentTab: TaskTab = (searchParams.get("tab") as TaskTab) || "all"
+  const currentSort: TaskSortOption = (searchParams.get("sort") as TaskSortOption) || "soonest"
+  const currentLayout: "list" | "board" =
+    searchParams.get("layout") === "board" ? "board" : "list"
+  const selectedTaskId = searchParams.get("task") || null
+  const [mobileFilterOpen, setMobileFilterOpen] = React.useState(false)
+
+  // Seeded saved task IDs with storage persistence
+  const [savedTaskIds, setSavedTaskIds] = React.useState<string[]>(() => {
+    const stored = getStoredSavedTasks()
+    if (stored.length > 0) return stored
+    return [
+      "c1111111-1111-4111-8111-111111111111",
+      "c8888888-8888-4888-8888-888888888888",
+    ]
+  })
+
+  const handleToggleSave = React.useCallback((taskId: string) => {
+    setSavedTaskIds((prev) => {
+      const exists = prev.includes(taskId)
+      const next = exists ? prev.filter((id) => id !== taskId) : [...prev, taskId]
+      setStoredSavedTasks(next)
+      if (exists) {
+        toast.info("Task removed from saved.")
+      } else {
+        toast.success("Task saved to bookmarks.")
+      }
+      return next
+    })
+  }, [])
+
+  // Multi-criteria filter options from URL query
+  const filters: TaskFilterOptions = React.useMemo(() => {
+    return {
+      search: searchParams.get("q") || undefined,
+      status: (searchParams.get("status") as TaskStatus) || undefined,
+      category: (searchParams.get("cat") as TaskCategory) || undefined,
+      reward: (searchParams.get("reward") as TaskFilterOptions["reward"]) || undefined,
+      spots: (searchParams.get("spots") as TaskFilterOptions["spots"]) || undefined,
+      when: (searchParams.get("when") as TaskFilterOptions["when"]) || undefined,
+      difficulty: (searchParams.get("diff") as TaskDifficulty) || undefined,
     }
-    return "all"
   }, [searchParams])
 
-  const handleFilterChange = (filter: TaskFilter) => {
+  // Count active filters (non-default values)
+  const activeFilterCount = React.useMemo(() => {
+    let count = 0
+    if (filters.search && filters.search.trim().length > 0) count++
+    if (filters.status && filters.status !== "all") count++
+    if (filters.category && filters.category !== "all") count++
+    if (filters.reward && filters.reward !== "all") count++
+    if (filters.spots && filters.spots !== "all") count++
+    if (filters.when && filters.when !== "all") count++
+    if (filters.difficulty && filters.difficulty !== "all") count++
+    return count
+  }, [filters])
+
+  // Helper to update a URL search param
+  const updateQueryParam = React.useCallback(
+    (key: string, value: string | undefined | null) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (!value || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+      const qs = params.toString()
+      router.push(qs ? `${pathname}?${qs}` : pathname)
+    },
+    [searchParams, router, pathname]
+  )
+
+  const handleFilterParamChange = React.useCallback(
+    <K extends keyof TaskFilterOptions>(key: K, value: TaskFilterOptions[K]) => {
+      const keyMap: Record<keyof TaskFilterOptions, string> = {
+        search: "q",
+        status: "status",
+        category: "cat",
+        reward: "reward",
+        spots: "spots",
+        when: "when",
+        difficulty: "diff",
+      }
+      updateQueryParam(keyMap[key], value as string)
+    },
+    [updateQueryParam]
+  )
+
+  const handleClearAllFilters = React.useCallback(() => {
     const params = new URLSearchParams(searchParams.toString())
-    if (filter === "all") {
-      params.delete("status")
-    } else {
-      params.set("status", filter)
-    }
+    params.delete("q")
+    params.delete("status")
+    params.delete("cat")
+    params.delete("reward")
+    params.delete("spots")
+    params.delete("when")
+    params.delete("diff")
     const qs = params.toString()
     router.push(qs ? `${pathname}?${qs}` : pathname)
-  }
+  }, [searchParams, router, pathname])
+
+  const handleTabChange = React.useCallback(
+    (tab: TaskTab) => {
+      updateQueryParam("tab", tab === "all" ? undefined : tab)
+    },
+    [updateQueryParam]
+  )
+
+  const handleSortChange = React.useCallback(
+    (sort: TaskSortOption) => {
+      updateQueryParam("sort", sort === "soonest" ? undefined : sort)
+    },
+    [updateQueryParam]
+  )
+
+  const handleViewChange = React.useCallback(
+    (view: "tasks" | "leaderboard") => {
+      updateQueryParam("view", view === "leaderboard" ? "leaderboard" : undefined)
+    },
+    [updateQueryParam]
+  )
 
   // 1. Fetch tasks
   const {
@@ -134,18 +233,45 @@ function TasksContent() {
     return map
   }, [verifications])
 
-  // Filtered tasks
+  // Counts for Quick Tabs
+  const counts = React.useMemo(() => {
+    return getTaskCounts(user, tasks, claims, savedTaskIds)
+  }, [user, tasks, claims, savedTaskIds])
+
+  // Filtered tasks based on Quick Tab + Multi-criteria Filters + Sort
   const filteredTasks = React.useMemo(() => {
-    return tasks.filter((task) => {
-      if (currentFilter === "all") return true
-      if (currentFilter === "open") return task.status === "open"
-      if (currentFilter === "in_progress") {
-        return task.status === "in_progress" || task.status === "pending_verification"
-      }
-      if (currentFilter === "completed") return task.status === "completed"
-      return true
-    })
-  }, [tasks, currentFilter])
+    // 1. Tab filter
+    let base = tasks
+    if (currentTab === "mine" && user) {
+      base = base.filter((t) => {
+        const claim = claims.find((c) => c.task_id === t.id)
+        return t.created_by === user.id || (claim && claim.claimed_by === user.id)
+      })
+    } else if (currentTab === "saved") {
+      base = base.filter((t) => savedTaskIds.includes(t.id))
+    } else if (currentTab === "verification") {
+      base = base.filter((t) => t.status === "pending_verification")
+    }
+
+    // 2. Multi-criteria filter & sort
+    return getFilteredTasks(base, filters, currentSort)
+  }, [tasks, currentTab, user, claims, savedTaskIds, filters, currentSort])
+
+  // Selected task data for TaskDetailDrawer
+  const selectedTask = React.useMemo(() => {
+    if (!selectedTaskId) return undefined
+    return tasks.find((t) => t.id === selectedTaskId)
+  }, [tasks, selectedTaskId])
+
+  const selectedClaim = React.useMemo(() => {
+    if (!selectedTaskId) return undefined
+    return claimsByTaskId[selectedTaskId]
+  }, [claimsByTaskId, selectedTaskId])
+
+  const selectedVerifications = React.useMemo(() => {
+    if (!selectedClaim) return []
+    return verificationsByClaimId[selectedClaim.id] || []
+  }, [verificationsByClaimId, selectedClaim])
 
   // 1. Post Task Mutation
   const postTaskMutation = useMutation({
@@ -287,12 +413,20 @@ function TasksContent() {
 
   // 3. Mark Complete Mutation (moves claim and task to pending_verification)
   const markCompleteMutation = useMutation({
-    mutationFn: async ({ claimId }: { claimId: string }) => {
+    mutationFn: async ({
+      claimId,
+      note,
+      proofUrl,
+    }: {
+      claimId: string
+      note?: string
+      proofUrl?: string
+    }) => {
       if (!user) throw new Error("Authentication required")
       if (simulateFailure) {
         throw new Error("Simulated network failure: Completion report aborted.")
       }
-      return await api.markClaimComplete(claimId, user.id)
+      return await api.markClaimComplete(claimId, user.id, note, proofUrl)
     },
     onMutate: async ({ claimId }) => {
       await queryClient.cancelQueries({ queryKey: QueryKeys.tasks(movementId) })
@@ -405,16 +539,78 @@ function TasksContent() {
     },
   })
 
+  // 6. Withdraw Claim Mutation
+  const withdrawMutation = useMutation({
+    mutationFn: async (claimId: string) => {
+      if (!user) throw new Error("Authentication required")
+      if (simulateFailure) {
+        throw new Error("Simulated network failure: Withdrawal failed.")
+      }
+      return await api.withdrawClaim(claimId, user.id)
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to withdraw claim.")
+    },
+    onSuccess: () => {
+      toast.success("Claim withdrawn. Your spot has been returned to the open pool.")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(movementId) })
+      queryClient.invalidateQueries({ queryKey: QueryKeys.taskClaims() })
+    },
+  })
+
+  // 7. Cancel Task Mutation
+  const cancelTaskMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      if (!user) throw new Error("Authentication required")
+      if (simulateFailure) {
+        throw new Error("Simulated network failure: Cancellation failed.")
+      }
+      return await api.cancelTask(taskId, user.id)
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to cancel task.")
+    },
+    onSuccess: () => {
+      toast.success("Task cancelled by organizer.")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(movementId) })
+      queryClient.invalidateQueries({ queryKey: QueryKeys.taskClaims() })
+    },
+  })
+
   const isTier3 = user?.tier === 3
 
   return (
     <div className="space-y-12 max-w-5xl mx-auto pb-16">
       {/* Page Header */}
       <PageHeader
-        title="Community tasks"
-        description="Community tasks verified by organizers and volunteers."
+        title={currentView === "leaderboard" ? "Leaderboard" : "Tasks"}
+        description={
+          currentView === "leaderboard"
+            ? "Track community recognition and verified field contributions."
+            : "Find volunteer opportunities or post field actions."
+        }
         action={
           <div className="flex flex-wrap items-center gap-3">
+            {/* Leaderboard View Switcher Pill */}
+            <button
+              type="button"
+              onClick={() => handleViewChange(currentView === "leaderboard" ? "tasks" : "leaderboard")}
+              aria-pressed={currentView === "leaderboard"}
+              className={cn(
+                "inline-flex items-center gap-2 px-3.5 py-2 rounded-chunky text-xs font-black transition-all border-2 border-ink outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                currentView === "leaderboard"
+                  ? "bg-sun text-ink shadow-hard-xs ring-2 ring-ink"
+                  : "bg-white text-ink hover:bg-sun/20 shadow-xs"
+              )}
+            >
+              <Trophy className="w-4 h-4 text-sun fill-sun/40" aria-hidden="true" />
+              <span>{currentView === "leaderboard" ? "Back to tasks" : "Leaderboard"}</span>
+            </button>
+
             {/* Tier 3: Post Task Dialog */}
             {isTier3 && (
               <PostTaskDialog
@@ -429,104 +625,363 @@ function TasksContent() {
         }
       />
 
-      {/* Filter Chips Bar (Stored in URL with useSearchParams) */}
-      <section aria-label="Task status filters" className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2.5">
-          {FILTER_OPTIONS.map((option) => {
-            const isActive = currentFilter === option.id
-            const Icon = option.icon
-
-            return (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => handleFilterChange(option.id)}
-                aria-pressed={isActive}
-                className={cn(
-                  "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-sm text-sm font-bold transition-all border-2 border-ink outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  isActive
-                    ? "bg-cobalt text-white shadow-hard-xs"
-                    : "bg-white text-ink hover:bg-ivory shadow-xs"
-                )}
-              >
-                <Icon className="w-4 h-4" aria-hidden="true" />
-                <span>{option.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* Loading state: 6 task-card skeletons */}
-      {tasksLoading && <TaskSkeleton />}
-
-      {/* Error state with retry */}
-      {tasksError && (
-        <ErrorAlert
-          title="Unable to load tasks"
-          message={
-            tasksErrorObj instanceof Error
-              ? tasksErrorObj.message
-              : "Failed to connect to the task distribution layer."
-          }
-          onRetry={() => void refetchTasks()}
-        />
-      )}
-
-      {/* Tasks Ledger: Ruled full-width rows with 24px gap */}
-      {!tasksLoading && !tasksError && (
-        <div>
-          {filteredTasks.length === 0 ? (
-            <EmptyState
-              title={EMPTY_STATES[currentFilter].title}
-              description={EMPTY_STATES[currentFilter].description}
+      {/* Main View: Leaderboard vs Task Board */}
+      {currentView === "leaderboard" ? (
+        <TasksLeaderboard />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
+          {/* Desktop Filter Rail (280px, sticky top-20, visible at 1024px+) */}
+          <div className="hidden lg:block sticky top-20">
+            <TaskFilterRail
+              filters={filters}
+              onFilterChange={handleFilterParamChange}
+              onClearFilters={handleClearAllFilters}
+              activeFilterCount={activeFilterCount}
+              matchingCount={filteredTasks.length}
+              totalCount={tasks.length}
             />
-          ) : (
-            <div className="space-y-6">
-              {filteredTasks.map((task) => {
-                const claim = claimsByTaskId[task.id]
-                const taskVerifications = claim ? verificationsByClaimId[claim.id] || [] : []
+          </div>
 
-                return (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    claim={claim}
-                    verifications={taskVerifications}
-                    usersMap={usersMap}
-                    currentUserId={user ? user.id : null}
-                    currentUserTier={user ? user.tier : undefined}
-                    onClaim={async (taskId) => {
-                      await claimMutation.mutateAsync(taskId)
-                    }}
-                    onMarkComplete={async (claimId) => {
-                      await markCompleteMutation.mutateAsync({ claimId })
-                    }}
-                    onPeerVote={async (claimId, vote) => {
-                      await peerVoteMutation.mutateAsync({ claimId, vote })
-                    }}
-                    onOrganizerOverride={async (claimId, approve, note) => {
-                      await organizerOverrideMutation.mutateAsync({ claimId, approve, note })
-                    }}
-                    onSmartAssign={async (taskId) => {
-                      await smartAssignMutation.mutateAsync(taskId)
-                    }}
-                    isClaiming={claimMutation.isPending && claimMutation.variables === task.id}
-                    isCompleting={
-                      markCompleteMutation.isPending &&
-                      markCompleteMutation.variables?.claimId === claim?.id
-                    }
-                    isVerifying={
-                      peerVoteMutation.isPending || organizerOverrideMutation.isPending
-                    }
-                    isSmartAssigning={
-                      smartAssignMutation.isPending && smartAssignMutation.variables === task.id
-                    }
-                  />
-                )
-              })}
+          {/* Right Main Column */}
+          <div className="space-y-6 min-w-0">
+            {/* Quick Tabs row & Sort Select */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b-2 border-ink/10 pb-4">
+              {/* Quick Tabs */}
+              <div
+                role="tablist"
+                aria-label="Task category tabs"
+                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0"
+              >
+                {(
+                  [
+                    { id: "all", label: "All tasks", count: counts.all },
+                    { id: "mine", label: "Mine", count: counts.mine },
+                    { id: "saved", label: "Saved", count: counts.saved },
+                    {
+                      id: "verification",
+                      label: "Needs my verification",
+                      count: counts.needsVerification,
+                    },
+                  ] as const
+                ).map((tab) => {
+                  const isActive = currentTab === tab.id
+                  return (
+                    <button
+                      key={tab.id}
+                      role="tab"
+                      type="button"
+                      aria-selected={isActive}
+                      onClick={() => handleTabChange(tab.id)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold transition-all whitespace-nowrap border-2",
+                        isActive
+                          ? "bg-cobalt text-white border-cobalt shadow-xs"
+                          : "bg-white text-ink/70 border-ink/20 hover:border-ink hover:text-ink hover:bg-ivory"
+                      )}
+                    >
+                      <span>{tab.label}</span>
+                      <span
+                        className={cn(
+                          "px-1.5 py-0.2 rounded-xs text-[10px] tabular-nums font-black",
+                          isActive ? "bg-white/20 text-white" : "bg-ink/10 text-ink"
+                        )}
+                      >
+                        {tab.count}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Sort Select & View Mode (List vs Board) */}
+              <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+                {/* View switcher next to Sort: List and Board */}
+                <div
+                  role="group"
+                  aria-label="Task layout switcher"
+                  className="inline-flex items-center rounded-sm border-2 border-ink bg-white overflow-hidden shadow-hard-xs"
+                >
+                  <button
+                    type="button"
+                    onClick={() => updateQueryParam("layout", undefined)}
+                    aria-pressed={currentLayout === "list"}
+                    title="List view"
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs font-black transition-colors flex items-center gap-1",
+                      currentLayout === "list"
+                        ? "bg-cobalt text-white"
+                        : "text-ink hover:bg-ivory"
+                    )}
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">List</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateQueryParam("layout", "board")}
+                    aria-pressed={currentLayout === "board"}
+                    title="Board view"
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs font-black transition-colors flex items-center gap-1 border-l-2 border-ink",
+                      currentLayout === "board"
+                        ? "bg-cobalt text-white"
+                        : "text-ink hover:bg-ivory"
+                    )}
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Board</span>
+                  </button>
+                </div>
+
+                <span className="text-xs font-semibold text-ink/60 hidden md:inline">Sort:</span>
+                <select
+                  value={currentSort}
+                  onChange={(e) => handleSortChange(e.target.value as TaskSortOption)}
+                  aria-label="Sort tasks by"
+                  className="px-3 py-1.5 rounded-sm border-2 border-ink bg-white text-xs font-bold shadow-hard-xs focus:ring-2 focus:ring-cobalt outline-none cursor-pointer"
+                >
+                  <option value="soonest">Soonest / Urgency</option>
+                  <option value="highest_points">Highest points</option>
+                  <option value="newest">Newest</option>
+                  <option value="fewest_spots">Fewest spots left</option>
+                </select>
+              </div>
             </div>
-          )}
+
+            {/* Mobile Filter Trigger Bar (Visible on <lg screens) */}
+            <div className="flex items-center justify-between gap-2 lg:hidden bg-card p-2.5 rounded-chunky border-2 border-ink shadow-hard-xs">
+              <Button
+                type="button"
+                onClick={() => setMobileFilterOpen(true)}
+                variant="outline"
+                size="sm"
+                className="text-xs font-bold border-2 border-ink bg-white gap-1.5 shadow-hard-xs h-8"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5 text-cobalt" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-cobalt text-white text-[10px] font-black flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </Button>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleFilterParamChange(
+                      "status",
+                      filters.status === "open" ? "all" : "open"
+                    )
+                  }
+                  className={cn(
+                    "px-2 py-1 rounded-sm text-[11px] font-bold border whitespace-nowrap",
+                    filters.status === "open"
+                      ? "bg-ink text-ivory border-ink"
+                      : "bg-white text-ink/80 border-ink/30"
+                  )}
+                >
+                  Open
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleFilterParamChange(
+                      "difficulty",
+                      filters.difficulty === "Easy" ? "all" : "Easy"
+                    )
+                  }
+                  className={cn(
+                    "px-2 py-1 rounded-sm text-[11px] font-bold border whitespace-nowrap",
+                    filters.difficulty === "Easy"
+                      ? "bg-lavender text-ink border-ink"
+                      : "bg-white text-ink/80 border-ink/30"
+                  )}
+                >
+                  Easy
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleFilterParamChange(
+                      "reward",
+                      filters.reward === "high" ? "all" : "high"
+                    )
+                  }
+                  className={cn(
+                    "px-2 py-1 rounded-sm text-[11px] font-bold border whitespace-nowrap",
+                    filters.reward === "high"
+                      ? "bg-sun text-ink border-ink"
+                      : "bg-white text-ink/80 border-ink/30"
+                  )}
+                >
+                  75+ pts
+                </button>
+              </div>
+            </div>
+
+            {/* Loading state: 6 task-card skeletons */}
+            {tasksLoading && <TaskSkeleton />}
+
+            {/* Error state with retry */}
+            {tasksError && (
+              <ErrorAlert
+                title="We could not load this"
+                message={
+                  tasksErrorObj instanceof Error
+                    ? tasksErrorObj.message
+                    : "We could not load this. Check your connection and try again."
+                }
+                onRetry={() => void refetchTasks()}
+              />
+            )}
+
+            {/* Tasks Ledger / Empty state */}
+            {!tasksLoading && !tasksError && (
+              <div>
+                {filteredTasks.length === 0 ? (
+                  <div className="p-12 text-center rounded-chunky border-2 border-dashed border-ink/30 bg-white space-y-4">
+                    <div className="w-12 h-12 rounded-full bg-ivory border-2 border-ink flex items-center justify-center mx-auto text-ink/60">
+                      <Filter className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-lg font-black text-ink">No tasks match your filters</h4>
+                    <p className="text-sm text-ink/70 max-w-sm mx-auto">
+                      No volunteer actions match your selected criteria. Try adjusting or clearing your filters to see more opportunities.
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={handleClearAllFilters}
+                      className="bg-lime text-ink hover:bg-lime/90 border-2 border-ink rounded-chunky font-bold text-xs shadow-hard-xs h-9 px-4"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                      <span>Reset filters</span>
+                    </Button>
+                  </div>
+                ) : currentLayout === "board" ? (
+                  <TaskBoardView
+                    tasks={filteredTasks}
+                    claimsByTaskId={claimsByTaskId}
+                    usersMap={usersMap}
+                    savedTaskIds={savedTaskIds}
+                    onToggleSave={handleToggleSave}
+                    onSelectTask={(taskId) => updateQueryParam("task", taskId)}
+                    currentUserId={user ? user.id : null}
+                  />
+                ) : (
+                  <div className="space-y-6">
+                    {filteredTasks.map((task) => {
+                      const claim = claimsByTaskId[task.id]
+                      const taskVerifications = claim
+                        ? verificationsByClaimId[claim.id] || []
+                        : []
+
+                      return (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          claim={claim}
+                          verifications={taskVerifications}
+                          usersMap={usersMap}
+                          currentUserId={user ? user.id : null}
+                          currentUserTier={user ? user.tier : undefined}
+                          isSaved={savedTaskIds.includes(task.id)}
+                          onToggleSave={handleToggleSave}
+                          onSelectTask={(taskId) => updateQueryParam("task", taskId)}
+                          onClaim={async (taskId) => {
+                            await claimMutation.mutateAsync(taskId)
+                          }}
+                          onMarkComplete={async (claimId, note, proofUrl) => {
+                            await markCompleteMutation.mutateAsync({ claimId, note, proofUrl })
+                          }}
+                          onPeerVote={async (claimId, vote) => {
+                            await peerVoteMutation.mutateAsync({ claimId, vote })
+                          }}
+                          onOrganizerOverride={async (claimId, approve, note) => {
+                            await organizerOverrideMutation.mutateAsync({
+                              claimId,
+                              approve,
+                              note,
+                            })
+                          }}
+                          onSmartAssign={async (taskId) => {
+                            await smartAssignMutation.mutateAsync(taskId)
+                          }}
+                          isClaiming={
+                            claimMutation.isPending && claimMutation.variables === task.id
+                          }
+                          isCompleting={
+                            markCompleteMutation.isPending &&
+                            markCompleteMutation.variables?.claimId === claim?.id
+                          }
+                          isVerifying={
+                            peerVoteMutation.isPending || organizerOverrideMutation.isPending
+                          }
+                          isSmartAssigning={
+                            smartAssignMutation.isPending &&
+                            smartAssignMutation.variables === task.id
+                          }
+                        />
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Bottom Sheet Filter Drawer */}
+          <TaskFilterDrawer
+            isOpen={mobileFilterOpen}
+            onClose={() => setMobileFilterOpen(false)}
+            filters={filters}
+            onFilterChange={handleFilterParamChange}
+            onClearFilters={handleClearAllFilters}
+            activeFilterCount={activeFilterCount}
+            matchingCount={filteredTasks.length}
+            totalCount={tasks.length}
+          />
+
+          {/* Task Detail Drawer */}
+          <TaskDetailDrawer
+            taskId={selectedTaskId}
+            isOpen={Boolean(selectedTaskId)}
+            onClose={() => updateQueryParam("task", undefined)}
+            task={selectedTask}
+            claim={selectedClaim}
+            verifications={selectedVerifications}
+            usersMap={usersMap}
+            currentUser={user}
+            isSaved={Boolean(selectedTaskId && savedTaskIds.includes(selectedTaskId))}
+            onToggleSave={handleToggleSave}
+            onClaim={async (taskId) => {
+              await claimMutation.mutateAsync(taskId)
+            }}
+            onWithdraw={async (claimId) => {
+              await withdrawMutation.mutateAsync(claimId)
+            }}
+            onMarkComplete={async (claimId, note, proofUrl) => {
+              await markCompleteMutation.mutateAsync({ claimId, note, proofUrl })
+            }}
+            onPeerVote={async (claimId, vote) => {
+              await peerVoteMutation.mutateAsync({ claimId, vote })
+            }}
+            onOrganizerOverride={async (claimId, approve, note) => {
+              await organizerOverrideMutation.mutateAsync({ claimId, approve, note })
+            }}
+            onCancelTask={async (taskId) => {
+              await cancelTaskMutation.mutateAsync(taskId)
+            }}
+            isLoading={tasksLoading}
+            isActionPending={
+              claimMutation.isPending ||
+              withdrawMutation.isPending ||
+              markCompleteMutation.isPending ||
+              peerVoteMutation.isPending ||
+              organizerOverrideMutation.isPending ||
+              cancelTaskMutation.isPending
+            }
+          />
         </div>
       )}
     </div>
