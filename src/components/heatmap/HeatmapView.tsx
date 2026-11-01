@@ -144,13 +144,13 @@ export function HeatmapView() {
           <span className="font-semibold text-foreground">
             {points.length} volunteers checked in
           </span>
-          <span className="px-1.5 py-0.5 rounded-xs tabular-nums text-[10px] uppercase font-semibold bg-primary/10 text-primary border border-primary/20">
-            Demo Data
+          <span className="px-2 py-0.5 rounded-xs text-xs font-bold bg-lime text-ink border border-ink">
+            Demo data
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-muted-foreground tabular-nums text-[11px]">
-          <ShieldCheck className="w-3.5 h-3.5 text-lime shrink-0" aria-hidden="true" />
+        <div className="flex items-center gap-1.5 text-ink/70 text-xs">
+          <ShieldCheck className="w-3.5 h-3.5 text-cobalt shrink-0" aria-hidden="true" />
           <span>Aggregated to ~110m (3 decimal places) for privacy</span>
         </div>
       </div>
@@ -224,7 +224,7 @@ export function HeatmapView() {
           {/* Floating "Check In Here" Button (At least 48px tall, bottom-right) */}
           <div className="absolute bottom-5 right-5 z-[400] flex flex-col items-end gap-2">
             {/* Plain explanation of what check-in shares */}
-            <div className="hidden sm:block max-w-xs p-2.5 rounded-md bg-background/95 backdrop-blur-md border border-border/80 shadow-md text-[11px] text-muted-foreground space-y-1 text-right">
+            <div className="hidden sm:block max-w-xs p-2.5 rounded-md bg-background/95 backdrop-blur-md border border-border/80 shadow-md text-xs text-muted-foreground space-y-1 text-right">
               <p className="font-medium text-foreground">
                 Volunteer Density Check-in
               </p>
@@ -279,36 +279,36 @@ export function HeatmapView() {
         aria-label="Heatmap density legend"
         className="p-3.5 rounded-md bg-card border border-border/80 space-y-2 text-xs"
       >
-        <div className="flex items-center justify-between text-muted-foreground tabular-nums text-[11px]">
-          <span className="font-semibold text-foreground uppercase tracking-wider">
-            Concentration Density Legend
+        <div className="flex items-center justify-between text-muted-foreground text-xs">
+          <span className="font-semibold text-foreground">
+            Concentration density legend
           </span>
           <span>Keyboard: Arrow keys pan, + / - zoom, Escape exits</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 tabular-nums text-xs">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 text-xs">
           {/* Low */}
           <div className="flex items-center gap-2">
             <span className="w-3.5 h-3.5 rounded-full bg-lime border border-ink inline-block shrink-0" />
-            <span className="text-foreground/80 font-medium">Low Density</span>
+            <span className="text-foreground/80 font-medium">Low density</span>
           </div>
 
           {/* Moderate */}
           <div className="flex items-center gap-2">
             <span className="w-3.5 h-3.5 rounded-full bg-sun border border-ink inline-block shrink-0" />
-            <span className="text-foreground/80 font-medium">Moderate Density</span>
+            <span className="text-foreground/80 font-medium">Moderate density</span>
           </div>
 
           {/* High */}
           <div className="flex items-center gap-2">
             <span className="w-3.5 h-3.5 rounded-full bg-tomato border border-ink inline-block shrink-0" />
-            <span className="text-foreground/80 font-medium">High Concentration</span>
+            <span className="text-foreground/80 font-medium">High concentration</span>
           </div>
 
           {/* User's Own Dot */}
           <div className="flex items-center gap-2">
             <span className="w-3.5 h-3.5 rounded-full bg-lime ring-2 ring-cobalt border border-ink inline-block shrink-0 animate-pulse" />
-            <span className="text-foreground font-bold">Your Check-in Dot</span>
+            <span className="text-foreground font-bold">Your check-in dot</span>
           </div>
         </div>
       </section>

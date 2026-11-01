@@ -6,7 +6,7 @@ import { useAuth } from "@/components/providers/AuthProvider"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { MobileTabBar } from "@/components/layout/MobileTabBar"
 import { Button } from "@/components/ui/button"
-import { Shield } from "lucide-react"
+import { Monogram } from "@/components/shared/Monogram"
 
 /**
  * ============================================================================
@@ -35,15 +35,15 @@ export default function DashboardLayout({
         id="main-content"
         className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-6 text-center space-y-4"
       >
-        <div className="h-10 w-10 rounded-sm bg-primary/20 text-primary flex items-center justify-center">
-          <Shield className="h-5 w-5" aria-hidden="true" />
+        <div className="flex items-center justify-center">
+          <Monogram className="h-12 w-12" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Authentication Required</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Sign in required</h1>
         <p className="text-sm text-muted-foreground max-w-sm">
           Please select a demo persona to view this verified movement route.
         </p>
         <Button onClick={() => router.push("/sign-in")} size="sm">
-          Go to Sign In
+          Go to sign in
         </Button>
       </main>
     )

@@ -1,17 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { Check, ShieldAlert, Sparkles } from "lucide-react"
+import { Check, Sparkles, FileSignature } from "lucide-react"
 import { Announcement } from "@/lib/schemas/announcement.schema"
 import { AnnouncementSignature } from "@/lib/schemas/signature.schema"
 import { User } from "@/lib/schemas/user.schema"
-import { formatDateTime } from "@/lib/date"
-import { cn } from "@/lib/utils"
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
+import { formatCleanDateTime, formatDateTime } from "@/lib/date"
 import { Button } from "@/components/ui/button"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { TierBadge } from "@/components/shared/TierBadge"
-import { SignatureChip } from "./SignatureChip"
+import { StatusLabel } from "@/components/shared/StatusLabel"
 import { SignConfirmationDialog } from "./SignConfirmationDialog"
 
 export interface AnnouncementCardProps {
@@ -51,6 +49,11 @@ export function AnnouncementCard({
     ? signatures.some((sig) => sig.signed_by === currentUserId)
     : false
 
+  const emptySlotsCount = Math.max(
+    0,
+    announcement.required_signatures - signatures.length
+  )
+
   const handleConfirmSign = async () => {
     try {
       await onSign(announcement.id)
@@ -59,130 +62,138 @@ export function AnnouncementCard({
     }
   }
 
-  return (
-    <Card
-      className={cn(
-        "bg-card text-card-foreground shadow-sm transition-all duration-150 overflow-hidden",
-        /* Ledger-line distinctiveness element: continuous verification anchor */
-        isPublished
-          ? "border-l-4 border-l-primary border-t border-r border-b border-border/80"
-          : "border-l-4 border-l-sun border-t border-r border-b border-border/80"
-      )}
-    >
-      <CardHeader className="pb-3 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Author metadata */}
-          <div className="flex items-center gap-3">
-            <UserAvatar
-              name={author.display_name}
-              avatarUrl={author.avatar_url}
-              className="h-9 w-9"
-            />
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-foreground">
-                  {author.display_name}
-                </span>
-                <TierBadge tier={author.tier} />
-              </div>
-              <time
-                dateTime={announcement.published_at || announcement.created_at}
-                className="text-xs text-muted-foreground block tabular-nums"
-              >
-                {formatDateTime(announcement.published_at || announcement.created_at)}
-              </time>
-            </div>
-          </div>
+  const exactCreatedTime = formatDateTime(announcement.published_at || announcement.created_at)
+  const cleanCreatedTime = formatCleanDateTime(announcement.published_at || announcement.created_at)
 
-          {/* Signature Stamp Distinctiveness Element */}
-          <SignatureChip
-            signedCount={signatures.length}
-            requiredCount={announcement.required_signatures}
-            isVerified={isPublished}
+  return (
+    <article
+      aria-labelledby={`announcement-${announcement.id}-title`}
+      className={`p-6 bg-white border-2 border-ink shadow-hard-sm transition-all relative ${
+        isPublished ? "border-l-8 border-l-cobalt" : "border-l-8 border-l-sun"
+      }`}
+    >
+      {/* Header Row */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-ink/10">
+        <div className="flex items-center gap-3">
+          <UserAvatar
+            name={author.display_name}
+            avatarUrl={author.avatar_url}
+            className="h-10 w-10 text-xs"
           />
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm text-ink font-sans">
+                {author.display_name}
+              </span>
+              <TierBadge tier={author.tier} />
+            </div>
+            <time
+              dateTime={announcement.published_at || announcement.created_at}
+              title={exactCreatedTime}
+              className="text-xs text-ink/60 font-semibold block cursor-help"
+            >
+              {cleanCreatedTime}
+            </time>
+          </div>
         </div>
 
-        {/* Title */}
-        <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground pt-1">
-          {announcement.title}
-        </h3>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {/* Body content */}
-        <p className="text-sm sm:text-base text-foreground/90 whitespace-pre-wrap leading-relaxed">
-          {announcement.body}
-        </p>
-
-        {/* Cryptographic Signatures Ledger Line Treatment */}
-        <div className="p-3 rounded-md bg-muted/30 border border-border/60 space-y-2">
-          <div className="flex items-center justify-between text-xs tabular-nums text-muted-foreground">
-            <span className="font-medium text-foreground uppercase tracking-wider text-[11px]">
-              Co-Signatures Ledger
-            </span>
-            <span>
-              {signatures.length} of {announcement.required_signatures} verified
-            </span>
-          </div>
-
-          {signatures.length === 0 ? (
-            <p className="text-xs text-muted-foreground italic">
-              No signatures recorded yet.
-            </p>
+        <div className="flex items-center gap-2">
+          {isPublished ? (
+            <StatusLabel status="completed" label="Published" />
           ) : (
-            <div className="space-y-1.5 pt-1">
-              {signatures.map((sig) => {
-                const signer = usersMap[sig.signed_by] || {
-                  id: sig.signed_by,
-                  display_name: "Organizer",
-                  avatar_url: null,
-                  tier: 3 as const,
-                  created_at: sig.signed_at,
-                }
-
-                return (
-                  <div
-                    key={sig.id}
-                    className="flex items-center justify-between gap-2 text-xs py-1 px-2 rounded-sm bg-background/50 border border-border/40"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <UserAvatar
-                        name={signer.display_name}
-                        avatarUrl={signer.avatar_url}
-                        className="h-6 w-6 text-[10px]"
-                      />
-                      <span className="font-medium truncate text-foreground">
-                        {signer.display_name}
-                      </span>
-                      <TierBadge tier={signer.tier} />
-                    </div>
-                    <span className="tabular-nums text-[11px] text-muted-foreground shrink-0">
-                      {formatDateTime(sig.signed_at)}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+            <StatusLabel status="pending" label="Pending co-signatures" />
           )}
         </div>
-      </CardContent>
+      </div>
 
-      {/* Card Footer with Sign & Simulation Actions (Visible on Pending Items) */}
+      {/* Title & Body */}
+      <div className="py-4 space-y-3">
+        <h3
+          id={`announcement-${announcement.id}-title`}
+          className="text-xl font-black text-ink font-sans tracking-tight"
+        >
+          {announcement.title}
+        </h3>
+        <p className="text-base text-ink/90 leading-relaxed max-w-prose whitespace-pre-wrap">
+          {announcement.body}
+        </p>
+      </div>
+
+      {/* Stamp Row for Signatures */}
+      <div className="pt-4 border-t border-ink/10 space-y-3">
+        <div className="flex items-center justify-between text-xs font-bold text-ink">
+          <div className="flex items-center gap-2">
+            <FileSignature className="w-4 h-4 text-cobalt" aria-hidden="true" />
+            <span>Co-signatures</span>
+          </div>
+          <span className="font-semibold text-ink/70">
+            {signatures.length} of {announcement.required_signatures} signed
+          </span>
+        </div>
+
+        {/* Stamps & Empty Slot Circles */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {signatures.map((sig) => {
+            const signer = usersMap[sig.signed_by] || {
+              id: sig.signed_by,
+              display_name: "Organizer",
+              avatar_url: null,
+              tier: 3 as const,
+              created_at: sig.signed_at,
+            }
+            const exactSigTime = formatDateTime(sig.signed_at)
+            const cleanSigTime = formatCleanDateTime(sig.signed_at)
+
+            return (
+              <div
+                key={sig.id}
+                title={`Signed by ${signer.display_name} at ${exactSigTime}`}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-lime text-ink border-2 border-ink shadow-hard-xs text-xs font-bold"
+              >
+                <span className="w-5 h-5 rounded-full bg-ink text-white flex items-center justify-center text-xs font-black">
+                  {signer.display_name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)}
+                </span>
+                <span>{signer.display_name}</span>
+                <span className="text-ink/60 font-semibold">• {cleanSigTime}</span>
+              </div>
+            )
+          })}
+
+          {/* Dashed circles for pending slots */}
+          {Array.from({ length: emptySlotsCount }).map((_, i) => (
+            <div
+              key={`empty-slot-${i}`}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border-2 border-dashed border-ink/40 text-ink/60 text-xs font-semibold"
+            >
+              <span className="w-5 h-5 rounded-full border-2 border-dashed border-ink/40 flex items-center justify-center text-xs">
+                +
+              </span>
+              <span>Awaiting signature</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Actions Bar for Pending Items */}
       {!isPublished && (
-        <CardFooter className="pt-2 pb-4 border-t border-border/40 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-sun">
-            <ShieldAlert className="w-4 h-4 shrink-0" aria-hidden="true" />
+        <div className="mt-5 pt-4 border-t-2 border-ink/10 flex flex-wrap items-center justify-between gap-4">
+          <div className="text-xs font-semibold text-ink/80 flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-sun" aria-hidden="true" />
             <span>
-              Pending {Math.max(0, announcement.required_signatures - signatures.length)} organizer co-signature
-              {announcement.required_signatures - signatures.length === 1 ? "" : "s"}.
+              Pending {emptySlotsCount} organizer co-signature
+              {emptySlotsCount === 1 ? "" : "s"}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             {hasSigned && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-medium bg-muted text-muted-foreground border border-border/80">
-                <Check className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
-                <span>Signed by You</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold bg-white text-ink border-2 border-ink shadow-hard-xs">
+                <Check className="w-4 h-4 text-cobalt" aria-hidden="true" />
+                <span>Signed by you</span>
               </span>
             )}
 
@@ -193,27 +204,27 @@ export function AnnouncementCard({
                 onClick={() => setConfirmOpen(true)}
                 loading={isSigning}
                 disabled={isSigning}
-                className="text-xs"
+                className="text-xs font-bold bg-lime text-ink border-2 border-ink shadow-hard-sm hover:bg-lime/90 hover:shadow-hard px-4 h-9"
               >
-                Sign Announcement
+                Sign announcement
               </Button>
             )}
 
-            {onSimulateCoSign && signatures.length < announcement.required_signatures && (
+            {onSimulateCoSign && emptySlotsCount > 0 && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onSimulateCoSign(announcement.id)}
                 disabled={isSigning}
-                className="gap-1.5 text-xs border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-foreground"
+                className="gap-1.5 text-xs font-bold border-2 border-ink bg-sun text-ink hover:bg-sun/90 shadow-hard-xs h-9 px-3"
                 aria-label="Simulate co-signature by another organizer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" aria-hidden="true" />
-                <span>Simulate Co-Sign</span>
+                <Sparkles className="w-3.5 h-3.5 text-ink shrink-0" aria-hidden="true" />
+                <span>Simulate co-sign</span>
               </Button>
             )}
           </div>
-        </CardFooter>
+        </div>
       )}
 
       {/* Confirmation Dialog */}
@@ -224,6 +235,6 @@ export function AnnouncementCard({
         isPending={isSigning}
         announcementTitle={announcement.title}
       />
-    </Card>
+    </article>
   )
 }

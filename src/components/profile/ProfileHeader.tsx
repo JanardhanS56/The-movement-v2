@@ -3,7 +3,7 @@ import { User } from "@/lib/schemas/user.schema"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { TierBadge } from "@/components/shared/TierBadge"
 import { formatDateOnly } from "@/lib/date"
-import { Users, Calendar, ShieldCheck } from "lucide-react"
+import { Users, Calendar } from "lucide-react"
 
 export interface ProfileHeaderProps {
   user: User
@@ -50,11 +50,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm bg-card border border-border/60">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
               <span>Joined {formatDateOnly(user.created_at)}</span>
-            </div>
-
-            <div className="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-card border border-border/60 tabular-nums text-[11px]">
-              <ShieldCheck className="h-3.5 w-3.5 text-verified" aria-hidden="true" />
-              <span>Verified ID: {user.id.slice(0, 8)}</span>
             </div>
           </div>
         </div>

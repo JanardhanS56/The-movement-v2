@@ -1,5 +1,5 @@
 import * as React from "react"
-import { CheckCircle2, FileSignature } from "lucide-react"
+import { Check, FileSignature } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface SignatureChipProps {
@@ -19,31 +19,31 @@ export function SignatureChip({
 
   return (
     <div className={cn("inline-flex items-center gap-2", className)}>
-      {/* Monospace X / Y Signed Stamp */}
+      {/* Progress Stamp */}
       <span
         className={cn(
-          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tabular-nums font-medium border",
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tabular-nums font-bold border-2 border-ink shadow-hard-xs",
           verified
-            ? "bg-primary/10 text-primary border-primary/25"
-            : "bg-sun/20 text-sun border-sun/40"
+            ? "bg-cobalt text-white"
+            : "bg-sun text-ink"
         )}
         aria-label={`${signedCount} of ${requiredCount} signatures recorded`}
       >
         <FileSignature className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
         <span>
-          {signedCount} / {requiredCount} Signed
+          {signedCount} of {requiredCount} signed
         </span>
       </span>
 
-      {/* Verified Label (Text + Icon) */}
+      {/* Verified Stamp */}
       {verified && (
         <span
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-xs font-medium bg-lime/20 text-lime border border-lime/40"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-xs font-bold bg-lime text-ink border-2 border-ink shadow-hard-xs"
           role="status"
           aria-label="Verified announcement"
         >
-          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-lime" aria-hidden="true" />
-          <span className="font-semibold tracking-wide uppercase text-[11px]">Verified</span>
+          <Check className="w-3.5 h-3.5 shrink-0 text-ink" aria-hidden="true" />
+          <span>Verified</span>
         </span>
       )}
     </div>
