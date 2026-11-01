@@ -46,7 +46,7 @@ const DEFAULT_DEMO_USER_ID = "11111111-1111-4111-8111-111111111111" // Priya Rao
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   // Active user session
-  const [currentUserId, setCurrentUserId] = React.useState<string | null>(DEFAULT_DEMO_USER_ID)
+  const [currentUserId, setCurrentUserId] = React.useState<string | null>(null)
   const [customUser, setCustomUser] = React.useState<User | null>(null)
   const [simulateFailure, setSimulateFailure] = React.useState(false)
   const [isDemoDrawerOpen, setIsDemoDrawerOpen] = React.useState(false)
