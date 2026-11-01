@@ -28,6 +28,7 @@ import {
   PlusCircle,
   MessageSquare,
   Hash,
+  GitCommit,
 } from "lucide-react"
 import { CHAT_ROOMS } from "@/lib/constants/chat"
 import { Message } from "@/lib/schemas/chat.schema"
@@ -174,6 +175,12 @@ export function Sidebar() {
       href: "/feed",
       icon: Megaphone,
       needsYouCount: pendingAnnouncements.length,
+    },
+    {
+      label: "Ground truth",
+      href: "/ground-truth",
+      icon: GitCommit,
+      needsYouCount: 0,
     },
     {
       label: "Heatmap",

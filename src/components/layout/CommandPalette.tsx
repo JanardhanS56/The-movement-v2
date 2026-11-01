@@ -56,6 +56,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const allItems = React.useMemo<PaletteItem[]>(() => {
     const pages: PaletteItem[] = [
       { id: "p-feed", title: "Feed", subtitle: "Verified announcements & dispatches", category: "Pages", url: "/feed" },
+      { id: "p-ground-truth", title: "Ground truth", subtitle: "Provenance ledger & immutable timeline of civic action", category: "Pages", url: "/ground-truth" },
       { id: "p-heatmap", title: "Heatmap", subtitle: "Live field coordination & check-ins", category: "Pages", url: "/heatmap" },
       { id: "p-tasks", title: "Tasks Board", subtitle: "Browse volunteer tasks & bounties", category: "Pages", url: "/tasks" },
       { id: "p-chat", title: "Chat", subtitle: "Community chat rooms and discussion", category: "Pages", url: "/chat" },
