@@ -14,6 +14,8 @@ import {
 import { api } from "@/lib/api"
 import { QueryKeys } from "@/lib/query-keys"
 import { useAuth } from "@/components/providers/AuthProvider"
+import { getBrowserSupabaseClient } from "@/lib/supabase/client"
+import { AggregatedCheckInPoint } from "@/lib/schemas/check-in.schema"
 import { MapSkeleton } from "./MapSkeleton"
 import { ErrorAlert } from "@/components/shared/ErrorAlert"
 import { Button } from "@/components/ui/button"
@@ -46,6 +48,76 @@ export function HeatmapView() {
     queryKey: QueryKeys.aggregatedCheckIns(),
     queryFn: () => api.getAggregatedCheckInPoints(),
   })
+
+  // Local live points state synchronized with Realtime check-ins
+  const [livePoints, setLivePoints] = React.useState<AggregatedCheckInPoint[]>([])
+
+  React.useEffect(() => {
+    if (points && points.length > 0) {
+      setLivePoints(points)
+    }
+  }, [points])
+
+  // Supabase Realtime channel subscription to check_ins table
+  React.useEffect(() => {
+    const supabase = getBrowserSupabaseClient()
+    if (!supabase) return
+
+    const channel = supabase
+      .channel("realtime_check_ins_heatmap")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "check_ins",
+        },
+        (payload: { new: Record<string, unknown> }) => {
+          const row = payload.new
+          const latVal = typeof row.lat === "number" ? row.lat : Number(row.lat)
+          const lngVal = typeof row.lng === "number" ? row.lng : Number(row.lng)
+
+          if (Number.isFinite(latVal) && Number.isFinite(lngVal)) {
+            const roundedLat = Number(latVal.toFixed(3))
+            const roundedLng = Number(lngVal.toFixed(3))
+
+            setLivePoints((prev) => {
+              const existingIdx = prev.findIndex(
+                (p) =>
+                  Math.abs(p.lat - roundedLat) < 0.0005 &&
+                  Math.abs(p.lng - roundedLng) < 0.0005
+              )
+
+              if (existingIdx !== -1) {
+                const updated = [...prev]
+                const item = updated[existingIdx]
+                const newIntensity = Math.min(1.0, item.intensity + 0.15)
+                updated[existingIdx] = {
+                  lat: item.lat,
+                  lng: item.lng,
+                  intensity: newIntensity,
+                }
+                return updated
+              }
+
+              const newPoint: AggregatedCheckInPoint = {
+                lat: roundedLat,
+                lng: roundedLng,
+                intensity: 0.35,
+              }
+              return [...prev, newPoint]
+            })
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [])
+
+  const displayPoints = livePoints.length > 0 ? livePoints : points
 
   // 2. Check-in mutation
   const checkInMutation = useMutation({
@@ -142,7 +214,7 @@ export function HeatmapView() {
         <div className="flex items-center gap-2">
           <Radio className="w-4 h-4 text-primary shrink-0 animate-pulse" aria-hidden="true" />
           <span className="font-semibold text-foreground">
-            {points.length} volunteers checked in
+            {displayPoints.length} volunteers checked in
           </span>
           <span className="px-1.5 py-0.5 rounded-xs tabular-nums text-[10px] uppercase font-semibold bg-primary/10 text-primary border border-primary/20">
             Demo Data
@@ -216,7 +288,7 @@ export function HeatmapView() {
       {!isLoading && !isError && (
         <div className="relative rounded-md overflow-hidden">
           <LeafletMap
-            points={points}
+            points={displayPoints}
             userCheckIn={userCheckIn}
             onEscape={handleEscape}
           />
