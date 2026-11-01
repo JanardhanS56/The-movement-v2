@@ -78,4 +78,53 @@
 ---
 
 ## Open Issues / Noticed, Not Fixed
-- None in Phase 0.
+- None in previous rounds.
+
+---
+
+## Chat Feature: Implementation Progress
+
+### Rules & Scope (Chat Feature)
+- FRONTEND ONLY with fictional demo data. Single new route: `/chat`.
+- No new dependencies. No backend logic, no real WebSocket/Supabase code.
+- Emoji reactions: Fixed set of 6 Unicode emoji keys (`thumbs_up`, `heart`, `thanks`, `celebrate`, `laugh`, `surprised`). No emoji anywhere else in the UI.
+- Honesty banner on demo scope and privacy disclaimers required.
+- Derive state purely from messages and demo state.
+- Quality gate: `npm run verify` must pass after every phase.
+
+### Chat Phase Status
+
+- [x] **Phase 0: Read Only Audit & PROGRESS.md**
+  - Status: DONE
+  - Files Changed: `PROGRESS.md` (updated)
+  - Notes: Completed comprehensive read-only audit of components, layout, state, tokens, drawer, and verification scripts.
+
+- [ ] **Phase 1: Chat API Layer and Pure Functions (no UI)**
+  - Status: NOT DONE
+  - Files Changed: None
+  - Notes: Pending user confirmation to proceed.
+
+- [ ] **Phase 2: Chat Page (core)**
+  - Status: NOT DONE
+  - Files Changed: None
+  - Notes: Pending.
+
+- [ ] **Phase 3: Replies, Mentions, Reactions, Pin**
+  - Status: NOT DONE
+  - Files Changed: None
+  - Notes: Pending.
+
+- [ ] **Phase 4: Safety and Control**
+  - Status: NOT DONE
+  - Files Changed: None
+  - Notes: Pending.
+
+- [ ] **Phase 5: Room Tools**
+  - Status: NOT DONE
+  - Files Changed: None
+  - Notes: Pending.
+
+- [ ] **Phase 6: Sidebar Extras and Audit**
+  - Status: NOT DONE
+  - Files Changed: None
+  - Notes: Pending.
