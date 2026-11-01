@@ -9,6 +9,7 @@ import { useAuth } from "@/components/providers/AuthProvider"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { TierBadge } from "@/components/shared/TierBadge"
 import { Button } from "@/components/ui/button"
+import { getStoredProfilePhoto } from "@/lib/ui-prefs"
 import { cn } from "@/lib/utils"
 
 function CustomMedal({ rank, className = "w-7 h-7" }: { rank: 1 | 2 | 3; className?: string }) {
@@ -212,7 +213,7 @@ export function TasksLeaderboard() {
             </div>
           </div>
 
-          <Link href={`/profile/${currentUserEntry.userId}`}>
+          <Link href={`/u/${currentUserEntry.handle || currentUserEntry.userId}`}>
             <Button
               variant="outline"
               size="sm"
@@ -232,34 +233,38 @@ export function TasksLeaderboard() {
           </div>
 
           <div className="rounded-chunky border-2 border-ink bg-white shadow-hard-xs divide-y-2 divide-ink/10 overflow-hidden">
-            {ranks4to10.map((entry) => (
-              <div
-                key={entry.userId}
-                className={cn(
-                  "flex items-center justify-between gap-4 px-4 py-3.5 transition-colors hover:bg-ivory/80",
-                  entry.isCurrentUser ? "bg-lime/10" : ""
-                )}
-              >
-                {/* Left: Rank + Avatar + Name + Handle */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-6 text-sm font-black tabular-nums text-ink/70 text-center shrink-0">
-                    {entry.rank}
-                  </span>
+            {ranks4to10.map((entry) => {
+              const customPhoto = getStoredProfilePhoto(entry.userId)
+              const photo = customPhoto || entry.avatarUrl
 
-                  <UserAvatar
-                    name={entry.displayName}
-                    avatarUrl={entry.avatarUrl}
-                    className="h-9 w-9 text-xs border border-ink shrink-0"
-                  />
+              return (
+                <div
+                  key={entry.userId}
+                  className={cn(
+                    "flex items-center justify-between gap-4 px-4 py-3.5 transition-colors hover:bg-ivory/80",
+                    entry.isCurrentUser ? "bg-lime/10" : ""
+                  )}
+                >
+                  {/* Left: Rank + Avatar + Name + Handle */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="w-6 text-sm font-black tabular-nums text-ink/70 text-center shrink-0">
+                      {entry.rank}
+                    </span>
 
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <Link
-                        href={`/profile/${entry.userId}`}
-                        className="text-sm font-bold text-ink hover:text-cobalt hover:underline truncate"
-                      >
-                        {entry.displayName}
-                      </Link>
+                    <UserAvatar
+                      name={entry.displayName}
+                      avatarUrl={photo}
+                      className="h-9 w-9 text-xs border border-ink shrink-0"
+                    />
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Link
+                          href={`/u/${entry.handle || entry.userId}`}
+                          className="text-sm font-bold text-ink hover:text-cobalt hover:underline truncate"
+                        >
+                          {entry.displayName}
+                        </Link>
                       {entry.isCurrentUser && (
                         <span className="text-[10px] font-extrabold uppercase bg-lime px-1.5 py-0.2 rounded-xs border border-ink text-ink">
                           You
@@ -295,7 +300,7 @@ export function TasksLeaderboard() {
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </section>
       )}
@@ -415,7 +420,7 @@ function PodiumCard({
       <div className="relative mb-3">
         <UserAvatar
           name={entry.displayName}
-          avatarUrl={entry.avatarUrl}
+          avatarUrl={getStoredProfilePhoto(entry.userId) || entry.avatarUrl}
           className={cn(
             "border-2 border-ink shadow-hard-xs",
             isCenter ? "h-16 w-16 text-xl" : "h-13 w-13 text-base"
@@ -430,7 +435,7 @@ function PodiumCard({
 
       {/* Name and Handle */}
       <Link
-        href={`/profile/${entry.userId}`}
+        href={`/u/${entry.handle || entry.userId}`}
         className="font-black text-base md:text-lg text-ink hover:text-cobalt hover:underline tracking-tight max-w-full truncate"
       >
         {entry.displayName}

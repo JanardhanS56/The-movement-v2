@@ -9,6 +9,7 @@ import { TierBadge } from "@/components/shared/TierBadge"
 import { Monogram } from "@/components/shared/Monogram"
 import { Button } from "@/components/ui/button"
 import { UserTier } from "@/lib/schemas/user.schema"
+import { getStoredProfilePhoto } from "@/lib/ui-prefs"
 import {
   Megaphone,
   MapPin,
@@ -24,6 +25,8 @@ export function Sidebar() {
   const pathname = usePathname()
   const { user, signOut, openDemoDrawer } = useAuth()
   const [collapsed, setCollapsed] = React.useState(false)
+
+  const userPhoto = user ? getStoredProfilePhoto(user.id) || user.avatar_url : null
 
   const navItems = [
     {
@@ -43,7 +46,7 @@ export function Sidebar() {
     },
     {
       label: "My Profile",
-      href: user ? `/profile/${user.id}` : "/sign-in",
+      href: user ? `/u/${user.handle || user.id}` : "/sign-in",
       icon: UserIcon,
     },
   ]
@@ -115,7 +118,7 @@ export function Sidebar() {
           {!collapsed ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
-                <UserAvatar name={user.display_name} avatarUrl={user.avatar_url} />
+                <UserAvatar name={user.display_name} avatarUrl={userPhoto} />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold text-ink truncate">
                     {user.display_name}
@@ -156,7 +159,7 @@ export function Sidebar() {
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3">
-              <UserAvatar name={user.display_name} avatarUrl={user.avatar_url} className="h-7 w-7" />
+              <UserAvatar name={user.display_name} avatarUrl={userPhoto} className="h-7 w-7" />
               <button
                 type="button"
                 onClick={openDemoDrawer}

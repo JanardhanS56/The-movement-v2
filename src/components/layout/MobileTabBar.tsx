@@ -28,7 +28,7 @@ export function MobileTabBar() {
     },
     {
       label: "Profile",
-      href: user ? `/profile/${user.id}` : "/sign-in",
+      href: user ? `/u/${user.handle || user.id}` : "/sign-in",
       icon: UserIcon,
     },
   ]

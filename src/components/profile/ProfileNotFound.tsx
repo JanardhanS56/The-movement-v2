@@ -8,6 +8,8 @@ export interface ProfileNotFoundProps {
 }
 
 export function ProfileNotFound({ userId }: ProfileNotFoundProps) {
+  const isHandle = userId.startsWith("@") || (!userId.includes("-") && userId.length < 30)
+
   return (
     <div
       role="region"
@@ -21,11 +23,15 @@ export function ProfileNotFound({ userId }: ProfileNotFoundProps) {
         Volunteer profile not found
       </h2>
       <p className="mt-2 text-sm text-muted-foreground max-w-md">
-        No registered volunteer or organizer was found with identifier{" "}
-        <span className="tabular-nums text-xs text-foreground bg-secondary px-1.5 py-0.5 rounded-sm">
-          {userId}
-        </span>
-        . The member record may not exist or could be unregistered.
+        No registered volunteer or organizer was found for{" "}
+        {isHandle ? (
+          <span className="font-bold text-foreground">
+            {userId.startsWith("@") ? userId : `@${userId}`}
+          </span>
+        ) : (
+          "this member link"
+        )}
+        . The profile may be set to members only, not exist, or could be unregistered.
       </p>
 
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
