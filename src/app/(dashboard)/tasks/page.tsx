@@ -154,23 +154,71 @@ function TasksContent() {
       if (simulateFailure) {
         throw new Error("Simulated network failure: Task creation rejected.")
       }
-      return await api.createTask(
+      const newTask = await api.createTask(
         {
           movement_id: movementId,
           title: data.title,
           description: data.description,
           reward_points: data.reward_points,
           required_volunteers: data.required_volunteers,
+          required_skills: data.required_skills,
         },
         user.id
       )
+
+      if (data.smart_assign && newTask?.id) {
+        try {
+          const res = await fetch(`/api/tasks/${newTask.id}/smart-assign`, {
+            method: "POST",
+          })
+          const resJson = await res.json()
+          if (resJson.success && resJson.data?.assigned_count > 0) {
+            toast.success(
+              `Smart Assign: ${resJson.data.assigned_count} volunteer(s) automatically assigned!`
+            )
+          }
+        } catch {
+          // Ignore network errors in local/mock testing
+        }
+      }
+
+      return newTask
     },
     onSuccess: (newTask) => {
       toast.success(`Task "${newTask.title}" created successfully.`)
       queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(movementId) })
+      queryClient.invalidateQueries({ queryKey: QueryKeys.taskClaims() })
     },
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : "Failed to create task.")
+    },
+  })
+
+  // Smart Assign Mutation for existing open tasks
+  const smartAssignMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      const res = await fetch(`/api/tasks/${taskId}/smart-assign`, {
+        method: "POST",
+      })
+      const resJson = await res.json()
+      if (!resJson.success) {
+        throw new Error(resJson.error || "Failed to trigger Smart Assign")
+      }
+      return resJson.data
+    },
+    onSuccess: (data) => {
+      if (data?.assigned_count > 0) {
+        toast.success(
+          `Smart Assign: ${data.assigned_count} volunteer(s) assigned (${data.assigned_users?.join(", ")})`
+        )
+      } else {
+        toast.info(data?.message || "No matching volunteers found.")
+      }
+      queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(movementId) })
+      queryClient.invalidateQueries({ queryKey: QueryKeys.taskClaims() })
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Smart Assign failed")
     },
   })
 
@@ -455,6 +503,9 @@ function TasksContent() {
                     onOrganizerOverride={async (claimId, approve, note) => {
                       await organizerOverrideMutation.mutateAsync({ claimId, approve, note })
                     }}
+                    onSmartAssign={async (taskId) => {
+                      await smartAssignMutation.mutateAsync(taskId)
+                    }}
                     isClaiming={claimMutation.isPending && claimMutation.variables === task.id}
                     isCompleting={
                       markCompleteMutation.isPending &&
@@ -462,6 +513,9 @@ function TasksContent() {
                     }
                     isVerifying={
                       peerVoteMutation.isPending || organizerOverrideMutation.isPending
+                    }
+                    isSmartAssigning={
+                      smartAssignMutation.isPending && smartAssignMutation.variables === task.id
                     }
                   />
                 )

@@ -6,6 +6,7 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
+  Sparkles,
   ShieldCheck,
 } from "lucide-react"
 import { Task } from "@/lib/schemas/task.schema"
@@ -30,9 +31,11 @@ export interface TaskCardProps {
   onMarkComplete: (claimId: string) => Promise<void> | void
   onPeerVote: (claimId: string, vote: "approve" | "reject") => Promise<void> | void
   onOrganizerOverride: (claimId: string, approve: boolean, note?: string) => Promise<void> | void
+  onSmartAssign?: (taskId: string) => Promise<void> | void
   isClaiming?: boolean
   isCompleting?: boolean
   isVerifying?: boolean
+  isSmartAssigning?: boolean
 }
 
 export function TaskCard({
@@ -46,9 +49,11 @@ export function TaskCard({
   onMarkComplete,
   onPeerVote,
   onOrganizerOverride,
+  onSmartAssign,
   isClaiming = false,
   isCompleting = false,
   isVerifying = false,
+  isSmartAssigning = false,
 }: TaskCardProps) {
   const [isExpanded, setIsExpanded] = React.useState(false)
   const [verifyOpen, setVerifyOpen] = React.useState(false)
@@ -153,6 +158,20 @@ export function TaskCard({
             </div>
           )}
 
+          {/* Required Skills Badges */}
+          {task.required_skills && task.required_skills.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {task.required_skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full bg-cobalt/10 text-cobalt border border-cobalt/20"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Claimant / Creator info row */}
           <div className="pt-2 flex flex-wrap items-center gap-4 text-xs border-t border-ink/10 text-ink/70">
             {claimant ? (
@@ -205,7 +224,20 @@ export function TaskCard({
           <div className="flex items-center justify-end">
             {/* State 1: Open task -> Claim */}
             {isOpen && (
-              <>
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                {onSmartAssign && (isTier3 || isCreator) && (task.required_skills?.length || 0) > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSmartAssign(task.id)}
+                    loading={isSmartAssigning}
+                    disabled={isSmartAssigning}
+                    className="text-xs font-bold border-2 border-cobalt text-cobalt bg-white hover:bg-cobalt/10 shadow-hard-xs gap-1.5 h-9 px-3"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>Smart Assign</span>
+                  </Button>
+                )}
                 {isCreator ? (
                   <span className="text-xs text-ink/50 font-medium italic">
                     Created by you
@@ -226,7 +258,7 @@ export function TaskCard({
                     Claim task
                   </Button>
                 )}
-              </>
+              </div>
             )}
 
             {/* State 2: In progress task -> Mark Complete */}

@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       return apiError(`Invalid task data: ${issue}`, 400)
     }
 
-    const { movement_id, title, description, reward_points, required_volunteers } =
+    const { movement_id, title, description, reward_points, required_volunteers, required_skills } =
       parsed.data
 
     const { data: task, error } = await admin
@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
         description,
         reward_points,
         required_volunteers,
+        required_skills: required_skills || [],
         status: "open",
       })
       .select()

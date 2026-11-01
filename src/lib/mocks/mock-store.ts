@@ -78,6 +78,16 @@ class MockStore {
     return clone(this.users)
   }
 
+  public upsertUser(user: User): User {
+    const idx = this.users.findIndex((u) => u.id === user.id)
+    if (idx !== -1) {
+      this.users[idx] = clone(user)
+    } else {
+      this.users.push(clone(user))
+    }
+    return clone(user)
+  }
+
   // --- Announcements & Signatures ---
   public getAnnouncements(movementId: string): Announcement[] {
     return clone(this.announcements.filter((a) => a.movement_id === movementId))
@@ -194,6 +204,7 @@ class MockStore {
       description: input.description,
       reward_points: input.reward_points,
       required_volunteers: input.required_volunteers,
+      required_skills: input.required_skills || [],
       status: "open",
       created_at: now,
     }
