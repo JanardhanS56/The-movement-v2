@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useQuery, useMutation, useQueryClient, useQueries } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { ShieldCheck, AlertTriangle, Bug } from "lucide-react"
+import { ShieldCheck, AlertTriangle, Bug, Sparkles } from "lucide-react"
 import { api } from "@/lib/api"
 import { QueryKeys } from "@/lib/query-keys"
 import { useAuth } from "@/components/providers/AuthProvider"
@@ -21,10 +21,35 @@ import {
 } from "@/components/feed/NewAnnouncementDialog"
 import { Button } from "@/components/ui/button"
 
+const SIMULATED_ANNOUNCEMENTS: NewAnnouncementFormData[] = [
+  {
+    title: "Urgent: Safe Corridor Established via Nehru Circle",
+    body: "Coordinated volunteer marshals have marked a secure pedestrian transit corridor along Nehru Circle. First aid stations are operational with water supplies.",
+    required_signatures: 2,
+  },
+  {
+    title: "Medical Staging Zone Relocated to South Gate",
+    body: "Due to high crowd density near the main square, volunteer triage units and ambulances have relocated to the South Gate entrance. Keep access ways clear.",
+    required_signatures: 2,
+  },
+  {
+    title: "Weather Advisory: Rain Shelter Protocol Activated",
+    body: "Light coastal squalls expected within 45 minutes. Waterproof covers and canopy shelters at Sector 2 and 4 are open for public refuge.",
+    required_signatures: 3,
+  },
+  {
+    title: "Legal Support Observers Active Across Sector 1",
+    body: "Trained civil rights observers in high-vis armbands are stationed along the parade route. Contact hotline 555-0199 for field documentation.",
+    required_signatures: 2,
+  },
+]
+
 export default function FeedPage() {
   const { user, movementId } = useAuth()
   const queryClient = useQueryClient()
   const [simulateFailure, setSimulateFailure] = React.useState(false)
+  const [simulateIndex, setSimulateIndex] = React.useState(0)
+  const [isSimulatingDraft, setIsSimulatingDraft] = React.useState(false)
 
   // 1. Fetch announcements
   const {
@@ -277,6 +302,80 @@ export default function FeedPage() {
 
   const isTier3 = user?.tier === 3
 
+  // 6. Simulate draft announcement requiring multi-sig co-signatures
+  const handleSimulateAnnouncement = async () => {
+    if (!user) {
+      toast.error("Please sign in or select a demo user.")
+      return
+    }
+    const template = SIMULATED_ANNOUNCEMENTS[simulateIndex % SIMULATED_ANNOUNCEMENTS.length]
+    setSimulateIndex((prev) => prev + 1)
+    setIsSimulatingDraft(true)
+
+    try {
+      await createMutation.mutateAsync({
+        title: template.title,
+        body: template.body,
+        required_signatures: template.required_signatures,
+      })
+    } catch {
+      // Error handled by mutation
+    } finally {
+      setIsSimulatingDraft(false)
+    }
+  }
+
+  // 7. Simulate co-signature by another eligible Tier 3 organizer
+  const handleSimulateCoSign = async (announcementId: string) => {
+    const existingSignatures = signaturesMap[announcementId] || []
+    const existingSignerIds = existingSignatures.map((s) => s.signed_by)
+
+    // Find registered Tier 3 organizers who haven't signed this announcement yet
+    const eligibleOrganizers = users.filter(
+      (u) => u.tier === 3 && !existingSignerIds.includes(u.id)
+    )
+
+    if (eligibleOrganizers.length === 0) {
+      toast.info("All registered organizers have already signed this announcement.")
+      return
+    }
+
+    const coSigner = eligibleOrganizers[0]
+
+    try {
+      if (simulateFailure) {
+        throw new Error("Simulated network failure: Co-signature verification dropped.")
+      }
+
+      await api.signAnnouncement(announcementId, coSigner.id)
+
+      await queryClient.invalidateQueries({
+        queryKey: QueryKeys.announcements(movementId),
+      })
+      await queryClient.invalidateQueries({
+        queryKey: QueryKeys.signatures(announcementId),
+      })
+
+      const targetAnnouncement = announcements.find((a) => a.id === announcementId)
+      const newCount = existingSignatures.length + 1
+      const required = targetAnnouncement?.required_signatures || 2
+
+      if (newCount >= required) {
+        toast.success(
+          `${coSigner.display_name} co-signed! Multi-sig threshold reached (${newCount}/${required}) - Published live!`
+        )
+      } else {
+        toast.success(
+          `${coSigner.display_name} co-signed (${newCount}/${required}). Needs ${required - newCount} more signature${required - newCount === 1 ? "" : "s"}.`
+        )
+      }
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to record simulated co-signature."
+      )
+    }
+  }
+
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-12">
       {/* Page Header */}
@@ -285,17 +384,33 @@ export default function FeedPage() {
         description="Multi-signature verified dispatches and operational directives."
         action={
           <div className="flex flex-wrap items-center gap-2">
-            {/* Simulation toggle for testing optimistic rollback */}
+            {/* Simulate Announcement Button */}
+            <Button
+              id="simulate-announcement-button"
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleSimulateAnnouncement}
+              loading={isSimulatingDraft}
+              disabled={isSimulatingDraft}
+              className="text-xs gap-1.5 h-8 border border-border/80 shadow-xs"
+              aria-label="Simulate draft announcement requiring co-signatures"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" aria-hidden="true" />
+              <span>Simulate Announcement</span>
+            </Button>
+
+            {/* Test Error Simulation Toggle */}
             <Button
               variant={simulateFailure ? "destructive" : "outline"}
               size="sm"
               onClick={() => setSimulateFailure((prev) => !prev)}
               className="text-xs gap-1.5 h-8"
-              aria-label="Toggle mutation simulated failure"
+              aria-label="Toggle network error simulation"
             >
               <Bug className="w-3.5 h-3.5" aria-hidden="true" />
               <span>
-                {simulateFailure ? "Simulated Failure: ON" : "Simulate Failure: OFF"}
+                {simulateFailure ? "Simulated Error: ON" : "Simulate Error: OFF"}
               </span>
             </Button>
 
@@ -369,6 +484,7 @@ export default function FeedPage() {
                     onSign={async (announcementId) => {
                       await signMutation.mutateAsync({ announcementId })
                     }}
+                    onSimulateCoSign={handleSimulateCoSign}
                     isSigning={
                       signMutation.isPending &&
                       signMutation.variables?.announcementId === announcement.id

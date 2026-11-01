@@ -1,3 +1,4 @@
+export * from "./common"
 export * from "./user.schema"
 export * from "./movement.schema"
 export * from "./announcement.schema"

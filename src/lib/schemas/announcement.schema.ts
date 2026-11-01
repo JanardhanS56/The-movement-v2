@@ -1,9 +1,10 @@
 import { z } from "zod"
+import { uuidField } from "./common"
 
 export const AnnouncementSchema = z.object({
-  id: z.string().uuid(),
-  movement_id: z.string().uuid(),
-  created_by: z.string().uuid(),
+  id: uuidField,
+  movement_id: uuidField,
+  created_by: uuidField,
   title: z.string().min(5).max(200),
   body: z.string().min(10),
   required_signatures: z.number().int().min(1).max(10),
@@ -17,7 +18,7 @@ export const AnnouncementSchema = z.object({
 export type Announcement = z.infer<typeof AnnouncementSchema>
 
 export const CreateAnnouncementSchema = z.object({
-  movement_id: z.string().uuid(),
+  movement_id: uuidField,
   title: z.string().min(5).max(200),
   body: z.string().min(10),
   required_signatures: z.number().int().min(1).max(10).default(2),
