@@ -189,7 +189,7 @@ export function NewAnnouncementDialog({
 
                     <div
                       id="announcement-signatures-stepper"
-                      className="w-16 h-8 flex items-center justify-center font-mono font-bold text-sm rounded-md border border-input bg-card text-foreground"
+                      className="w-16 h-8 flex items-center justify-center tabular-nums font-bold text-sm rounded-md border border-input bg-card text-foreground"
                       aria-live="polite"
                     >
                       {field.value}

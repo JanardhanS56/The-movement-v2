@@ -87,7 +87,7 @@ export function TaskCard({
         )
       case "in_progress":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/25">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-sun/20 text-sun border border-sun/40">
             <PlayCircle className="w-3.5 h-3.5" aria-hidden="true" />
             <span>In Progress</span>
           </span>
@@ -101,8 +101,8 @@ export function TaskCard({
         )
       case "completed":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-medium bg-lime/20 text-lime border border-lime/40">
+            <CheckCircle2 className="w-3.5 h-3.5 text-lime" aria-hidden="true" />
             <span className="font-semibold uppercase tracking-wider text-[11px]">Completed</span>
           </span>
         )
@@ -120,11 +120,11 @@ export function TaskCard({
 
   // Visual variety styling based on density and completion
   const cardBorderClasses = isCompleted
-    ? "border-l-4 border-l-emerald-500 bg-muted/25 border-t border-r border-b border-border/70"
+    ? "border-l-4 border-l-lime bg-muted/25 border-t border-r border-b border-border/70"
     : isPendingVerification
     ? "border-l-4 border-l-accent bg-card border-t border-r border-b border-border/80"
     : isInProgress
-    ? "border-l-4 border-l-amber-500/80 bg-card border-t border-r border-b border-border/80"
+    ? "border-l-4 border-l-sun bg-card border-t border-r border-b border-border/80"
     : "border-l-4 border-l-primary/60 bg-card border-t border-r border-b border-border/80"
 
   const hasLongDescription = (task.description?.length || 0) > 85
@@ -145,7 +145,7 @@ export function TaskCard({
             {/* Reward Points Badge */}
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-mono font-bold border",
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tabular-nums font-bold border",
                 task.reward_points >= 60
                   ? "bg-primary/20 text-primary border-primary/40 shadow-xs"
                   : "bg-muted/80 text-foreground/90 border-border"
@@ -198,9 +198,9 @@ export function TaskCard({
 
           {/* Distinct Ledger-Row Treatment for Completed Tasks */}
           {isCompleted && (
-            <div className="p-2.5 rounded-sm bg-background/50 border border-emerald-500/20 text-xs font-mono space-y-1">
+            <div className="p-2.5 rounded-sm bg-background/50 border border-lime/40 text-xs tabular-nums space-y-1">
               <div className="flex items-center justify-between text-muted-foreground">
-                <span className="uppercase text-[11px] text-emerald-400 font-semibold">
+                <span className="uppercase text-[11px] text-lime font-semibold">
                   Verification Ledger Stamped
                 </span>
                 <span>{formatDateTime(claim?.verified_at || task.created_at)}</span>
@@ -237,7 +237,7 @@ export function TaskCard({
               </div>
             )}
 
-            <span className="text-[11px] font-mono text-muted-foreground shrink-0">
+            <span className="text-[11px] tabular-nums text-muted-foreground shrink-0">
               {formatDateTime(task.created_at)}
             </span>
           </div>
@@ -298,7 +298,7 @@ export function TaskCard({
                 <span>Mark Complete</span>
               </Button>
             ) : (
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground tabular-nums">
                 Assigned to volunteer
               </span>
             )}
@@ -321,11 +321,11 @@ export function TaskCard({
                 <span>Verify Task</span>
               </Button>
             ) : isClaimant ? (
-              <span className="text-xs text-amber-400 font-mono">
+              <span className="text-xs text-sun tabular-nums">
                 Awaiting peer verifiers
               </span>
             ) : (
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground tabular-nums">
                 Peer review in progress
               </span>
             )}
@@ -334,7 +334,7 @@ export function TaskCard({
 
         {/* State 4: Completed -> Verified stamp */}
         {isCompleted && (
-          <span className="inline-flex items-center gap-1 text-xs text-emerald-400 font-mono font-medium">
+          <span className="inline-flex items-center gap-1 text-xs text-lime tabular-nums font-medium">
             <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
             Verified & Credited
           </span>

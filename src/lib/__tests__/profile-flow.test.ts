@@ -86,8 +86,8 @@ describe("Phase 8: Profile and Impact Ledger Integrity Tests", () => {
 
   // Exercise 5: Completing and verifying a task in the demo updates the ledger and awards points
   it("completing and verifying a task updates the claimant impact ledger, stats, and badges", async () => {
-    // Sneha Nayak (Tier 1 volunteer) initially has 0 ledger entries
-    const volunteerId = "66666666-6666-6666-6666-666666666666"
+    // Elena Rostova (Tier 1 volunteer) initially has 0 ledger entries
+    const volunteerId = "66666666-6666-4666-8666-666666666666"
     const initialLedger = await api.getImpactLedger(volunteerId)
     const initialStats = await api.getUserStats(volunteerId)
     expect(initialLedger).toHaveLength(0)
@@ -103,7 +103,7 @@ describe("Phase 8: Profile and Impact Ledger Integrity Tests", () => {
     expect(completedClaim.status).toBe("pending_verification")
 
     // Step 3: Tier 3 Organizer approves via override
-    const organizerId = "11111111-1111-1111-1111-111111111111" // Priya Rao
+    const organizerId = "11111111-1111-4111-8111-111111111111" // Priya Rao
     const verifiedClaim = await api.organizerOverride(claim.id, organizerId, true, "Verified on site.")
     expect(verifiedClaim.status).toBe("verified")
 

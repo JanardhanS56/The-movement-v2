@@ -197,7 +197,7 @@ export function PostTaskDialog({
 
                     <div
                       id="task-volunteers-stepper"
-                      className="w-12 h-8 flex items-center justify-center font-mono font-bold text-sm rounded-md border border-input bg-card text-foreground"
+                      className="w-12 h-8 flex items-center justify-center tabular-nums font-bold text-sm rounded-md border border-input bg-card text-foreground"
                       aria-live="polite"
                     >
                       {field.value}

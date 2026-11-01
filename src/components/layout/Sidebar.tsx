@@ -106,7 +106,7 @@ export function Sidebar() {
               <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
               {!collapsed && <span>{item.label}</span>}
               {isActive && !collapsed && (
-                <span className="ml-auto text-[10px] font-mono tracking-widest text-primary-light uppercase">
+                <span className="ml-auto text-[10px] tabular-nums tracking-widest text-primary-light uppercase">
                   [ACTIVE]
                 </span>
               )}

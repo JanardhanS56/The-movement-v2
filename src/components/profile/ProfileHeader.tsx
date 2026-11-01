@@ -52,7 +52,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               <span>Joined {formatDateOnly(user.created_at)}</span>
             </div>
 
-            <div className="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-card border border-border/60 font-mono text-[11px]">
+            <div className="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-card border border-border/60 tabular-nums text-[11px]">
               <ShieldCheck className="h-3.5 w-3.5 text-verified" aria-hidden="true" />
               <span>Verified ID: {user.id.slice(0, 8)}</span>
             </div>

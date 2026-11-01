@@ -34,7 +34,7 @@ export interface AuthContextType {
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
 
-const DEFAULT_DEMO_USER_ID = "11111111-1111-1111-1111-111111111111" // Priya Rao (Tier 3 Organizer)
+const DEFAULT_DEMO_USER_ID = "11111111-1111-4111-8111-111111111111" // Priya Rao (Tier 3 Organizer)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()

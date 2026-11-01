@@ -31,7 +31,7 @@ export function BadgeGallery({ badges }: BadgeGalleryProps) {
             Earned Badges
           </h3>
         </div>
-        <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground border border-border">
+        <span className="text-xs tabular-nums font-medium px-2 py-0.5 rounded-sm bg-secondary text-secondary-foreground border border-border">
           {badges.length} {badges.length === 1 ? "Badge" : "Badges"}
         </span>
       </div>
@@ -72,7 +72,7 @@ export function BadgeGallery({ badges }: BadgeGalleryProps) {
                 </span>
 
                 {/* Verification method and date */}
-                <span className="mt-1 text-[11px] font-mono text-muted-foreground">
+                <span className="mt-1 text-[11px] tabular-nums text-muted-foreground">
                   {methodLabel}
                 </span>
                 <span className="mt-0.5 text-[10px] text-muted-foreground/80">

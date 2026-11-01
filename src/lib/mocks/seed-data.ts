@@ -16,28 +16,28 @@ export const SEED_MOVEMENT: Movement = {
   description: "Coordinating decentralized civic action and community support across coastal Karnataka.",
   slug: "coastal-action-front",
   is_active: true,
-  created_by: "11111111-1111-1111-1111-111111111111",
+  created_by: "11111111-1111-4111-8111-111111111111",
   created_at: "2026-10-01T08:00:00Z",
 }
 
 export const SEED_USERS: User[] = [
   // 3 Organizers (Tier 3)
   {
-    id: "11111111-1111-1111-1111-111111111111",
+    id: "11111111-1111-4111-8111-111111111111",
     display_name: "Priya Rao",
     avatar_url: null,
     tier: 3,
     created_at: "2026-10-01T08:00:00Z",
   },
   {
-    id: "22222222-2222-2222-2222-222222222222",
+    id: "22222222-2222-4222-8222-222222222222",
     display_name: "Rohan Shetty",
     avatar_url: null,
     tier: 3,
     created_at: "2026-10-01T08:30:00Z",
   },
   {
-    id: "33333333-3333-3333-3333-333333333333",
+    id: "33333333-3333-4333-8333-333333333333",
     display_name: "Ananya Kamath",
     avatar_url: null,
     tier: 3,
@@ -46,28 +46,28 @@ export const SEED_USERS: User[] = [
 
   // 4 Other Users (2 Senior Volunteers, 2 Volunteers)
   {
-    id: "44444444-4444-4444-4444-444444444444",
+    id: "44444444-4444-4444-8444-444444444444",
     display_name: "Devika Pai",
     avatar_url: null,
     tier: 2,
     created_at: "2026-10-05T10:00:00Z",
   },
   {
-    id: "55555555-5555-5555-5555-555555555555",
+    id: "55555555-5555-4555-8555-555555555555",
     display_name: "Karthik Bhat",
     avatar_url: null,
     tier: 2,
     created_at: "2026-10-06T11:00:00Z",
   },
   {
-    id: "66666666-6666-6666-6666-666666666666",
+    id: "66666666-6666-4666-8666-666666666666",
     display_name: "Sneha Nayak",
     avatar_url: null,
     tier: 1,
     created_at: "2026-10-10T12:00:00Z",
   },
   {
-    id: "77777777-7777-7777-7777-777777777777",
+    id: "77777777-7777-4777-8777-777777777777",
     display_name: "Vikram Alva",
     avatar_url: null,
     tier: 1,
@@ -78,9 +78,9 @@ export const SEED_USERS: User[] = [
 export const SEED_ANNOUNCEMENTS: Announcement[] = [
   // 1: Published (2 of 2 signed)
   {
-    id: "a1111111-1111-1111-1111-111111111111",
+    id: "a1111111-1111-4111-8111-111111111111",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "11111111-1111-1111-1111-111111111111",
+    created_by: "11111111-1111-4111-8111-111111111111",
     title: "Assembly Point Relocation Notice",
     body: "Please note that the central assembly location has moved to the Town Hall premises due to space requirements. Medical and hydration tents are already stationed.",
     required_signatures: 2,
@@ -90,9 +90,9 @@ export const SEED_ANNOUNCEMENTS: Announcement[] = [
   },
   // 2: Pending 1 of 3 (author auto-signed)
   {
-    id: "a2222222-2222-2222-2222-222222222222",
+    id: "a2222222-2222-4222-8222-222222222222",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "11111111-1111-1111-1111-111111111111",
+    created_by: "11111111-1111-4111-8111-111111111111",
     title: "Severe Weather Warning Advisory",
     body: "Regional meteorological alert issued for coastal zones between 14:00 and 18:00. Field stewards must verify all temporary shade structures are secured.",
     required_signatures: 3,
@@ -102,9 +102,9 @@ export const SEED_ANNOUNCEMENTS: Announcement[] = [
   },
   // 3: Pending 2 of 3 (author + 1 organizer signed)
   {
-    id: "a3333333-3333-3333-3333-333333333333",
+    id: "a3333333-3333-4333-8333-333333333333",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "22222222-2222-2222-2222-222222222222",
+    created_by: "22222222-2222-4222-8222-222222222222",
     title: "Volunteer Evening Shift Rotation",
     body: "Evening support shifts will transition at 17:30. Volunteers in Zone B and C must hand over check-in radios to the incoming coordinators.",
     required_signatures: 3,
@@ -117,35 +117,35 @@ export const SEED_ANNOUNCEMENTS: Announcement[] = [
 export const SEED_SIGNATURES: AnnouncementSignature[] = [
   // For announcement 1 (both signed)
   {
-    id: "s1111111-1111-1111-1111-111111111111",
-    announcement_id: "a1111111-1111-1111-1111-111111111111",
-    signed_by: "11111111-1111-1111-1111-111111111111",
+    id: "b1111111-1111-4111-8111-111111111111",
+    announcement_id: "a1111111-1111-4111-8111-111111111111",
+    signed_by: "11111111-1111-4111-8111-111111111111",
     signed_at: "2026-10-28T10:00:00Z",
   },
   {
-    id: "s2222222-2222-2222-2222-222222222222",
-    announcement_id: "a1111111-1111-1111-1111-111111111111",
-    signed_by: "22222222-2222-2222-2222-222222222222",
+    id: "b2222222-2222-4222-8222-222222222222",
+    announcement_id: "a1111111-1111-4111-8111-111111111111",
+    signed_by: "22222222-2222-4222-8222-222222222222",
     signed_at: "2026-10-28T12:00:00Z",
   },
   // For announcement 2 (1 of 3 signed by author)
   {
-    id: "s3333333-3333-3333-3333-333333333333",
-    announcement_id: "a2222222-2222-2222-2222-222222222222",
-    signed_by: "11111111-1111-1111-1111-111111111111",
+    id: "b3333333-3333-4333-8333-333333333333",
+    announcement_id: "a2222222-2222-4222-8222-222222222222",
+    signed_by: "11111111-1111-4111-8111-111111111111",
     signed_at: "2026-10-31T09:00:00Z",
   },
   // For announcement 3 (2 of 3 signed by author + Rohan)
   {
-    id: "s4444444-4444-4444-4444-444444444444",
-    announcement_id: "a3333333-3333-3333-3333-333333333333",
-    signed_by: "22222222-2222-2222-2222-222222222222",
+    id: "b4444444-4444-4444-8444-444444444444",
+    announcement_id: "a3333333-3333-4333-8333-333333333333",
+    signed_by: "22222222-2222-4222-8222-222222222222",
     signed_at: "2026-10-31T11:00:00Z",
   },
   {
-    id: "s5555555-5555-5555-5555-555555555555",
-    announcement_id: "a3333333-3333-3333-3333-333333333333",
-    signed_by: "33333333-3333-3333-3333-333333333333",
+    id: "b5555555-5555-4555-8555-555555555555",
+    announcement_id: "a3333333-3333-4333-8333-333333333333",
+    signed_by: "33333333-3333-4333-8333-333333333333",
     signed_at: "2026-10-31T11:45:00Z",
   },
 ]
@@ -153,9 +153,9 @@ export const SEED_SIGNATURES: AnnouncementSignature[] = [
 export const SEED_TASKS: Task[] = [
   // 1. open
   {
-    id: "t1111111-1111-1111-1111-111111111111",
+    id: "c1111111-1111-4111-8111-111111111111",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "11111111-1111-1111-1111-111111111111",
+    created_by: "11111111-1111-4111-8111-111111111111",
     title: "Water Station Distribution Setup",
     description: "Set up 4 drinking water refill barrels near the main gate and ensure cups are stocked.",
     reward_points: 40,
@@ -165,9 +165,9 @@ export const SEED_TASKS: Task[] = [
   },
   // 2. open
   {
-    id: "t2222222-2222-2222-2222-222222222222",
+    id: "c2222222-2222-4222-8222-222222222222",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "11111111-1111-1111-1111-111111111111",
+    created_by: "11111111-1111-4111-8111-111111111111",
     title: "Route Navigation Signage Posting",
     description: "Install directional arrow signs from the bus terminal to the gathering ground.",
     reward_points: 50,
@@ -177,9 +177,9 @@ export const SEED_TASKS: Task[] = [
   },
   // 3. in_progress
   {
-    id: "t3333333-3333-3333-3333-333333333333",
+    id: "c3333333-3333-4333-8333-333333333333",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "22222222-2222-2222-2222-222222222222",
+    created_by: "22222222-2222-4222-8222-222222222222",
     title: "Medical Supply Pack Inspection",
     description: "Audit first-aid packs for sterile gauze, electrolyte packets, and contact numbers.",
     reward_points: 60,
@@ -189,9 +189,9 @@ export const SEED_TASKS: Task[] = [
   },
   // 4. in_progress
   {
-    id: "t4444444-4444-4444-4444-444444444444",
+    id: "c4444444-4444-4444-8444-444444444444",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "22222222-2222-2222-2222-222222222222",
+    created_by: "22222222-2222-4222-8222-222222222222",
     title: "Information Pamphlet Distribution",
     description: "Distribute bilingual rights and safety cards along the northern pedestrian concourse.",
     reward_points: 45,
@@ -201,9 +201,9 @@ export const SEED_TASKS: Task[] = [
   },
   // 5. pending_verification (MANDATORY REQUIREMENT)
   {
-    id: "t5555555-5555-5555-5555-555555555555",
+    id: "c5555555-5555-4555-8555-555555555555",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "33333333-3333-3333-3333-333333333333",
+    created_by: "33333333-3333-4333-8333-333333333333",
     title: "Community Kitchen Dry Ration Count",
     description: "Complete an inventory audit of rice, lentils, and clean cooking water containers.",
     reward_points: 80,
@@ -213,9 +213,9 @@ export const SEED_TASKS: Task[] = [
   },
   // 6. completed (MANDATORY REQUIREMENT)
   {
-    id: "t6666666-6666-6666-6666-666666666666",
+    id: "c6666666-6666-4666-8666-666666666666",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "11111111-1111-1111-1111-111111111111",
+    created_by: "11111111-1111-4111-8111-111111111111",
     title: "Legal Support Hotline Duty Roster",
     description: "Finalize lawyer contact availability sheet for the weekend coordination window.",
     reward_points: 100,
@@ -225,9 +225,9 @@ export const SEED_TASKS: Task[] = [
   },
   // 7. cancelled
   {
-    id: "t7777777-7777-7777-7777-777777777777",
+    id: "c7777777-7777-4777-8777-777777777777",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "11111111-1111-1111-1111-111111111111",
+    created_by: "11111111-1111-4111-8111-111111111111",
     title: "Temporary Rain Shelter Dismantling",
     description: "Dismantle canopy frames after midday sun cleared. Cancelled as shade remains needed.",
     reward_points: 30,
@@ -237,9 +237,9 @@ export const SEED_TASKS: Task[] = [
   },
   // 8. open
   {
-    id: "t8888888-8888-8888-8888-888888888888",
+    id: "c8888888-8888-4888-8888-888888888888",
     movement_id: SEED_MOVEMENT_ID,
-    created_by: "33333333-3333-3333-3333-333333333333",
+    created_by: "33333333-3333-4333-8333-333333333333",
     title: "Bicycle Courier Dispatch Coordination",
     description: "Coordinate message relays between field stewards where cellular reception is congested.",
     reward_points: 75,
@@ -252,27 +252,27 @@ export const SEED_TASKS: Task[] = [
 export const SEED_TASK_CLAIMS: TaskClaim[] = [
   // Claim for Task 3 (in_progress by Devika Pai)
   {
-    id: "c3333333-3333-3333-3333-333333333333",
-    task_id: "t3333333-3333-3333-3333-333333333333",
-    claimed_by: "44444444-4444-4444-4444-444444444444",
+    id: "d3333333-3333-4333-8333-333333333333",
+    task_id: "c3333333-3333-4333-8333-333333333333",
+    claimed_by: "44444444-4444-4444-8444-444444444444",
     status: "in_progress",
     note: "Gathered kit boxes, currently counting bandages.",
     claimed_at: "2026-10-26T11:00:00Z",
   },
   // Claim for Task 4 (in_progress by Sneha Nayak)
   {
-    id: "c4444444-4444-4444-4444-444444444444",
-    task_id: "t4444444-4444-4444-4444-444444444444",
-    claimed_by: "66666666-6666-6666-6666-666666666666",
+    id: "d4444444-4444-4444-8444-444444444444",
+    task_id: "c4444444-4444-4444-8444-444444444444",
+    claimed_by: "66666666-6666-4666-8666-666666666666",
     status: "in_progress",
     note: "Picked up printed batch from center.",
     claimed_at: "2026-10-27T11:00:00Z",
   },
   // Claim for Task 5 (pending_verification by Karthik Bhat)
   {
-    id: "c5555555-5555-5555-5555-555555555555",
-    task_id: "t5555555-5555-5555-5555-555555555555",
-    claimed_by: "55555555-5555-5555-5555-555555555555",
+    id: "d5555555-5555-4555-8555-555555555555",
+    task_id: "c5555555-5555-4555-8555-555555555555",
+    claimed_by: "55555555-5555-4555-8555-555555555555",
     status: "pending_verification",
     note: "All 50 dry packs logged and verified in pantry room.",
     claimed_at: "2026-10-28T08:00:00Z",
@@ -280,9 +280,9 @@ export const SEED_TASK_CLAIMS: TaskClaim[] = [
   },
   // Claim for Task 6 (verified / completed by Vikram Alva)
   {
-    id: "c6666666-6666-6666-6666-666666666666",
-    task_id: "t6666666-6666-6666-6666-666666666666",
-    claimed_by: "77777777-7777-7777-7777-777777777777",
+    id: "d6666666-6666-4666-8666-666666666666",
+    task_id: "c6666666-6666-4666-8666-666666666666",
+    claimed_by: "77777777-7777-4777-8777-777777777777",
     status: "verified",
     note: "Lawyer schedule cross-checked with all 8 attorneys.",
     claimed_at: "2026-10-20T09:00:00Z",
@@ -294,27 +294,27 @@ export const SEED_TASK_CLAIMS: TaskClaim[] = [
 export const SEED_PEER_VERIFICATIONS: PeerVerification[] = [
   // Verifiers for Claim 5 (Karthik's claim, pending 1 more approval out of 3)
   {
-    id: "v1111111-1111-1111-1111-111111111111",
-    claim_id: "c5555555-5555-5555-5555-555555555555",
-    verifier_id: "44444444-4444-4444-4444-444444444444", // Devika
+    id: "e1111111-1111-4111-8111-111111111111",
+    claim_id: "d5555555-5555-4555-8555-555555555555",
+    verifier_id: "44444444-4444-4444-8444-444444444444", // Devika
     vote: "approve",
     voted_at: "2026-10-28T13:00:00Z",
     assigned_at: "2026-10-28T12:00:00Z",
     expires_at: "2026-10-29T12:00:00Z",
   },
   {
-    id: "v2222222-2222-2222-2222-222222222222",
-    claim_id: "c5555555-5555-5555-5555-555555555555",
-    verifier_id: "66666666-6666-6666-6666-666666666666", // Sneha
+    id: "e2222222-2222-4222-8222-222222222222",
+    claim_id: "d5555555-5555-4555-8555-555555555555",
+    verifier_id: "66666666-6666-4666-8666-666666666666", // Sneha
     vote: null,
     voted_at: null,
     assigned_at: "2026-10-28T12:00:00Z",
     expires_at: "2026-10-29T12:00:00Z",
   },
   {
-    id: "v3333333-3333-3333-3333-333333333333",
-    claim_id: "c5555555-5555-5555-5555-555555555555",
-    verifier_id: "77777777-7777-7777-7777-777777777777", // Vikram
+    id: "e3333333-3333-4333-8333-333333333333",
+    claim_id: "d5555555-5555-4555-8555-555555555555",
+    verifier_id: "77777777-7777-4777-8777-777777777777", // Vikram
     vote: null,
     voted_at: null,
     assigned_at: "2026-10-28T12:00:00Z",
@@ -325,58 +325,58 @@ export const SEED_PEER_VERIFICATIONS: PeerVerification[] = [
 // 8 Badge definitions
 export const SEED_BADGES: Badge[] = [
   {
-    id: "b1111111-1111-1111-1111-111111111111",
-    user_id: "11111111-1111-1111-1111-111111111111",
+    id: "f1111111-1111-4111-8111-111111111111",
+    user_id: "11111111-1111-4111-8111-111111111111",
     claim_id: null,
     badge_type: "movement_founder",
     badge_label: "Movement Founder",
     issued_by: "organizer_override",
-    issued_by_user: "11111111-1111-1111-1111-111111111111",
+    issued_by_user: "11111111-1111-4111-8111-111111111111",
     awarded_at: "2026-10-01T08:00:00Z",
   },
   {
-    id: "b2222222-2222-2222-2222-222222222222",
-    user_id: "22222222-2222-2222-2222-222222222222",
+    id: "f2222222-2222-4222-8222-222222222222",
+    user_id: "22222222-2222-4222-8222-222222222222",
     claim_id: null,
     badge_type: "early_adopter",
     badge_label: "Early Responder",
     issued_by: "organizer_override",
-    issued_by_user: "11111111-1111-1111-1111-111111111111",
+    issued_by_user: "11111111-1111-4111-8111-111111111111",
     awarded_at: "2026-10-01T08:30:00Z",
   },
   {
-    id: "b3333333-3333-3333-3333-333333333333",
-    user_id: "33333333-3333-3333-3333-333333333333",
+    id: "f3333333-3333-4333-8333-333333333333",
+    user_id: "33333333-3333-4333-8333-333333333333",
     claim_id: null,
     badge_type: "early_adopter",
     badge_label: "Early Responder",
     issued_by: "organizer_override",
-    issued_by_user: "11111111-1111-1111-1111-111111111111",
+    issued_by_user: "11111111-1111-4111-8111-111111111111",
     awarded_at: "2026-10-01T09:00:00Z",
   },
   {
-    id: "b4444444-4444-4444-4444-444444444444",
-    user_id: "44444444-4444-4444-4444-444444444444",
+    id: "f4444444-4444-4444-8444-444444444444",
+    user_id: "44444444-4444-4444-8444-444444444444",
     claim_id: null,
     badge_type: "organizer_verified",
     badge_label: "Field Medic Steward",
     issued_by: "organizer_override",
-    issued_by_user: "11111111-1111-1111-1111-111111111111",
+    issued_by_user: "11111111-1111-4111-8111-111111111111",
     awarded_at: "2026-10-05T12:00:00Z",
   },
   {
-    id: "b5555555-5555-5555-5555-555555555555",
-    user_id: "55555555-5555-5555-5555-555555555555",
+    id: "f5555555-5555-4555-8555-555555555555",
+    user_id: "55555555-5555-4555-8555-555555555555",
     claim_id: null,
     badge_type: "organizer_verified",
     badge_label: "Supply Coordinator",
     issued_by: "organizer_override",
-    issued_by_user: "22222222-2222-2222-2222-222222222222",
+    issued_by_user: "22222222-2222-4222-8222-222222222222",
     awarded_at: "2026-10-06T13:00:00Z",
   },
   {
-    id: "b6666666-6666-6666-6666-666666666666",
-    user_id: "66666666-6666-6666-6666-666666666666",
+    id: "f6666666-6666-4666-8666-666666666666",
+    user_id: "66666666-6666-4666-8666-666666666666",
     claim_id: null,
     badge_type: "task_complete",
     badge_label: "Route Scout",
@@ -384,31 +384,31 @@ export const SEED_BADGES: Badge[] = [
     awarded_at: "2026-10-15T15:00:00Z",
   },
   {
-    id: "b7777777-7777-7777-7777-777777777777",
-    user_id: "77777777-7777-7777-7777-777777777777",
-    claim_id: "c6666666-6666-6666-6666-666666666666",
+    id: "f7777777-7777-4777-8777-777777777777",
+    user_id: "77777777-7777-4777-8777-777777777777",
+    claim_id: "d6666666-6666-4666-8666-666666666666",
     badge_type: "task_complete",
     badge_label: "Legal Support Champion",
     issued_by: "peer_vote",
     awarded_at: "2026-10-20T16:00:00Z",
   },
   {
-    id: "b8888888-8888-8888-8888-888888888888",
-    user_id: "77777777-7777-7777-7777-777777777777",
+    id: "f8888888-8888-4888-8888-888888888888",
+    user_id: "77777777-7777-4777-8777-777777777777",
     claim_id: null,
     badge_type: "organizer_verified",
     badge_label: "Community Pillar",
     issued_by: "organizer_override",
-    issued_by_user: "11111111-1111-1111-1111-111111111111",
+    issued_by_user: "11111111-1111-4111-8111-111111111111",
     awarded_at: "2026-10-21T10:00:00Z",
   },
 ]
 
 export const SEED_IMPACT_ENTRIES: ImpactLedgerEntry[] = [
   {
-    id: "i1111111-1111-1111-1111-111111111111",
-    user_id: "77777777-7777-7777-7777-777777777777",
-    task_id: "t6666666-6666-6666-6666-666666666666",
+    id: "01111111-1111-4111-8111-111111111111",
+    user_id: "77777777-7777-4777-8777-777777777777",
+    task_id: "c6666666-6666-4666-8666-666666666666",
     task_title: "Legal Support Hotline Duty Roster",
     verification_method: "peer_vote",
     verified_by_detail: "Verified by 3 peers",
@@ -416,8 +416,8 @@ export const SEED_IMPACT_ENTRIES: ImpactLedgerEntry[] = [
     verified_at: "2026-10-20T16:00:00Z",
   },
   {
-    id: "i2222222-2222-2222-2222-222222222222",
-    user_id: "44444444-4444-4444-4444-444444444444",
+    id: "02222222-2222-4222-8222-222222222222",
+    user_id: "44444444-4444-4444-8444-444444444444",
     task_id: undefined,
     task_title: "Emergency Medical Camp Setup",
     verification_method: "organizer_override",
@@ -475,7 +475,7 @@ export const SEED_CHECK_IN_POINTS: AggregatedCheckInPoint[] = [
 ]
 
 export const SEED_RAW_CHECK_INS: CheckIn[] = SEED_CHECK_IN_POINTS.map((pt, i) => ({
-  id: `k0000000-0000-0000-0000-${String(i + 1).padStart(12, "0")}`,
+  id: `00000000-0000-4000-8000-${String(i + 1).padStart(12, "0")}`,
   movement_id: SEED_MOVEMENT_ID,
   user_id: SEED_USERS[i % SEED_USERS.length].id,
   lat: pt.lat,

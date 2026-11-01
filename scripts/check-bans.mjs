@@ -67,6 +67,12 @@ function runCheck() {
     lines.forEach((line, index) => {
       for (const pattern of BANNED_PATTERNS) {
         if (pattern.regex.test(line)) {
+          // Allow-list: src/lib/ui-prefs.ts is the designated single file for UI preferences localStorage
+          const normalizedPath = relPath.replace(/\\/g, '/')
+          if (pattern.name === 'Direct localStorage usage' && normalizedPath === 'src/lib/ui-prefs.ts') {
+            continue
+          }
+
           console.error(
             `[BANNED PATTERN] ${pattern.name} found in ${relPath}:${index + 1}\n  > ${line.trim()}`
           )

@@ -4,52 +4,84 @@
 
 @layer base {
   :root,
+  .light {
+    /* Day Theme: Ivory base #F6F0E4, Ink text #060814 */
+    --background: 40 45% 93%;
+    --foreground: 235 55% 5%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 235 55% 5%;
+
+    --popover: 40 45% 93%;
+    --popover-foreground: 235 55% 5%;
+
+    /* Actions: Lime #D4FF24 with ink text */
+    --primary: 71 100% 57%;
+    --primary-foreground: 235 55% 5%;
+
+    /* Secondary / Brand: Cobalt #0047FF with white text */
+    --secondary: 223 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted: Soft tinted */
+    --muted: 40 20% 86%;
+    --muted-foreground: 235 25% 35%;
+
+    /* Accent: Lime */
+    --accent: 71 100% 57%;
+    --accent-foreground: 235 55% 5%;
+
+    /* Destructive / Alert: Tomato #FF4D2E with ink text */
+    --destructive: 9 100% 59%;
+    --destructive-foreground: 235 55% 5%;
+
+    /* UI Boundaries & Focus: Hard Ink borders */
+    --border: 235 55% 5%;
+    --input: 235 55% 5%;
+    --ring: 223 100% 50%;
+
+    --hard-shadow: #060814;
+    --radius: 12px;
+  }
+
   .dark {
-    /* Surfaces: Dominant near-black blue-tinted */
-    --background: 222 35% 7%;
-    --card: 222 41% 13%;
-    --card-foreground: 210 40% 98%;
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    /* Night Theme: Ink base #060814, Ivory text #F6F0E4 */
+    --background: 235 55% 5%;
+    --foreground: 40 45% 93%;
 
-    /* Tinted Neutrals */
-    --foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --subtle-foreground: 214 32% 91%;
+    --card: 235 45% 9%;
+    --card-foreground: 40 45% 93%;
 
-    /* Supporting: Electric Blue */
-    --primary: 224 76% 48%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 217 91% 68%;
+    --popover: 235 45% 9%;
+    --popover-foreground: 40 45% 93%;
 
-    /* Secondary */
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    /* Actions: Lime #D4FF24 with ink text */
+    --primary: 71 100% 57%;
+    --primary-foreground: 235 55% 5%;
 
-    /* Sharp Accent: Vibrant Coral */
-    --accent: 351 95% 71%;
-    --accent-foreground: 222 35% 7%;
+    /* Secondary / Brand: Cobalt #0047FF with white text */
+    --secondary: 223 100% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Status Tokens */
-    --verified: 156 72% 67%;
-    --verified-bg: 161 85% 16%;
-    --verified-foreground: 210 40% 98%;
+    /* Muted: Dark ink muted with lavender tint */
+    --muted: 235 30% 15%;
+    --muted-foreground: 257 100% 86%;
 
-    --caution: 43 96% 56%;
-    --caution-bg: 24 79% 26%;
-    --caution-foreground: 210 40% 98%;
+    /* Accent: Lime */
+    --accent: 71 100% 57%;
+    --accent-foreground: 235 55% 5%;
 
-    --destructive: 0 91% 71%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive / Alert: Tomato #FF4D2E with ink text */
+    --destructive: 9 100% 59%;
+    --destructive-foreground: 235 55% 5%;
 
-    /* UI Boundaries & Focus */
-    --border: 215 16% 47%;
-    --input: 215 25% 27%;
-    --ring: 217 91% 68%;
+    /* UI Boundaries & Focus: Crisp ivory/cobalt */
+    --border: 40 45% 93%;
+    --input: 40 45% 93%;
+    --ring: 71 100% 57%;
 
-    /* Shape: Rectangular small radius */
-    --radius: 0.25rem;
+    --hard-shadow: #000000;
+    --radius: 12px;
   }
 }
 
@@ -63,10 +95,31 @@
     max-width: 100vw;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-size: 17px;
     line-height: 1.6;
+    font-variant-numeric: tabular-nums;
   }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Chunky controls: 2px ink outline, hard offset shadow, press effect (translate 3px, 120ms) */
+.btn-chunky {
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  border-width: 2px;
+  border-color: #060814;
+  box-shadow: 3px 3px 0px 0px var(--hard-shadow, #060814);
+}
+.btn-chunky:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px 0px var(--hard-shadow, #060814);
+}
+.btn-chunky:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px 0px var(--hard-shadow, #060814);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,115 +1,94 @@
-// WCAG 2.2 Relative Luminance and Contrast Ratio Calculator
+/**
+ * Contrast Ratio Calculator (WCAG 2.1)
+ * Formula: (L1 + 0.05) / (L2 + 0.05) where L is relative luminance.
+ */
 
 function hexToRgb(hex) {
-  const cleanHex = hex.replace('#', '')
-  const bigint = parseInt(cleanHex, 16)
-  const r = (bigint >> 16) & 255
-  const g = (bigint >> 8) & 255
-  const b = bigint & 255
+  const clean = hex.replace("#", "")
+  const r = parseInt(clean.substring(0, 2), 16) / 255
+  const g = parseInt(clean.substring(2, 4), 16) / 255
+  const b = parseInt(clean.substring(4, 6), 16) / 255
   return [r, g, b]
 }
 
-function channelLuminance(channel) {
-  const c = channel / 255
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+function sRgbToLinear(c) {
+  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
 }
 
-function relativeLuminance([r, g, b]) {
-  const rl = channelLuminance(r)
-  const gl = channelLuminance(g)
-  const bl = channelLuminance(b)
-  return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl
+function getLuminance(hex) {
+  const [r, g, b] = hexToRgb(hex)
+  return 0.2126 * sRgbToLinear(r) + 0.7152 * sRgbToLinear(g) + 0.0722 * sRgbToLinear(b)
 }
 
-function contrastRatio(hex1, hex2) {
-  const lum1 = relativeLuminance(hexToRgb(hex1))
-  const lum2 = relativeLuminance(hexToRgb(hex2))
-  const lighter = Math.max(lum1, lum2)
-  const darker = Math.min(lum1, lum2)
-  return (lighter + 0.05) / (darker + 0.05)
+function getContrast(hex1, hex2) {
+  const l1 = getLuminance(hex1)
+  const l2 = getLuminance(hex2)
+  const lighter = Math.max(l1, l2)
+  const darker = Math.min(l1, l2)
+  return ((lighter + 0.05) / (darker + 0.05))
 }
 
-const PALETTE = {
-  // Dominant dark blue-tinted surfaces
-  surfaceBase: '#0b0f17',       // Near-black blue-tinted surface (base)
-  surfaceRaised: '#131b2e',     // Card surface
-  surfaceOverlay: '#1e293b',    // Popover / dialog surface
-  surfaceBorder: '#64748b',     // UI boundaries & active borders (passes 3.5+:1 against dark surfaces)
-
-  // Tinted neutrals
-  foreground: '#f8fafc',        // Primary text (slate-50)
-  mutedForeground: '#94a3b8',   // Secondary / muted text (slate-400)
-  subtleForeground: '#cbd5e1',  // Subtle text (slate-300)
-
-  // Primary / Supporting (Electric Blue)
-  primary: '#1d4ed8',           // Deep electric blue button bg (passes 6.70:1 against #ffffff)
-  primaryForeground: '#ffffff', // Button text
-  primaryTextOnDark: '#60a5fa', // Electric blue text/icons on dark surfaces (passes 7.54:1 against #0b0f17)
-
-  // Accent (Coral - used sparingly)
-  accent: '#fb7185',            // Vibrant coral (passes 7.13:1 against #0b0f17)
-  accentMuted: '#be123c',       // Deeper coral for badge backgrounds
-  accentForeground: '#ffffff',
-
-  // Status tokens
-  verifiedGreen: '#34d399',     // Verified green (emerald-400, passes 9.98:1 against #0b0f17)
-  verifiedBg: '#064e3b',        // Dark green badge background
-  cautionAmber: '#fbbf24',      // Caution amber (amber-400, passes 11.49:1 against #0b0f17)
-  cautionBg: '#78350f',         // Dark amber badge background
-  destructive: '#f87171',       // Alert red (red-400, passes 6.93:1 against #0b0f17)
-  destructiveForeground: '#ffffff',
+const colors = {
+  ink: "#060814",
+  ivory: "#F6F0E4",
+  white: "#FFFFFF",
+  cobalt: "#0047FF",
+  cobaltSoft: "#7C9BFF",
+  lime: "#D4FF24",
+  tomato: "#FF4D2E",
+  sun: "#FFB81C",
+  lavender: "#C9B6FF",
 }
 
-const PAIRS_TO_CHECK = [
-  { label: 'Body Text on Base Surface', fg: PALETTE.foreground, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'Body Text on Raised Card', fg: PALETTE.foreground, bg: PALETTE.surfaceRaised, min: 4.5, type: 'Body (AA)' },
-  { label: 'Muted Text on Base Surface', fg: PALETTE.mutedForeground, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'Muted Text on Raised Card', fg: PALETTE.mutedForeground, bg: PALETTE.surfaceRaised, min: 4.5, type: 'Body (AA)' },
-  { label: 'Subtle Text on Base Surface', fg: PALETTE.subtleForeground, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'Primary Button Text on Primary', fg: PALETTE.primaryForeground, bg: PALETTE.primary, min: 4.5, type: 'Body (AA)' },
-  { label: 'Electric Blue Text on Base', fg: PALETTE.primaryTextOnDark, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'Coral Accent on Base Surface', fg: PALETTE.accent, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'Verified Green on Base Surface', fg: PALETTE.verifiedGreen, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'Caution Amber on Base Surface', fg: PALETTE.cautionAmber, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'Destructive Red on Base Surface', fg: PALETTE.destructive, bg: PALETTE.surfaceBase, min: 4.5, type: 'Body (AA)' },
-  { label: 'UI Border vs Base Surface', fg: PALETTE.surfaceBorder, bg: PALETTE.surfaceBase, min: 3.0, type: 'UI Boundary' },
-  { label: 'UI Border vs Raised Card', fg: PALETTE.surfaceBorder, bg: PALETTE.surfaceRaised, min: 3.0, type: 'UI Boundary' },
+const tests = [
+  // Night Theme (Base: Ink #060814)
+  { theme: "Night", element: "Body text (ivory on ink)", fg: colors.ivory, bg: colors.ink, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "Muted text (lavender on ink)", fg: colors.lavender, bg: colors.ink, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "Soft links (cobaltSoft on ink)", fg: colors.cobaltSoft, bg: colors.ink, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "Primary action button (ink on lime)", fg: colors.ink, bg: colors.lime, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "Cobalt banner text (white on cobalt)", fg: colors.white, bg: colors.cobalt, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "Tomato alert text (ink on tomato)", fg: colors.ink, bg: colors.tomato, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "Sun warning text (ink on sun)", fg: colors.ink, bg: colors.sun, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "Lavender tag text (ink on lavender)", fg: colors.ink, bg: colors.lavender, req: "4.5:1", type: "body" },
+  { theme: "Night", element: "UI border boundary (white on ink)", fg: colors.white, bg: colors.ink, req: "3:1", type: "ui" },
+
+  // Day Theme (Base: Ivory #F6F0E4)
+  { theme: "Day", element: "Body text (ink on ivory)", fg: colors.ink, bg: colors.ivory, req: "4.5:1", type: "body" },
+  { theme: "Day", element: "Cobalt block text (white on cobalt)", fg: colors.white, bg: colors.cobalt, req: "4.5:1", type: "body" },
+  { theme: "Day", element: "Action button (ink on lime with border)", fg: colors.ink, bg: colors.lime, req: "4.5:1", type: "body" },
+  { theme: "Day", element: "Tomato badge text (ink on tomato)", fg: colors.ink, bg: colors.tomato, req: "4.5:1", type: "body" },
+  { theme: "Day", element: "Sun badge text (ink on sun)", fg: colors.ink, bg: colors.sun, req: "4.5:1", type: "body" },
+  { theme: "Day", element: "Lavender block text (ink on lavender)", fg: colors.ink, bg: colors.lavender, req: "4.5:1", type: "body" },
+  { theme: "Day", element: "Links / Secondary text (cobalt on ivory)", fg: colors.cobalt, bg: colors.ivory, req: "4.5:1", type: "body" },
+  { theme: "Day", element: "UI border boundary (ink on ivory)", fg: colors.ink, bg: colors.ivory, req: "3:1", type: "ui" },
 ]
 
-console.log('='.repeat(80))
-console.log('THE MOVEMENT - WCAG 2.2 AA CONTRAST RATIO VERIFICATION')
-console.log('='.repeat(80))
-console.log(
-  'Label'.padEnd(36) +
-  'FG Hex'.padEnd(10) +
-  'BG Hex'.padEnd(10) +
-  'Ratio'.padEnd(10) +
-  'Req.'.padEnd(8) +
-  'Result'
-)
-console.log('-'.repeat(80))
+console.log("\n=======================================================")
+console.log("          COBALT POP WCAG CONTRAST AUDIT               ")
+console.log("=======================================================\n")
 
-let allPass = true
+let allPassed = true
+const results = tests.map((t) => {
+  const ratio = getContrast(t.fg, t.bg)
+  const reqNum = parseFloat(t.req)
+  const pass = ratio >= reqNum
+  if (!pass) allPassed = false
+  return {
+    Theme: t.theme,
+    Element: t.element,
+    Foreground: t.fg,
+    Background: t.bg,
+    "Ratio": ratio.toFixed(2) + ":1",
+    "Required": t.req,
+    "Status": pass ? "PASS" : "FAIL",
+  }
+})
 
-for (const pair of PAIRS_TO_CHECK) {
-  const ratio = contrastRatio(pair.fg, pair.bg)
-  const passed = ratio >= pair.min
-  if (!passed) allPass = false
+console.table(results)
 
-  console.log(
-    pair.label.padEnd(36) +
-    pair.fg.padEnd(10) +
-    pair.bg.padEnd(10) +
-    `${ratio.toFixed(2)}:1`.padEnd(10) +
-    `${pair.min}:1`.padEnd(8) +
-    (passed ? 'PASS (AA)' : 'FAIL')
-  )
-}
-
-console.log('='.repeat(80))
-if (allPass) {
-  console.log('ALL COLOR PAIRS PASS WCAG 2.2 AA REQUIREMENTS.')
+if (allPassed) {
+  console.log(" All contrast pairs PASS WCAG 2.1 AA requirements!\n")
 } else {
-  console.error('ONE OR MORE COLOR PAIRS FAILED WCAG 2.2 AA REQUIREMENTS.')
+  console.error(" Some contrast pairs FAILED. Adjusting values required.\n")
   process.exit(1)
 }

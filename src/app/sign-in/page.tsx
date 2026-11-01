@@ -50,7 +50,7 @@ export default function SignInPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Sign In to The Movement
           </h1>
-          <p className="text-sm font-mono text-caution bg-caution-bg/30 border border-caution/40 px-3 py-1 rounded-sm inline-block">
+          <p className="text-sm tabular-nums text-caution bg-caution-bg/30 border border-caution/40 px-3 py-1 rounded-sm inline-block">
             Demo sign-in, not real authentication
           </p>
         </div>

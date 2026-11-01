@@ -144,13 +144,13 @@ export function HeatmapView() {
           <span className="font-semibold text-foreground">
             {points.length} volunteers checked in
           </span>
-          <span className="px-1.5 py-0.5 rounded-xs font-mono text-[10px] uppercase font-semibold bg-primary/10 text-primary border border-primary/20">
+          <span className="px-1.5 py-0.5 rounded-xs tabular-nums text-[10px] uppercase font-semibold bg-primary/10 text-primary border border-primary/20">
             Demo Data
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-muted-foreground font-mono text-[11px]">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
+        <div className="flex items-center gap-1.5 text-muted-foreground tabular-nums text-[11px]">
+          <ShieldCheck className="w-3.5 h-3.5 text-lime shrink-0" aria-hidden="true" />
           <span>Aggregated to ~110m (3 decimal places) for privacy</span>
         </div>
       </div>
@@ -279,36 +279,36 @@ export function HeatmapView() {
         aria-label="Heatmap density legend"
         className="p-3.5 rounded-md bg-card border border-border/80 space-y-2 text-xs"
       >
-        <div className="flex items-center justify-between text-muted-foreground font-mono text-[11px]">
+        <div className="flex items-center justify-between text-muted-foreground tabular-nums text-[11px]">
           <span className="font-semibold text-foreground uppercase tracking-wider">
             Concentration Density Legend
           </span>
           <span>Keyboard: Arrow keys pan, + / - zoom, Escape exits</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 font-mono text-[11px]">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 tabular-nums text-xs">
           {/* Low */}
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#0284c7] inline-block shrink-0 shadow-xs" />
-            <span className="text-muted-foreground">Low Density</span>
+            <span className="w-3.5 h-3.5 rounded-full bg-lime border border-ink inline-block shrink-0" />
+            <span className="text-foreground/80 font-medium">Low Density</span>
           </div>
 
           {/* Moderate */}
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#eab308] inline-block shrink-0 shadow-xs" />
-            <span className="text-muted-foreground">Moderate Density</span>
+            <span className="w-3.5 h-3.5 rounded-full bg-sun border border-ink inline-block shrink-0" />
+            <span className="text-foreground/80 font-medium">Moderate Density</span>
           </div>
 
           {/* High */}
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#ef4444] inline-block shrink-0 shadow-xs" />
-            <span className="text-muted-foreground">High Concentration</span>
+            <span className="w-3.5 h-3.5 rounded-full bg-tomato border border-ink inline-block shrink-0" />
+            <span className="text-foreground/80 font-medium">High Concentration</span>
           </div>
 
           {/* User's Own Dot */}
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#38bdf8] ring-2 ring-[#2563eb] inline-block shrink-0 animate-pulse" />
-            <span className="text-foreground font-medium">Your Check-in Dot</span>
+            <span className="w-3.5 h-3.5 rounded-full bg-lime ring-2 ring-cobalt border border-ink inline-block shrink-0 animate-pulse" />
+            <span className="text-foreground font-bold">Your Check-in Dot</span>
           </div>
         </div>
       </section>

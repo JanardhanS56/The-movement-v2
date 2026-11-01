@@ -38,7 +38,7 @@ export function DemoPanel() {
         {/* Header Bar */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-primary/10 border border-primary/30 text-primary-light font-mono text-[11px] font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-primary/10 border border-primary/30 text-primary-light tabular-nums text-[11px] font-semibold">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
               Demo data
             </span>
@@ -124,7 +124,7 @@ export function DemoPanel() {
           <div
             role="status"
             aria-live="polite"
-            className="mt-2 p-1 text-center font-mono text-[11px] text-verified bg-verified-bg/40 border border-verified/30 rounded-sm"
+            className="mt-2 p-1 text-center tabular-nums text-[11px] text-verified bg-verified-bg/40 border border-verified/30 rounded-sm"
           >
             {statusMessage}
           </div>
