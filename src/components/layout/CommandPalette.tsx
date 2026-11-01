@@ -58,6 +58,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       { id: "p-feed", title: "Feed", subtitle: "Verified announcements & dispatches", category: "Pages", url: "/feed" },
       { id: "p-heatmap", title: "Heatmap", subtitle: "Live field coordination & check-ins", category: "Pages", url: "/heatmap" },
       { id: "p-tasks", title: "Tasks Board", subtitle: "Browse volunteer tasks & bounties", category: "Pages", url: "/tasks" },
+      { id: "p-chat", title: "Chat", subtitle: "Community chat rooms and discussion", category: "Pages", url: "/chat" },
+      { id: "p-chat-everyone", title: "Chat: Everyone", subtitle: "Movement-wide discussion and general updates", category: "Pages", url: "/chat?room=everyone" },
+      { id: "p-chat-coastal", title: "Chat: Coastal Action Front", subtitle: "Field coordination and cleanup actions", category: "Pages", url: "/chat?room=coastal-action-front" },
+      { id: "p-chat-help", title: "Chat: Help and questions", subtitle: "Questions about volunteering and tasks", category: "Pages", url: "/chat?room=help-questions" },
       { id: "p-leaderboard", title: "Leaderboard", subtitle: "Community member impact rankings", category: "Pages", url: "/tasks?view=leaderboard" },
       { id: "p-profile", title: "My Profile", subtitle: "View your verified badges & stats", category: "Pages", url: user ? `/u/${user.handle || user.id}` : "/sign-in" },
     ]

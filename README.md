@@ -122,7 +122,7 @@ Follow this step-by-step walkthrough to exercise all core platform features in u
 
 1. **Sign In as Lead Organizer:**
    - Navigate to `/sign-in`.
-   - Select **Priya Rao** (Tier 3 Organizer, Mangalore chapter).
+   - Select **Janardhan** (Tier 3 Organizer, Mangalore chapter).
    - You will be redirected to `/feed`. Notice the active Tier 3 badge in the sidebar and header.
 2. **Draft a Multi-Signature Announcement:**
    - In `/feed`, tap **New Announcement**.
@@ -142,7 +142,7 @@ Follow this step-by-step walkthrough to exercise all core platform features in u
    - Tap **Claim Task** on `Water Station Distribution Setup` (40 pts). The claim updates optimistically.
    - Tap **Mark Complete**, enter a field note, and submit. The task moves to `pending_verification`.
 6. **Peer Review & Verification:**
-   - In the Demo Panel, switch persona back to **Priya Rao** (Tier 3 Organizer).
+   - In the Demo Panel, switch persona back to **Janardhan** (Tier 3 Organizer).
    - On the same task card, tap **Verify Task Claim**.
    - Choose **Organizer Override (Approve)** and confirm.
    - The task transitions to **Completed** with distinct ledger styling.
@@ -319,7 +319,63 @@ The frontend is built against the strict API contract in [`docs/API_CONTRACT.md`
 
 ---
 
-## 11. Final Verification & Quality Gates
+## 11. Chat: What Works Now and What the Backend Must Add
+
+The Movement includes a complete, high-fidelity chat feature tailored for civic field coordination, community organizing, and volunteer mutual aid. It runs in a frontend-first architecture with fictional demo data, cross-tab synchronization, and complete honesty banners.
+
+### What Works in the Browser Demo
+- **3 Dedicated Movement Rooms:**
+  - `everyone`: General movement-wide discussion and field updates.
+  - `coastal-action-front`: Tactical field coordination and coastal action initiatives.
+  - `help-questions`: Volunteer onboarding, task queries, and verification help.
+- **Cross-Tab Realtime Synchronization:**
+  - Messages, pinned announcements, deletions, and reactions sync across browser tabs in real time using the native `BroadcastChannel` API (`the-movement:chat:events`).
+- **Optimistic State & Client-Side Persistence:**
+  - Instant optimistic message delivery with scoped `sessionStorage` fallback caching per room.
+- **Curated 6-Glyph Reaction Matrix:**
+  - Strict reaction keys (`thumbs_up`, `heart`, `thanks`, `celebrate`, `laugh`, `surprised`) with per-user toggle and dynamic reaction chips.
+- **Reply Threading:**
+  - Contextual reply banners, quote snippets, and single-click jump-to-original-message navigation.
+- **Member @Mentions:**
+  - Interactive `@` trigger popover indexing active members from `SEED_USERS` with keyboard selection and mention badges.
+- **Pinned Messages Strip:**
+  - Sticky room header strip displaying active announcements pinned by tier 3 organizers, with jump-to-message action.
+- **Moderation & Safety Controls:**
+  - Author self-deletion for sent messages.
+  - Tier 3 Organizer "Remove message" capability with clear tombstone placeholders.
+  - 10-second slow mode cooldown timer to prevent flooding during high-velocity events.
+  - In-browser message reporting modal with 5 structured reason codes (`spam`, `harassment`, `misinformation`, `inappropriate`, `safety`).
+  - Blocked users management dialog with instant message and reaction filtering.
+  - Movement room guidelines dialog establishing community standards.
+- **Field Task Sharing:**
+  - Integrated `TaskPickerModal` allowing volunteers and organizers to share verified community tasks directly into discussion threads with actionable cards.
+- **Room Management:**
+  - Per-room mute toggling (silencing notifications and unread badges) and "Mark room as read".
+- **Search & Filter:**
+  - Full-text keyword search and sender filtering with visual match highlighting and clearable query chips.
+- **Sidebar & Notification Integration:**
+  - Expanded Sidebar room sub-links displaying live unread message counts and `@` mention chips.
+  - Collapsed icon unread counter badge.
+  - TopBar `NotificationInbox` integration tracking unread mentions and pinned room alerts.
+
+### What the Backend Team Must Build
+When migrating from the client demo to the production cloud infrastructure, the backend team must implement:
+1. **Realtime Transport:**
+   - Supabase Realtime channels, WebSocket gateway, or HTTP Server-Sent Events (SSE) replacing the browser-scoped `BroadcastChannel`.
+2. **Row Level Security (RLS) & Authorization:**
+   - PostgreSQL RLS policies on `chat_messages`, `chat_reactions`, `chat_reports`, and `chat_room_pins` enforcing room membership, tier permissions for pinning and moderation, and author-only edits.
+3. **Server-Side Rate Limiting & Cooldowns:**
+   - Redis token bucket rate limiters preventing abuse, API spam, and enforcing movement slow-mode windows server-side.
+4. **Push Notifications & Webhooks:**
+   - Web Push API and mobile notification dispatch for direct @mentions and organizer emergency announcements.
+5. **Centralized Moderation Pipeline:**
+   - Server-side moderation table receiving submitted reports, automated spam/safety scoring, and administrative audit logging.
+6. **Retention & Archival Policies:**
+   - Database partitioning and configurable message retention policies for privacy-conscious civic actions.
+
+---
+
+## 12. Final Verification & Quality Gates
 
 The codebase passes all automated verification checks with 0 errors:
 - **Security Check:** 0 exposed secrets or sensitive files across tracked repository.

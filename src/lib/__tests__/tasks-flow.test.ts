@@ -7,7 +7,7 @@ import { Task, TaskClaim } from "../schemas/task.schema"
 import { QueryKeys } from "../query-keys"
 
 describe("Phase 6: Tasks Board, Claims & Peer Verification Workflows", () => {
-  const priyaOrganizer = SEED_USERS[0] // Tier 3
+  const janardhanOrganizer = SEED_USERS[0] // Tier 3
   const rohanOrganizer = SEED_USERS[1] // Tier 3
   const devikaSeniorVolunteer = SEED_USERS[3] // Tier 2
   const karthikClaimant = SEED_USERS[4] // Tier 2
@@ -37,7 +37,7 @@ describe("Phase 6: Tasks Board, Claims & Peer Verification Workflows", () => {
 
   // 2. Double-claim blocked
   it("blocks duplicate claims and creators claiming their own tasks", () => {
-    const task2 = SEED_TASKS[1] // Created by Priya
+    const task2 = SEED_TASKS[1] // Created by Janardhan
 
     // First claim by Sneha succeeds
     mockStore.claimTask({ task_id: task2.id }, snehaVolunteer.id)
@@ -63,7 +63,7 @@ describe("Phase 6: Tasks Board, Claims & Peer Verification Workflows", () => {
       {
         id: "task-test-01",
         movement_id: SEED_MOVEMENT_ID,
-        created_by: priyaOrganizer.id,
+        created_by: janardhanOrganizer.id,
         title: "Test Distribution Task",
         reward_points: 50,
         required_volunteers: 1,
@@ -170,10 +170,10 @@ describe("Phase 6: Tasks Board, Claims & Peer Verification Workflows", () => {
       mockStore.organizerOverride(claim5.id, snehaVolunteer.id, true)
     }).toThrow("Only Tier 3 Organizers can execute verification override")
 
-    // Tier 3 Organizer (Priya Rao) executes override
+    // Tier 3 Organizer (Janardhan) executes override
     const overriddenClaim = mockStore.organizerOverride(
       claim5.id,
-      priyaOrganizer.id,
+      janardhanOrganizer.id,
       true,
       "Confirmed in person during morning staging inspection."
     )

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Movement } from "@/lib/schemas/movement.schema"
 import { FICTIONAL_MOVEMENTS, getActiveMovementId, setActiveMovementId } from "@/lib/mocks/fictional-data"
 import { toast } from "sonner"
 import { Check, ChevronsUpDown, Shield } from "lucide-react"
@@ -11,11 +12,25 @@ export interface MovementSwitcherProps {
 
 export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
   const [activeId, setActiveIdState] = React.useState<string>(FICTIONAL_MOVEMENTS[0].id)
+  const [movements, setMovements] = React.useState<Movement[]>(FICTIONAL_MOVEMENTS)
   const [open, setOpen] = React.useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     setActiveIdState(getActiveMovementId())
+    setMovements([...FICTIONAL_MOVEMENTS])
+
+    const handleMovementChange = () => {
+      setActiveIdState(getActiveMovementId())
+      setMovements([...FICTIONAL_MOVEMENTS])
+    }
+
+    window.addEventListener("the-movement:movement-changed", handleMovementChange)
+    window.addEventListener("the-movement:movement-added", handleMovementChange)
+    return () => {
+      window.removeEventListener("the-movement:movement-changed", handleMovementChange)
+      window.removeEventListener("the-movement:movement-added", handleMovementChange)
+    }
   }, [])
 
   // Close on outside click or Esc
@@ -39,13 +54,13 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
   }, [open])
 
   const activeMovement =
-    FICTIONAL_MOVEMENTS.find((m) => m.id === activeId) || FICTIONAL_MOVEMENTS[0]
+    movements.find((m) => m.id === activeId) || movements[0] || FICTIONAL_MOVEMENTS[0]
 
   const handleSelect = (id: string) => {
     setActiveMovementId(id)
     setActiveIdState(id)
     setOpen(false)
-    const target = FICTIONAL_MOVEMENTS.find((m) => m.id === id)
+    const target = movements.find((m) => m.id === id)
     if (target) {
       toast.success(`Switched movement to ${target.name}`)
     }
@@ -72,7 +87,7 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
             <p className="text-[10px] uppercase font-black tracking-wider text-ink/60 px-2 py-1">
               Switch movement
             </p>
-            {FICTIONAL_MOVEMENTS.map((mov) => {
+            {movements.map((mov) => {
               const isSelected = mov.id === activeId
               return (
                 <button
@@ -127,7 +142,7 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
           aria-label="Select movement"
           className="absolute left-3 right-3 top-full mt-1.5 z-50 rounded-chunky border-2 border-ink bg-white p-1.5 shadow-hard-md space-y-1"
         >
-          {FICTIONAL_MOVEMENTS.map((mov) => {
+          {movements.map((mov) => {
             const isSelected = mov.id === activeId
             return (
               <button

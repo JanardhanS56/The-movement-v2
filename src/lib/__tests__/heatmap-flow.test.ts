@@ -6,7 +6,7 @@ import { AggregatedCheckInPoint } from "../schemas/check-in.schema"
 
 describe("Phase 7: Heatmap and Check-in Telemetry Workflows", () => {
   let api: MockApiAdapter
-  const priyaUser = SEED_USERS[0]
+  const janardhanUser = SEED_USERS[0]
   const snehaVolunteer = SEED_USERS[5]
 
   beforeEach(() => {
@@ -99,7 +99,7 @@ describe("Phase 7: Heatmap and Check-in Telemetry Workflows", () => {
         lng: simulatedLng,
         accuracy: 25,
       },
-      priyaUser.id
+      janardhanUser.id
     )
 
     expect(simulatedCheckIn.lat).toBe(12.875)

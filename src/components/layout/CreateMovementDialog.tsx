@@ -19,6 +19,8 @@ import { PlusCircle, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { QueryKeys } from "@/lib/query-keys"
+import { addFictionalMovement, setActiveMovementId } from "@/lib/mocks/fictional-data"
+import { Movement } from "@/lib/schemas/movement.schema"
 
 export function CreateMovementDialog({ trigger }: { trigger?: React.ReactNode }) {
   const { user, setMovementId } = useAuth()
@@ -38,28 +40,49 @@ export function CreateMovementDialog({ trigger }: { trigger?: React.ReactNode })
 
     setLoading(true)
     try {
-      const res = await fetch("/api/movements", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": user.id,
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          description: description.trim() || undefined,
-        }),
-      })
+      let createdMovement: Movement | null = null
 
-      const json = await res.json()
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to create movement")
+      try {
+        const res = await fetch("/api/movements", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": user.id,
+          },
+          body: JSON.stringify({
+            name: name.trim(),
+            description: description.trim() || undefined,
+            created_by: user.id,
+          }),
+        })
+
+        const json = await res.json()
+        if (res.ok && json.success && json.data) {
+          createdMovement = json.data
+        }
+      } catch {
+        // Fallback to local creation if fetch fails
       }
 
-      toast.success(`Movement "${json.data.name}" created! Active movement switched.`)
-      setMovementId(json.data.id)
-      queryClient.invalidateQueries({ queryKey: QueryKeys.announcements(json.data.id) })
-      queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(json.data.id) })
+      if (!createdMovement) {
+        createdMovement = {
+          id: crypto.randomUUID(),
+          name: name.trim(),
+          description: description.trim() || null,
+          slug: name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          is_active: true,
+          created_by: user.id,
+          created_at: new Date().toISOString(),
+        }
+      }
 
+      addFictionalMovement(createdMovement)
+      setActiveMovementId(createdMovement.id)
+      setMovementId(createdMovement.id)
+      queryClient.invalidateQueries({ queryKey: QueryKeys.announcements(createdMovement.id) })
+      queryClient.invalidateQueries({ queryKey: QueryKeys.tasks(createdMovement.id) })
+
+      toast.success(`Movement "${createdMovement.name}" created! Active movement switched.`)
       setName("")
       setDescription("")
       setOpen(false)
@@ -78,9 +101,11 @@ export function CreateMovementDialog({ trigger }: { trigger?: React.ReactNode })
             (trigger as React.ReactElement)
           ) : (
             <Button
+              type="button"
+              onClick={() => setOpen(true)}
               variant="outline"
               size="sm"
-              className="w-full gap-2 border-dashed border-ink/40 text-xs font-bold justify-start"
+              className="w-full gap-2 border-dashed border-ink/40 text-xs font-bold justify-start hover:border-ink hover:bg-ink/5 cursor-pointer"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Create Movement</span>

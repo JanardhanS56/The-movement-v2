@@ -344,9 +344,9 @@ export function getTaskMetadata(taskId: string): TaskMetadata {
 export const FICTIONAL_USERS: DemoUser[] = [
   {
     id: "11111111-1111-4111-8111-111111111111",
-    handle: "priya-rao",
-    display_name: "Priya Rao",
-    avatar_url: "https://api.dicebear.com/7.x/shapes/svg?seed=PriyaRao",
+    handle: "janardhan",
+    display_name: "Janardhan",
+    avatar_url: "https://api.dicebear.com/7.x/shapes/svg?seed=Janardhan",
     tier: 3,
     movement_id: "00000000-0000-4000-8000-000000000001",
     showOnLeaderboards: true,
@@ -786,7 +786,7 @@ export function getLeaderboard(
       periodScore,
       periodCompletions,
       hoursContributed: Math.round(periodCompletions * 2.8),
-      isCurrentUser: currentUserId ? user.id === currentUserId : user.handle === "priya-rao",
+      isCurrentUser: currentUserId ? user.id === currentUserId : user.handle === "janardhan",
       latestCompletionAt,
       earliestCompletionMs,
     }
@@ -824,7 +824,10 @@ export function getLeaderboard(
 export function getUserByHandle(handle: string): DemoUser | undefined {
   const normalized = handle.toLowerCase().replace(/^@/, "").trim()
   return FICTIONAL_USERS.find(
-    (u) => u.handle.toLowerCase() === normalized || u.id === normalized
+    (u) =>
+      u.handle.toLowerCase() === normalized ||
+      u.id === normalized ||
+      (u.handle === "janardhan" && normalized === "priya-rao")
   )
 }
 
@@ -1005,9 +1008,37 @@ export const FICTIONAL_MOVEMENTS: Movement[] = [
   },
 ]
 
+export function addFictionalMovement(movement: Movement): void {
+  const existing = FICTIONAL_MOVEMENTS.find((m) => m.id === movement.id)
+  if (!existing) {
+    FICTIONAL_MOVEMENTS.push(movement)
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored: Movement[] = JSON.parse(
+        sessionStorage.getItem("the-movement:custom-movements") || "[]"
+      )
+      if (!stored.some((m) => m.id === movement.id)) {
+        stored.push(movement)
+        sessionStorage.setItem("the-movement:custom-movements", JSON.stringify(stored))
+      }
+      window.dispatchEvent(new CustomEvent("the-movement:movement-added", { detail: movement }))
+    } catch {}
+  }
+}
+
 export function getActiveMovementId(): string {
   if (typeof window === "undefined") return SEED_MOVEMENT_ID
   try {
+    // Hydrate any stored custom movements first
+    const stored: Movement[] = JSON.parse(
+      sessionStorage.getItem("the-movement:custom-movements") || "[]"
+    )
+    stored.forEach((m) => {
+      if (!FICTIONAL_MOVEMENTS.some((existing) => existing.id === m.id)) {
+        FICTIONAL_MOVEMENTS.push(m)
+      }
+    })
     return sessionStorage.getItem("the-movement:active-movement-id") || SEED_MOVEMENT_ID
   } catch {
     return SEED_MOVEMENT_ID
@@ -1018,5 +1049,6 @@ export function setActiveMovementId(id: string): void {
   if (typeof window === "undefined") return
   try {
     sessionStorage.setItem("the-movement:active-movement-id", id)
+    window.dispatchEvent(new CustomEvent("the-movement:movement-changed", { detail: id }))
   } catch {}
 }

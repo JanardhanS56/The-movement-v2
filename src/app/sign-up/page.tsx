@@ -177,7 +177,7 @@ export default function SignUpPage() {
                     required
                     value={formData.first_name}
                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    placeholder="Priya"
+                    placeholder="Janardhan"
                   />
                 </div>
                 <div className="space-y-1">
@@ -187,7 +187,7 @@ export default function SignUpPage() {
                     required
                     value={formData.last_name}
                     onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    placeholder="Rao"
+                    placeholder="S"
                   />
                 </div>
               </div>
@@ -201,7 +201,7 @@ export default function SignUpPage() {
                     required
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="priya_field"
+                    placeholder="janardhan_field"
                   />
                 </div>
                 <div className="space-y-1">

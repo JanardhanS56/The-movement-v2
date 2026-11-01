@@ -45,7 +45,7 @@ const DEMO_PERSONAS = [
   {
     email: "organizer@demo.com",
     password: "password123",
-    displayName: "Priya",
+    displayName: "Janardhan",
     tier: 3,
     role: "organizer",
   },

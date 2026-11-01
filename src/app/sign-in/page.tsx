@@ -189,14 +189,14 @@ export default function SignInPage() {
           <CardHeader className="pb-3 border-b border-ink/10">
             <CardTitle className="text-base font-bold text-ink flex items-center gap-2">
               <UserCheck className="w-4 h-4 text-cobalt" />
-              <span>Or Select a Demo Persona</span>
+              <span>Or select a persona</span>
             </CardTitle>
             <CardDescription className="text-xs text-ink/70">
               Each demo role tests different actions across the movement.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2.5 pt-4">
-            {SEED_USERS.map((seedUser) => {
+            {SEED_USERS.filter((seedUser) => seedUser.id === "11111111-1111-4111-8111-111111111111").map((seedUser) => {
               const isCurrent = user?.id === seedUser.id
               return (
                 <button

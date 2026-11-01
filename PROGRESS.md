@@ -78,4 +78,53 @@
 ---
 
 ## Open Issues / Noticed, Not Fixed
-- None in Phase 0.
+- None in previous rounds.
+
+---
+
+## Chat Feature: Implementation Progress
+
+### Rules & Scope (Chat Feature)
+- FRONTEND ONLY with fictional demo data. Single new route: `/chat`.
+- No new dependencies. No backend logic, no real WebSocket/Supabase code.
+- Emoji reactions: Fixed set of 6 Unicode emoji keys (`thumbs_up`, `heart`, `thanks`, `celebrate`, `laugh`, `surprised`). No emoji anywhere else in the UI.
+- Honesty banner on demo scope and privacy disclaimers required.
+- Derive state purely from messages and demo state.
+- Quality gate: `npm run verify` must pass after every phase.
+
+### Chat Phase Status
+
+- [x] **Phase 0: Read Only Audit & PROGRESS.md**
+  - Status: DONE
+  - Files Changed: `PROGRESS.md` (updated)
+  - Notes: Completed comprehensive read-only audit of components, layout, state, tokens, drawer, and verification scripts.
+
+- [x] **Phase 1: Chat API Layer and Pure Functions (no UI)**
+  - Status: DONE
+  - Files Changed: `src/lib/constants/chat.ts` (created), `src/lib/schemas/chat.schema.ts` (created), `src/lib/mocks/chat-pure.ts` (created), `src/lib/api/chat.ts` (created), `src/lib/__tests__/chat-pure.test.ts` (created)
+  - Notes: Implemented typed ChatClient interface, MockChatAdapter with sessionStorage persistence and BroadcastChannel cross-tab sync, rate limits (1 msg / 2s, 20 msgs / min; 1 reaction / 300ms, 30 / min), 25 seeded demo messages across 3 rooms using SEED_USERS IDs, pure derived functions (getUnreadCount, getMentionCount, getReactionTotals, parseMentions, searchMessages), strict Zod schemas with fixed reaction keys, and SupabaseChatAdapter throwing NotImplementedError. All 67 unit tests pass.
+
+- [x] **Phase 2: Chat Page (core)**
+  - Status: DONE
+  - Files Changed: `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `src/lib/date.ts`, `src/components/chat/ChatRoomList.tsx` (created), `src/components/chat/ChatMessageItem.tsx` (created), `src/components/chat/ChatComposer.tsx` (created), `src/components/chat/ChatConversation.tsx` (created), `src/app/(dashboard)/chat/page.tsx` (created)
+  - Notes: Added Chat to sidebar below Tasks with lime active block. Added Community chat to mobile More sheet. Built core Chat page at /chat with room selection (?room=ID), desktop 2-column layout and mobile responsive view switcher. Rendered header with room title, description, and Rule 8 honest demo banner. Rendered message list with UserAvatar, TierBadge, tabular numerals, 5-minute same-author grouping, day dividers, right-aligned own bubbles with "You" badge and lime fill, plain text links, and send state indicators. Built composer with character counter (0/500), Enter-to-send, and privacy disclaimer line. Added auto-scroll to bottom and "New messages" floating button.
+
+- [x] **Phase 3: Replies, Mentions, Reactions, Pin**
+  - Status: DONE
+  - Files Changed: `src/components/chat/EmojiPickerPopover.tsx` (created), `src/components/chat/ReactionChipsRow.tsx` (created), `src/components/chat/MessageActionsMenu.tsx` (created), `src/components/chat/PinnedMessageStrip.tsx` (created), `src/components/chat/ChatMessageItem.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
+  - Notes: Added Reply with quote preview (first 80 chars) and smooth scrolling to referenced message. Added @mention keyboard navigable autocomplete and "Mentions you" badge. Implemented the fixed set of 6 reaction emoji (thumbs_up, heart, thanks, celebrate, laugh, surprised) with reaction chips row, aria-pressed, screen-reader labels with name and count, 44px tap targets, keyboard arrow movement, "Who reacted" tooltips, 320px flex-wrapping, and toggle handling. Added Tier 3 organizer message pinning with pinned message banner in room header and jump-to link.
+
+- [x] **Phase 4: Safety and Control**
+  - Status: DONE
+  - Files Changed: `src/components/chat/ReportMessageDialog.tsx` (created), `src/components/chat/ConfirmDeleteDialog.tsx` (created), `src/components/chat/BlockedUsersDialog.tsx` (created), `src/components/chat/ChatRulesDialog.tsx` (created), `src/components/chat/ChatComposer.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
+  - Notes: Implemented ReportMessageDialog with 5 category options, optional note, and Rule 8 honest demo toast ("Report saved on this device (demo). Organizers do not receive it yet."). Implemented ConfirmDeleteDialog for own message deletion and Tier 3 organizer removal ("Message removed by an organizer"). Built BlockedUsersDialog with sessionStorage persistence hiding messages and reactions for blocked users. Created ChatRulesDialog with session acknowledgement on first open and header button. Added Slow mode toggle per room for Tier 3 organizers with visible 10s countdown cooldown on composer. Enforced privacy: zero email, phone, or exact location exposure.
+
+- [x] **Phase 5: Room Tools**
+  - Status: DONE
+  - Files Changed: `src/components/chat/ChatSearchBar.tsx` (created), `src/components/chat/TaskPickerModal.tsx` (created), `src/components/chat/RoomInfoDrawer.tsx` (created), `src/components/chat/ChatComposer.tsx`, `src/components/chat/ChatConversation.tsx`, `src/app/(dashboard)/chat/page.tsx`
+  - Notes: Implemented ChatSearchBar with live matching from searchMessages, match count display, and Enter/Shift+Enter navigation. Built RoomInfoDrawer side drawer/bottom sheet displaying room description, rules, tier 3 room organizers, mute room toggle switch, and "Mark all as read" action. Wired sessionStorage persistence for muted room ids (the-movement:chat:muted-rooms) suppressing room unread counts. Built TaskPickerModal integrating with TaskDetailDrawer allowing volunteers to share open tasks with title and reward points.
+
+- [x] **Phase 6: Sidebar Extras and Audit**
+  - Status: DONE
+  - Files Changed: `src/components/layout/CommandPalette.tsx`, `src/components/layout/NotificationInbox.tsx`, `src/components/layout/Sidebar.tsx`, `README.md`, `PROGRESS.md`
+  - Notes: Indexed chat pages and individual rooms in Command Palette. Expanded NotificationInbox with chat mention and pinned room alert tracking. Added 3 room sub-links under Chat in expanded sidebar ("Everyone", "Coastal Action Front", "Help and questions") with active highlights, unread count chips, and Tomato @mention badges. Added collapsed sidebar chat icon unread badge. Documented full chat functionality and backend handover requirements in README.md. Ran full quality gates with 0 errors across security, types, lint, tests, build, and bans checks.

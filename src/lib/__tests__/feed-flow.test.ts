@@ -8,7 +8,7 @@ import { AnnouncementSignature } from "../schemas/signature.schema"
 import { QueryKeys } from "../query-keys"
 
 describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
-  const priyaOrganizer = SEED_USERS[0] // Tier 3
+  const janardhanOrganizer = SEED_USERS[0] // Tier 3
   const rohanOrganizer = SEED_USERS[1] // Tier 3
   const ananyaOrganizer = SEED_USERS[2] // Tier 3
   const devikaSeniorVolunteer = SEED_USERS[3] // Tier 2
@@ -27,11 +27,11 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
         body: "All volunteer units report to Sector 4 staging grounds immediately.",
         required_signatures: 2,
       },
-      priyaOrganizer.id
+      janardhanOrganizer.id
     )
 
     expect(announcement.id).toBeDefined()
-    expect(announcement.created_by).toBe(priyaOrganizer.id)
+    expect(announcement.created_by).toBe(janardhanOrganizer.id)
     expect(announcement.required_signatures).toBe(2)
     expect(announcement.is_published).toBe(false)
     expect(announcement.published_at).toBeNull()
@@ -39,7 +39,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
     // Author auto-signs as signature 1
     const signatures = mockStore.getSignatures(announcement.id)
     expect(signatures.length).toBe(1)
-    expect(signatures[0].signed_by).toBe(priyaOrganizer.id)
+    expect(signatures[0].signed_by).toBe(janardhanOrganizer.id)
   })
 
   // 1b. If required_signatures is 1, it publishes immediately
@@ -51,7 +51,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
         body: "Precautionary hydration reminders for coastal volunteers during peak sun hours.",
         required_signatures: 1,
       },
-      priyaOrganizer.id
+      janardhanOrganizer.id
     )
 
     expect(singleSigAnnouncement.required_signatures).toBe(1)
@@ -60,7 +60,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
 
     const signatures = mockStore.getSignatures(singleSigAnnouncement.id)
     expect(signatures.length).toBe(1)
-    expect(signatures[0].signed_by).toBe(priyaOrganizer.id)
+    expect(signatures[0].signed_by).toBe(janardhanOrganizer.id)
   })
 
   // 2. Sign as a second organizer
@@ -72,7 +72,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
         body: "Coordinated emergency logistics activation across all active sectors.",
         required_signatures: 3,
       },
-      priyaOrganizer.id
+      janardhanOrganizer.id
     )
 
     // Second organizer signs
@@ -94,12 +94,12 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
         body: "Ensuring idempotency and duplicate signature resistance in verification ledger.",
         required_signatures: 3,
       },
-      priyaOrganizer.id
+      janardhanOrganizer.id
     )
 
-    // Author already signed at creation: Priya signing again must throw
+    // Author already signed at creation: Janardhan signing again must throw
     expect(() => {
-      mockStore.signAnnouncement(announcement.id, priyaOrganizer.id)
+      mockStore.signAnnouncement(announcement.id, janardhanOrganizer.id)
     }).toThrow("User has already signed this announcement")
 
     // Second organizer signs once
@@ -120,7 +120,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
         body: "Testing role boundaries and cryptographic verification permissions.",
         required_signatures: 3,
       },
-      priyaOrganizer.id
+      janardhanOrganizer.id
     )
 
     // Tier 1 volunteer attempt
@@ -137,7 +137,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
     const tier1Check = Permissions.canSignAnnouncement({
       userId: snehaVolunteer.id,
       tier: snehaVolunteer.tier,
-      existingSignerIds: [priyaOrganizer.id],
+      existingSignerIds: [janardhanOrganizer.id],
     })
     expect(tier1Check.allowed).toBe(false)
     expect(tier1Check.reason).toBe("Only Tier 3 Organizers can sign announcements")
@@ -152,10 +152,10 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
         body: "Requiring tripartite organizer sign-off before public broadcast.",
         required_signatures: 3,
       },
-      priyaOrganizer.id
+      janardhanOrganizer.id
     )
 
-    // Initially 1 of 3 (author Priya)
+    // Initially 1 of 3 (author Janardhan)
     expect(announcement.is_published).toBe(false)
 
     // Second organizer signs: 2 of 3
@@ -188,7 +188,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
       {
         id: "ann-01",
         movement_id: SEED_MOVEMENT_ID,
-        created_by: priyaOrganizer.id,
+        created_by: janardhanOrganizer.id,
         title: "Original Announcement One",
         body: "Original announcement body description.",
         required_signatures: 2,
@@ -208,7 +208,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
     const optimisticAnnouncement: Announcement = {
       id: "temp-ann-99",
       movement_id: SEED_MOVEMENT_ID,
-      created_by: priyaOrganizer.id,
+      created_by: janardhanOrganizer.id,
       title: "Optimistic Title Pending Verification",
       body: "Optimistic announcement description text.",
       required_signatures: 2,
@@ -250,7 +250,7 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
       {
         id: "sig-01",
         announcement_id: announcementId,
-        signed_by: priyaOrganizer.id,
+        signed_by: janardhanOrganizer.id,
         signed_at: "2026-10-20T10:00:00Z",
       },
     ]
@@ -279,6 +279,6 @@ describe("Phase 5: Feed & Multi-Signature Announcement Workflows", () => {
     // Verify cache rolled back
     const restoredSignatures = queryClient.getQueryData<AnnouncementSignature[]>(sigQueryKey)
     expect(restoredSignatures?.length).toBe(1)
-    expect(restoredSignatures?.[0].signed_by).toBe(priyaOrganizer.id)
+    expect(restoredSignatures?.[0].signed_by).toBe(janardhanOrganizer.id)
   })
 })

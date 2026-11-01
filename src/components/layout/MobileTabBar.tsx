@@ -24,6 +24,7 @@ import {
   EyeOff,
   Keyboard,
   Check,
+  MessageSquare,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -187,6 +188,15 @@ export function MobileTabBar() {
 
             {/* Actions List (min-h-[44px] tap targets) */}
             <div className="space-y-2 pt-2 border-t border-ink/10">
+              <Link
+                href="/chat"
+                onClick={() => setMoreOpen(false)}
+                className="w-full flex items-center gap-3 p-3 rounded-sm bg-lime border-2 border-ink text-xs font-bold text-ink min-h-[44px] shadow-hard-xs"
+              >
+                <MessageSquare className="w-4 h-4 text-ink" />
+                <span>Community chat</span>
+              </Link>
+
               <button
                 type="button"
                 onClick={() => {

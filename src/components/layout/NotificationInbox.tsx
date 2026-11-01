@@ -4,10 +4,20 @@ import * as React from "react"
 import Link from "next/link"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { SEED_ANNOUNCEMENTS, SEED_SIGNATURES, SEED_TASKS } from "@/lib/mocks/seed-data"
-import { Bell, Check, Megaphone, CheckSquare, X } from "lucide-react"
+import { CHAT_ROOMS } from "@/lib/constants/chat"
+import { Message } from "@/lib/schemas/chat.schema"
+import { Bell, Check, Megaphone, CheckSquare, X, MessageSquare, Pin } from "lucide-react"
 
 export interface NotificationInboxProps {
   onItemClick?: () => void
+}
+
+export interface ChatNotificationItem {
+  id: string
+  type: "mention" | "pin"
+  roomId: string
+  roomName: string
+  text: string
 }
 
 export function useNotificationCounts() {
@@ -15,7 +25,7 @@ export function useNotificationCounts() {
 
   return React.useMemo(() => {
     if (!user) {
-      return { total: 0, pendingAnnouncements: [], pendingTasks: [] }
+      return { total: 0, pendingAnnouncements: [], pendingTasks: [], chatNotifications: [] }
     }
 
     // Announcements requiring signature: if Tier 2 or 3
@@ -34,10 +44,57 @@ export function useNotificationCounts() {
       ? SEED_TASKS.filter((t) => t.status === "pending_verification")
       : []
 
+    // Chat Notifications (mentions of user and pinned messages in non-muted rooms)
+    const chatNotifications: ChatNotificationItem[] = []
+    if (typeof window !== "undefined") {
+      try {
+        const mutedRaw = sessionStorage.getItem("the-movement:chat:muted-rooms")
+        const mutedRooms: string[] = mutedRaw ? JSON.parse(mutedRaw) : []
+        const mutedSet = new Set(mutedRooms)
+
+        for (const room of CHAT_ROOMS) {
+          const raw = sessionStorage.getItem(`the-movement:chat:messages:${room.id}`)
+          if (raw) {
+            const msgs: Message[] = JSON.parse(raw)
+            const pinnedId = sessionStorage.getItem(`the-movement:chat:pinned:${room.id}`)
+
+            for (const m of msgs) {
+              if (m.status === "removed") continue
+
+              // Mentions of current user always notify
+              if (m.mentions && m.mentions.includes(user.id)) {
+                chatNotifications.push({
+                  id: `mention-${m.id}`,
+                  type: "mention",
+                  roomId: room.id,
+                  roomName: room.name,
+                  text: m.text,
+                })
+              }
+              // Pinned messages in room notify if not muted
+              else if (pinnedId && m.id === pinnedId && !mutedSet.has(room.id)) {
+                chatNotifications.push({
+                  id: `pin-${m.id}`,
+                  type: "pin",
+                  roomId: room.id,
+                  roomName: room.name,
+                  text: m.text,
+                })
+              }
+            }
+          }
+        }
+      } catch {}
+    }
+
+    const total =
+      pendingAnnouncements.length + pendingTasks.length + chatNotifications.length
+
     return {
-      total: pendingAnnouncements.length + pendingTasks.length,
+      total,
       pendingAnnouncements,
       pendingTasks,
+      chatNotifications,
     }
   }, [user])
 }
@@ -45,7 +102,8 @@ export function useNotificationCounts() {
 export function NotificationBellButton() {
   const [open, setOpen] = React.useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
-  const { total, pendingAnnouncements, pendingTasks } = useNotificationCounts()
+  const { total, pendingAnnouncements, pendingTasks, chatNotifications } =
+    useNotificationCounts()
 
   // Close on outside click or Esc
   React.useEffect(() => {
@@ -118,10 +176,41 @@ export function NotificationBellButton() {
                   <Check className="w-4 h-4 stroke-[3]" />
                 </div>
                 <p className="text-xs font-bold text-ink">You are all caught up</p>
-                <p className="text-[11px] text-ink/60">No pending signatures or verifications.</p>
+                <p className="text-[11px] text-ink/60">No pending signatures, verifications, or mentions.</p>
               </div>
             ) : (
               <>
+                {/* Chat Notifications */}
+                {chatNotifications.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/chat?room=${c.roomId}`}
+                    onClick={() => setOpen(false)}
+                    className="block p-2.5 rounded-sm bg-lime/15 border-2 border-ink/20 hover:border-ink hover:bg-white transition-all space-y-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-ink">
+                        {c.type === "mention" ? (
+                          <>
+                            <MessageSquare className="w-3 h-3 text-cobalt" />
+                            <span>Mentioned in {c.roomName}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Pin className="w-3 h-3 text-sun fill-sun" />
+                            <span>Pinned in {c.roomName}</span>
+                          </>
+                        )}
+                      </span>
+                      <span className="text-[10px] text-ink/50 font-bold">Chat</span>
+                    </div>
+                    <p className="text-xs font-black text-ink line-clamp-1 font-sans">
+                      {c.text}
+                    </p>
+                  </Link>
+                ))}
+
+                {/* Announcement Signatures */}
                 {pendingAnnouncements.map((ann) => (
                   <Link
                     key={ann.id}
@@ -145,6 +234,7 @@ export function NotificationBellButton() {
                   </Link>
                 ))}
 
+                {/* Verification Tasks */}
                 {pendingTasks.map((t) => (
                   <Link
                     key={t.id}
