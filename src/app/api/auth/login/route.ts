@@ -32,10 +32,8 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
 
     let resolvedEmail: string | null = null
-    let userId: string | null = null
 
     if (profile) {
-      userId = profile.id
       resolvedEmail =
         profile.metadata?.auth_email ||
         (profile.phone ? `${profile.phone}@demo.com` : `${cleanUsername}@demo.com`)
@@ -50,7 +48,6 @@ export async function POST(req: NextRequest) {
       )
       if (matched && matched.email) {
         resolvedEmail = matched.email
-        userId = matched.id
       }
     }
 

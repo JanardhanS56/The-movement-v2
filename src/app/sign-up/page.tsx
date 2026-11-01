@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,7 +9,6 @@ import { Shield, CheckCircle2, ArrowRight, UserPlus, Sparkles } from "lucide-rea
 import { AVAILABLE_SKILLS } from "@/lib/constants/skills"
 
 export default function SignUpPage() {
-  const router = useRouter()
 
   const [formData, setFormData] = React.useState({
     first_name: "",
@@ -326,3 +324,4 @@ export default function SignUpPage() {
     </main>
   )
 }
+
