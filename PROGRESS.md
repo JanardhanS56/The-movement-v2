@@ -60,8 +60,10 @@
   - Files Changed: `src/components/layout/SupportDialog.tsx` (created), `src/components/layout/TopBar.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`
   - Notes: Added "Support the movement" modal with payee details area and an accessible decorative SVG QR code boldly watermarked "Demo QR, not scannable" and explicit note that no real donations or payments are processed. Added "Report from the field" quick action in sidebar linking directly to heatmap check-in. Added Quick Exit button and double-Escape keyboard listener clearing sessionStorage and redirecting via `window.location.replace("https://weather.com")` with accessible tooltip disclaimer. Added reactive offline status banner appearing whenever `navigator.onLine === false`.
 
-- [ ] **Phase 10: Verify Media (Honest Demo, Feed Page)**
-  - Status: NOT DONE
+- [x] **Phase 10: Verify Media (Honest Demo, Feed Page)**
+  - Status: DONE
+  - Files Changed: `src/components/feed/VerifyMediaDialog.tsx` (created), `src/app/(dashboard)/feed/page.tsx`
+  - Notes: Added "Verify media" button directly beside "New announcement" in Feed page header. Implemented accessible VerifyMediaDialog with drag-and-drop zone and "Choose image" button, clean object URL previewing with automatic revocation on close. Added explicit disclaimers: "Demo only. No analysis ran." with zero mention of real AI services. Built deterministic evaluation algorithm based on filename and size returning one of 4 non-binary categories: 1) Verified original (lime fill, ink text), 2) Unverified but unmodified (outlined), 3) Flagged for community review (amber fill), and 4) High manipulation detected (tomato fill, white text). Included interactive "See example results" row allowing instant testing of all 4 outcome states. Added "Add community context" textarea persisted in demo sessionStorage. Verified with full verify pipeline.
 
 - [ ] **Phase 11: Impact Card (Profile Page)**
   - Status: NOT DONE

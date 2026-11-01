@@ -19,6 +19,7 @@ import {
   NewAnnouncementDialog,
   NewAnnouncementFormData,
 } from "@/components/feed/NewAnnouncementDialog"
+import { VerifyMediaDialog } from "@/components/feed/VerifyMediaDialog"
 import { Button } from "@/components/ui/button"
 
 const SIMULATED_ANNOUNCEMENTS: NewAnnouncementFormData[] = [
@@ -398,6 +399,9 @@ export default function FeedPage() {
               <Sparkles className="w-4 h-4 text-cobalt shrink-0" aria-hidden="true" />
               <span>Simulate announcement</span>
             </Button>
+
+            {/* Verify Media Authentic Demo */}
+            <VerifyMediaDialog />
 
             {/* Tier 3: New Announcement Dialog */}
             {isTier3 && (
