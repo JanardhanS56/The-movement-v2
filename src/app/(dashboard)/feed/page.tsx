@@ -362,13 +362,11 @@ export default function FeedPage() {
 
       if (newCount >= required) {
         toast.success(
-          `${coSigner.display_name} co-signed! Multi-sig threshold reached (${newCount}/${required}) — Published live!`,
-          { icon: "🎉" }
+          `${coSigner.display_name} co-signed! Multi-sig threshold reached (${newCount}/${required}) — Published live!`
         )
       } else {
         toast.success(
-          `${coSigner.display_name} co-signed (${newCount}/${required}). Needs ${required - newCount} more signature${required - newCount === 1 ? "" : "s"}.`,
-          { icon: "✍️" }
+          `${coSigner.display_name} co-signed (${newCount}/${required}). Needs ${required - newCount} more signature${required - newCount === 1 ? "" : "s"}.`
         )
       }
     } catch (err) {
