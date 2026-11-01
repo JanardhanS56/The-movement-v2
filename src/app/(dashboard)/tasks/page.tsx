@@ -174,11 +174,15 @@ function TasksContent() {
           const resJson = await res.json()
           if (resJson.success && resJson.data?.assigned_count > 0) {
             toast.success(
-              `Smart Assign: ${resJson.data.assigned_count} volunteer(s) automatically assigned!`
+              `Smart Assign: ${resJson.data.assigned_count} volunteer(s) automatically assigned (${resJson.data.assigned_users?.join(", ")})!`
             )
+          } else if (resJson.success && resJson.data?.assigned_count === 0) {
+            toast.info(resJson.data.message || "No matching volunteers found with required skills.")
+          } else if (!resJson.success) {
+            toast.error(resJson.error || "Smart Assign could not complete.")
           }
         } catch {
-          // Ignore network errors in local/mock testing
+          toast.error("Smart Assign request failed.")
         }
       }
 
