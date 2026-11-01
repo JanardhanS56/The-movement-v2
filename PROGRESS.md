@@ -25,8 +25,10 @@
   - Files Changed: `src/lib/mocks/fictional-data.ts` (created), `src/lib/mocks/seed-data.ts`, `src/lib/schemas/user.schema.ts`, `src/lib/__tests__/leaderboard-and-filters.test.ts` (created)
   - Notes: Added 12 fictional users with handles, avatars, showOnLeaderboards toggle, and spread completion records. Added task categories and metadata (estimatedMinutes, locationLabel, difficulty) for all tasks. Expanded SEED_TASKS to 14 tasks across all 5 statuses (Open, In progress, Pending verification, Completed, Cancelled). Implemented pure functions `getLeaderboard(period, now)`, `getUserByHandle`, `getBadgeProgress`, `getTaskCounts`, and `getFilteredTasks`. Wrote 10 comprehensive unit tests covering period filtering, tiebreak rule, leaderboard opt-out, badge evaluations, and multi-criteria task filtering. Verified with 60/60 passing tests and full production build.
 
-- [ ] **Phase 3: Tasks Leaderboard**
-  - Status: NOT DONE
+- [x] **Phase 3: Tasks Leaderboard**
+  - Status: DONE
+  - Files Changed: `src/components/tasks/TasksLeaderboard.tsx` (created), `src/app/(dashboard)/tasks/page.tsx`
+  - Notes: Added Leaderboard toggle pill beside status filters on /tasks with URL query persistence (`?view=leaderboard | tasks`) and filter preservation. Created TasksLeaderboard with 3 period tabs ("This month", "This year", "All time"), top 3 podium layout with custom SVG medals in token palette colors (Sun amber, Lavender, Acid lime), tabular numerals, ruled rows for ranks 4-10 with hover states, pinned "Your rank" summary card with points delta from #1, tie rule note, and Tier 3 expandable Organizer Recognition action panel with demo recognition toast. Fully responsive across 375px, 768px, and 1280px with 0 contrast or hydration errors.
 
 - [ ] **Phase 4: Task Board, Filter Rail and Sort**
   - Status: NOT DONE

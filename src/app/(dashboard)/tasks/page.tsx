@@ -4,7 +4,7 @@ import * as React from "react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { CheckCircle2, Clock, Compass, Filter } from "lucide-react"
+import { CheckCircle2, Clock, Compass, Filter, Trophy } from "lucide-react"
 import { api } from "@/lib/api"
 import { QueryKeys } from "@/lib/query-keys"
 import { useAuth } from "@/components/providers/AuthProvider"
@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/shared/EmptyState"
 import { ErrorAlert } from "@/components/shared/ErrorAlert"
 import { TaskSkeleton } from "@/components/tasks/TaskSkeleton"
 import { TaskCard } from "@/components/tasks/TaskCard"
+import { TasksLeaderboard } from "@/components/tasks/TasksLeaderboard"
 import { PostTaskDialog, PostTaskFormData } from "@/components/tasks/PostTaskDialog"
 import { cn } from "@/lib/utils"
 
@@ -70,6 +71,20 @@ function TasksContent() {
       params.delete("status")
     } else {
       params.set("status", filter)
+    }
+    const qs = params.toString()
+    router.push(qs ? `${pathname}?${qs}` : pathname)
+  }
+
+  // View state (tasks list vs leaderboard)
+  const currentView = searchParams.get("view") === "leaderboard" ? "leaderboard" : "tasks"
+
+  const handleViewChange = (view: "tasks" | "leaderboard") => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (view === "leaderboard") {
+      params.set("view", "leaderboard")
+    } else {
+      params.delete("view")
     }
     const qs = params.toString()
     router.push(qs ? `${pathname}?${qs}` : pathname)
@@ -425,17 +440,22 @@ function TasksContent() {
       />
 
       {/* Filter Chips Bar (Stored in URL with useSearchParams) */}
-      <section aria-label="Task status filters" className="space-y-2">
+      <section aria-label="Task views and filters" className="space-y-2">
         <div className="flex flex-wrap items-center gap-2.5">
           {FILTER_OPTIONS.map((option) => {
-            const isActive = currentFilter === option.id
+            const isActive = currentView === "tasks" && currentFilter === option.id
             const Icon = option.icon
 
             return (
               <button
                 key={option.id}
                 type="button"
-                onClick={() => handleFilterChange(option.id)}
+                onClick={() => {
+                  if (currentView !== "tasks") {
+                    handleViewChange("tasks")
+                  }
+                  handleFilterChange(option.id)
+                }}
                 aria-pressed={isActive}
                 className={cn(
                   "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-sm text-sm font-bold transition-all border-2 border-ink outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -449,80 +469,106 @@ function TasksContent() {
               </button>
             )
           })}
+
+          {/* Divider */}
+          <div className="h-6 w-[2px] bg-ink/20 mx-1 hidden sm:block" aria-hidden="true" />
+
+          {/* Leaderboard Tab Pill */}
+          <button
+            type="button"
+            onClick={() => handleViewChange(currentView === "leaderboard" ? "tasks" : "leaderboard")}
+            aria-pressed={currentView === "leaderboard"}
+            className={cn(
+              "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-sm text-sm font-bold transition-all border-2 border-ink outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              currentView === "leaderboard"
+                ? "bg-sun text-ink shadow-hard-xs ring-2 ring-ink"
+                : "bg-white text-ink hover:bg-sun/20 shadow-xs"
+            )}
+          >
+            <Trophy className="w-4 h-4 text-sun fill-sun/40" aria-hidden="true" />
+            <span>Leaderboard</span>
+          </button>
         </div>
       </section>
 
-      {/* Loading state: 6 task-card skeletons */}
-      {tasksLoading && <TaskSkeleton />}
+      {/* Main View: Leaderboard vs Tasks Ledger */}
+      {currentView === "leaderboard" ? (
+        <TasksLeaderboard />
+      ) : (
+        <>
+          {/* Loading state: 6 task-card skeletons */}
+          {tasksLoading && <TaskSkeleton />}
 
-      {/* Error state with retry */}
-      {tasksError && (
-        <ErrorAlert
-          title="We could not load this"
-          message={
-            tasksErrorObj instanceof Error
-              ? tasksErrorObj.message
-              : "We could not load this. Check your connection and try again."
-          }
-          onRetry={() => void refetchTasks()}
-        />
-      )}
-
-      {/* Tasks Ledger: Ruled full-width rows with 24px gap */}
-      {!tasksLoading && !tasksError && (
-        <div>
-          {filteredTasks.length === 0 ? (
-            <EmptyState
-              title={EMPTY_STATES[currentFilter].title}
-              description={EMPTY_STATES[currentFilter].description}
+          {/* Error state with retry */}
+          {tasksError && (
+            <ErrorAlert
+              title="We could not load this"
+              message={
+                tasksErrorObj instanceof Error
+                  ? tasksErrorObj.message
+                  : "We could not load this. Check your connection and try again."
+              }
+              onRetry={() => void refetchTasks()}
             />
-          ) : (
-            <div className="space-y-6">
-              {filteredTasks.map((task) => {
-                const claim = claimsByTaskId[task.id]
-                const taskVerifications = claim ? verificationsByClaimId[claim.id] || [] : []
+          )}
 
-                return (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    claim={claim}
-                    verifications={taskVerifications}
-                    usersMap={usersMap}
-                    currentUserId={user ? user.id : null}
-                    currentUserTier={user ? user.tier : undefined}
-                    onClaim={async (taskId) => {
-                      await claimMutation.mutateAsync(taskId)
-                    }}
-                    onMarkComplete={async (claimId) => {
-                      await markCompleteMutation.mutateAsync({ claimId })
-                    }}
-                    onPeerVote={async (claimId, vote) => {
-                      await peerVoteMutation.mutateAsync({ claimId, vote })
-                    }}
-                    onOrganizerOverride={async (claimId, approve, note) => {
-                      await organizerOverrideMutation.mutateAsync({ claimId, approve, note })
-                    }}
-                    onSmartAssign={async (taskId) => {
-                      await smartAssignMutation.mutateAsync(taskId)
-                    }}
-                    isClaiming={claimMutation.isPending && claimMutation.variables === task.id}
-                    isCompleting={
-                      markCompleteMutation.isPending &&
-                      markCompleteMutation.variables?.claimId === claim?.id
-                    }
-                    isVerifying={
-                      peerVoteMutation.isPending || organizerOverrideMutation.isPending
-                    }
-                    isSmartAssigning={
-                      smartAssignMutation.isPending && smartAssignMutation.variables === task.id
-                    }
-                  />
-                )
-              })}
+          {/* Tasks Ledger: Ruled full-width rows with 24px gap */}
+          {!tasksLoading && !tasksError && (
+            <div>
+              {filteredTasks.length === 0 ? (
+                <EmptyState
+                  title={EMPTY_STATES[currentFilter].title}
+                  description={EMPTY_STATES[currentFilter].description}
+                />
+              ) : (
+                <div className="space-y-6">
+                  {filteredTasks.map((task) => {
+                    const claim = claimsByTaskId[task.id]
+                    const taskVerifications = claim ? verificationsByClaimId[claim.id] || [] : []
+
+                    return (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        claim={claim}
+                        verifications={taskVerifications}
+                        usersMap={usersMap}
+                        currentUserId={user ? user.id : null}
+                        currentUserTier={user ? user.tier : undefined}
+                        onClaim={async (taskId) => {
+                          await claimMutation.mutateAsync(taskId)
+                        }}
+                        onMarkComplete={async (claimId) => {
+                          await markCompleteMutation.mutateAsync({ claimId })
+                        }}
+                        onPeerVote={async (claimId, vote) => {
+                          await peerVoteMutation.mutateAsync({ claimId, vote })
+                        }}
+                        onOrganizerOverride={async (claimId, approve, note) => {
+                          await organizerOverrideMutation.mutateAsync({ claimId, approve, note })
+                        }}
+                        onSmartAssign={async (taskId) => {
+                          await smartAssignMutation.mutateAsync(taskId)
+                        }}
+                        isClaiming={claimMutation.isPending && claimMutation.variables === task.id}
+                        isCompleting={
+                          markCompleteMutation.isPending &&
+                          markCompleteMutation.variables?.claimId === claim?.id
+                        }
+                        isVerifying={
+                          peerVoteMutation.isPending || organizerOverrideMutation.isPending
+                        }
+                        isSmartAssigning={
+                          smartAssignMutation.isPending && smartAssignMutation.variables === task.id
+                        }
+                      />
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   )
