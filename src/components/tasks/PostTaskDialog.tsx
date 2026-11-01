@@ -25,7 +25,7 @@ const formSchema = z.object({
     .string()
     .min(5, "Title must be at least 5 characters.")
     .max(120, "Title cannot exceed 120 characters."),
-  description: z.string().max(2000, "Description cannot exceed 2000 characters.").optional(),
+  description: z.string().max(2000, "Description cannot exceed 2000 characters.").nullable().optional(),
   reward_points: z
     .number()
     .int()

@@ -1,11 +1,11 @@
 import { z } from "zod"
-import { uuidField } from "./common"
+import { uuidField, isoDateTime } from "./common"
 
 export const AnnouncementSignatureSchema = z.object({
   id: uuidField,
   announcement_id: uuidField,
   signed_by: uuidField,
-  signed_at: z.string().datetime(),
+  signed_at: isoDateTime,
 })
 
 export type AnnouncementSignature = z.infer<typeof AnnouncementSignatureSchema>

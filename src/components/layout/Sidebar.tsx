@@ -12,6 +12,7 @@ import { useNotificationCounts } from "./NotificationInbox"
 import { getTaskCounts } from "@/lib/mocks/fictional-data"
 import { SEED_TASKS, SEED_TASK_CLAIMS } from "@/lib/mocks/seed-data"
 import { getStoredSavedTasks } from "@/lib/ui-prefs"
+import { CreateMovementDialog } from "./CreateMovementDialog"
 import {
   Megaphone,
   MapPin,
@@ -180,7 +181,7 @@ export function Sidebar() {
         })}
 
         {/* Generous spacing break */}
-        <div className="pt-4 border-t border-ink/10">
+        <div className="pt-4 border-t border-ink/10 space-y-2">
           {/* Quick link: Report from the field (Heatmap Check-in) */}
           <Link
             href="/heatmap"
@@ -190,6 +191,12 @@ export function Sidebar() {
             <Radio className="w-4 h-4 text-ink shrink-0 animate-pulse" />
             {!collapsed && <span>Report from the field</span>}
           </Link>
+
+          {!collapsed && user?.tier === 3 && (
+            <div className="pt-1">
+              <CreateMovementDialog />
+            </div>
+          )}
         </div>
       </nav>
 

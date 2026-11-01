@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const admin = getAdminClient()
-    const body = await req.json()
+    const body = await req.json().catch(() => ({}))
 
     const caller = await getCallerUser(req)
     const authorId = body.created_by || body.authorId || body.userId || caller?.id
@@ -58,7 +58,18 @@ export async function POST(req: NextRequest) {
       return apiError("Forbidden: Only Tier 3 Organizers can create tasks", 403)
     }
 
-    const parsed = CreateTaskSchema.safeParse(body)
+    const resolvedMovementId =
+      body.movement_id ||
+      body.movementId ||
+      "00000000-0000-4000-8000-000000000001"
+
+    const parsed = CreateTaskSchema.safeParse({
+      ...body,
+      movement_id: resolvedMovementId,
+      description: body.description ?? undefined,
+      required_skills: Array.isArray(body.required_skills) ? body.required_skills : [],
+    })
+
     if (!parsed.success) {
       const issue = parsed.error.issues[0]?.message || "Validation failed"
       return apiError(`Invalid task data: ${issue}`, 400)
@@ -73,7 +84,7 @@ export async function POST(req: NextRequest) {
         movement_id,
         created_by: authorId,
         title,
-        description,
+        description: description || null,
         reward_points,
         required_volunteers,
         required_skills: required_skills || [],
@@ -83,7 +94,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error || !task) {
-      return apiError("Failed to create task", 500)
+      return apiError(`Failed to create task: ${error?.message || "Database insert failed"}`, 500)
     }
 
     return apiSuccess(task, 201)

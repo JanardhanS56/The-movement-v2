@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { uuidField } from "./common"
+import { uuidField, isoDateTime } from "./common"
 
 export const BadgeTypeSchema = z.enum([
   "task_complete",
@@ -20,7 +20,7 @@ export const BadgeSchema = z.object({
   badge_label: z.string().min(2).max(100),
   issued_by: BadgeIssuedBySchema,
   issued_by_user: uuidField.nullable().optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-  awarded_at: z.string().datetime(),
+  metadata: z.record(z.string(), z.unknown()).nullable().optional(),
+  awarded_at: isoDateTime,
 })
 export type Badge = z.infer<typeof BadgeSchema>

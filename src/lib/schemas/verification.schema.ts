@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { uuidField } from "./common"
+import { uuidField, isoDateTime } from "./common"
 
 export const VerificationVoteTypeSchema = z.enum(["approve", "reject"])
 export type VerificationVoteType = z.infer<typeof VerificationVoteTypeSchema>
@@ -9,9 +9,9 @@ export const PeerVerificationSchema = z.object({
   claim_id: uuidField,
   verifier_id: uuidField,
   vote: VerificationVoteTypeSchema.nullable(),
-  voted_at: z.string().datetime().nullable().optional(),
-  assigned_at: z.string().datetime(),
-  expires_at: z.string().datetime(),
+  voted_at: isoDateTime.nullable().optional(),
+  assigned_at: isoDateTime,
+  expires_at: isoDateTime,
 })
 export type PeerVerification = z.infer<typeof PeerVerificationSchema>
 

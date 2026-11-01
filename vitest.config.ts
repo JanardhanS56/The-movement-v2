@@ -10,5 +10,8 @@ export default defineConfig({
   test: {
     globals: true,
     testTimeout: 15000,
+    env: {
+      NEXT_PUBLIC_USE_MOCKS: "true",
+    },
   },
 })
