@@ -128,3 +128,9 @@
   - Status: DONE
   - Files Changed: `src/components/layout/CommandPalette.tsx`, `src/components/layout/NotificationInbox.tsx`, `src/components/layout/Sidebar.tsx`, `README.md`, `PROGRESS.md`
   - Notes: Indexed chat pages and individual rooms in Command Palette. Expanded NotificationInbox with chat mention and pinned room alert tracking. Added 3 room sub-links under Chat in expanded sidebar ("Everyone", "Coastal Action Front", "Help and questions") with active highlights, unread count chips, and Tomato @mention badges. Added collapsed sidebar chat icon unread badge. Documented full chat functionality and backend handover requirements in README.md. Ran full quality gates with 0 errors across security, types, lint, tests, build, and bans checks.
+
+### Donation / Support Dialog
+- [x] **Donate option and QR Support Dialog**
+  - Status: DONE
+  - Files Changed: `src/config/donation.ts` (created), `public/donate-qr.png` (created), `src/components/layout/SupportDialog.tsx`, `src/components/layout/Sidebar.tsx`, `src/components/layout/MobileTabBar.tsx`, `PROGRESS.md`
+  - Notes: Added Donate option to left sidebar with Heart icon, matching existing action items (near Report from the field), with collapsed icon tooltip and aria-label. Put Donate in mobile More sheet. Replaced SupportDialog contents with the configured donation details (The Movement Foundation), contacts at the top, big un-stretched QR image on plain white background, tap-to-enlarge full-screen view, download link, accessible focus trap and keyboard control (Esc/backdrop close, focus return), and three plain honesty disclaimer lines.

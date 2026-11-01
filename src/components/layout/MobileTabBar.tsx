@@ -215,10 +215,11 @@ export function MobileTabBar() {
                   setMoreOpen(false)
                   setSupportOpen(true)
                 }}
+                aria-label="Donate"
                 className="w-full flex items-center gap-3 p-3 rounded-sm bg-sun/20 border-2 border-ink text-xs font-bold text-ink min-h-[44px]"
               >
                 <Heart className="w-4 h-4 text-ink fill-sun" />
-                <span>Support the movement</span>
+                <span>Donate</span>
               </button>
 
               <button
