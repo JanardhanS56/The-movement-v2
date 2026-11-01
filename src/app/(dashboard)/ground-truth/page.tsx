@@ -6,7 +6,7 @@ import { GroundTruthHeader } from "@/components/ground-truth/GroundTruthHeader"
 import { AuditSearchBar } from "@/components/ground-truth/AuditSearchBar"
 import { CommitCard } from "@/components/ground-truth/CommitCard"
 import { CommitAuditModal } from "@/components/ground-truth/CommitAuditModal"
-import { Terminal, GitCommit, FileQuestion } from "lucide-react"
+import { GitCommit, FileQuestion } from "lucide-react"
 
 export default function GroundTruthPage() {
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -57,11 +57,11 @@ export default function GroundTruthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-ivory p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* 1. Terminal Header */}
+    <div className="space-y-8 max-w-4xl mx-auto pb-16">
+      {/* 1. Header: Ivory, Ruled, Feed-Style */}
       <GroundTruthHeader />
 
-      {/* 2. Audit Search & Color-coded Filters */}
+      {/* 2. Audit Search & Color-Coded Filter Chips */}
       <AuditSearchBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -70,22 +70,21 @@ export default function GroundTruthPage() {
         counts={counts}
       />
 
-      {/* 3. Sleek Dark-Mode Terminal Vertical Timeline */}
-      <div className="rounded-chunky border-2 border-ink bg-[#070A14] p-5 sm:p-8 shadow-hard-md">
-        {/* Terminal Header Prompt */}
-        <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/10 text-xs font-mono">
-          <div className="flex items-center gap-2 text-lime font-bold">
-            <Terminal className="w-4 h-4" />
-            <span>ledger@movement:~$ git log --graph --oneline --verify</span>
-          </div>
-          <div className="text-white/50 text-[11px]">
-            Showing <strong className="text-white">{filteredCommits.length}</strong> of {GROUND_TRUTH_COMMITS.length} verified commits
+      {/* 3. Timeline Sequence on Light Canvas */}
+      <section aria-labelledby="timeline-heading" className="space-y-4">
+        {/* Subhead count */}
+        <div className="flex items-center justify-between border-b border-ink/10 pb-2">
+          <h2 id="timeline-heading" className="text-sm font-bold text-ink font-sans">
+            Provenance timeline
+          </h2>
+          <div className="text-xs font-semibold text-ink/60 font-sans tabular-nums">
+            Showing <strong className="text-ink">{filteredCommits.length}</strong> of {GROUND_TRUTH_COMMITS.length} verified commits
           </div>
         </div>
 
-        {/* Commit Cards Vertical Timeline */}
+        {/* Commit Cards Ruled List */}
         {filteredCommits.length > 0 ? (
-          <div className="space-y-1">
+          <div className="space-y-1 pt-2">
             {filteredCommits.map((commit, index) => (
               <CommitCard
                 key={commit.id}
@@ -96,15 +95,15 @@ export default function GroundTruthPage() {
             ))}
           </div>
         ) : (
-          <div className="py-12 text-center space-y-3 font-mono">
-            <div className="w-12 h-12 mx-auto rounded-full bg-white/5 border border-white/15 flex items-center justify-center text-white/40">
-              <FileQuestion className="w-6 h-6" />
+          <div className="py-12 px-6 rounded-sm border-2 border-dashed border-ink/20 text-center space-y-3 bg-white/50">
+            <div className="w-12 h-12 mx-auto rounded-full bg-ivory border border-ink/20 flex items-center justify-center text-ink/40">
+              <FileQuestion className="w-6 h-6" aria-hidden="true" />
             </div>
-            <p className="text-sm text-white font-bold">
+            <p className="text-sm text-ink font-bold font-sans">
               No ledger commits matching &quot;{searchQuery}&quot;
             </p>
-            <p className="text-xs text-white/50 max-w-sm mx-auto">
-              Check the cryptographic hash or clear your filter query to view all historical commits.
+            <p className="text-xs text-ink/60 max-w-sm mx-auto font-sans">
+              Check the hash or clear your filter query to view all historical commits.
             </p>
             <button
               type="button"
@@ -112,22 +111,22 @@ export default function GroundTruthPage() {
                 setSearchQuery("")
                 setSelectedType("all")
               }}
-              className="mt-2 px-3 py-1.5 rounded-sm bg-lime text-ink text-xs font-bold border border-ink hover:bg-lime/90 cursor-pointer"
+              className="mt-2 px-3 py-1.5 rounded-sm bg-lime text-ink text-xs font-bold border-2 border-ink hover:bg-lime/90 shadow-hard-xs cursor-pointer font-sans"
             >
-              Reset Audit Search
+              Reset audit search
             </button>
           </div>
         )}
 
-        {/* Terminal Genesis Footer */}
-        <div className="pt-6 mt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-white/40">
+        {/* Genesis Root Footer */}
+        <div className="pt-4 border-t border-ink/15 flex flex-wrap items-center justify-between gap-2 text-xs text-ink/60 font-sans tabular-nums">
           <div className="flex items-center gap-1.5">
-            <GitCommit className="w-3.5 h-3.5 text-lime" />
-            <span>Genesis Hash: #c7f91a2 // Root Block 001 Sealed</span>
+            <GitCommit className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
+            <span>Genesis hash: #c7f91a2 • Root block 001</span>
           </div>
-          <span>Cryptographic consensus verified across all field stewards</span>
+          <span>Consensus verified across community organizers</span>
         </div>
-      </div>
+      </section>
 
       {/* 4. Cryptographic Proof Audit Modal */}
       <CommitAuditModal

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { GroundTruthEventType } from "@/lib/mocks/ground-truth-data"
-import { Search, X, RefreshCw } from "lucide-react"
+import { Search, X, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
 export interface AuditSearchBarProps {
@@ -32,26 +32,28 @@ export function AuditSearchBar({
     setVerifying(true)
     setTimeout(() => {
       setVerifying(false)
-      toast.success("Chain Integrity Verified: 12/12 Merkle blocks match genesis hash.")
-    }, 700)
+      toast.success("Chain integrity verified: 12/12 Merkle blocks match genesis hash.")
+    }, 600)
   }
 
   return (
     <div className="space-y-4">
-      {/* Search Input Bar */}
+      {/* 1. Audit Search Input Bar: White surface with 2px ink border, Feed/Tasks style */}
       <div className="relative flex items-center">
-        <div className="absolute left-3.5 flex items-center pointer-events-none text-white/50">
-          <Search className="w-4 h-4 text-lime" />
-        </div>
+        <label htmlFor="audit-search-input" className="sr-only">
+          Audit search
+        </label>
+        <Search className="w-4 h-4 absolute left-3.5 text-ink/40 pointer-events-none" aria-hidden="true" />
         <input
+          id="audit-search-input"
           ref={inputRef}
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Audit search: enter hash (#c7f91a2), author, keyword, rally point or task..."
-          className="w-full pl-10 pr-24 py-3 rounded-sm bg-[#0C1021] border-2 border-white/20 focus:border-lime text-white placeholder:text-white/40 font-mono text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-lime transition-all shadow-inner"
+          className="w-full pl-10 pr-10 py-2.5 rounded-sm bg-white border-2 border-ink text-sm font-sans text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-cobalt shadow-hard-xs transition-all"
         />
-        {searchQuery ? (
+        {searchQuery && (
           <button
             type="button"
             onClick={() => {
@@ -59,82 +61,110 @@ export function AuditSearchBar({
               inputRef.current?.focus()
             }}
             aria-label="Clear search"
-            className="absolute right-3 p-1 rounded hover:bg-white/10 text-white/60 hover:text-white cursor-pointer"
+            className="absolute right-3 p-1 rounded-sm text-ink/50 hover:text-ink hover:bg-ivory cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
-        ) : (
-          <span className="absolute right-3 hidden sm:inline text-[11px] font-mono text-white/40 bg-white/5 px-2 py-0.5 rounded border border-white/10">
-            AUDIT SEARCH
-          </span>
         )}
       </div>
 
-      {/* Filter Tabs & Integrity Verification Button */}
+      {/* 2. Filter Chips & Outlined Verify Button */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Event Type Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
+        {/* Filter Chips Styled Like Tasks Page Tabs */}
+        <div className="flex flex-wrap items-center gap-1.5 font-sans text-xs">
+          {/* All */}
           <button
             type="button"
             onClick={() => onTypeChange("all")}
-            className={`px-3 py-1.5 rounded-sm border transition-all cursor-pointer font-bold ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-bold border-2 transition-all cursor-pointer ${
               selectedType === "all"
-                ? "bg-lime text-ink border-ink shadow-hard-xs"
-                : "bg-[#0E1326] text-white/70 border-white/15 hover:border-white/30 hover:text-white"
+                ? "bg-ink text-white border-ink shadow-xs"
+                : "bg-white text-ink/70 border-ink/20 hover:border-ink hover:text-ink hover:bg-ivory"
             }`}
           >
-            All Commits ({counts.all})
+            <span>All commits</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-xs text-[10px] tabular-nums font-black ${
+                selectedType === "all" ? "bg-white/20 text-white" : "bg-ink/10 text-ink"
+              }`}
+            >
+              {counts.all}
+            </span>
           </button>
 
+          {/* Announcements */}
           <button
             type="button"
             onClick={() => onTypeChange("announcement")}
-            className={`px-3 py-1.5 rounded-sm border transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-bold border-2 transition-all cursor-pointer ${
               selectedType === "announcement"
-                ? "bg-[#255DEE] text-white border-[#60A5FA] shadow-hard-xs font-bold"
-                : "bg-[#0E1326] text-[#60A5FA]/80 border-white/15 hover:border-[#255DEE]/50"
+                ? "bg-cobalt text-white border-cobalt shadow-xs"
+                : "bg-white text-ink/70 border-ink/20 hover:border-ink hover:text-ink hover:bg-ivory"
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-[#60A5FA]" />
-            <span>Announcements ({counts.announcement})</span>
+            <span className="w-2 h-2 rounded-full bg-cobalt shrink-0" aria-hidden="true" />
+            <span>Announcements</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-xs text-[10px] tabular-nums font-black ${
+                selectedType === "announcement" ? "bg-white/20 text-white" : "bg-ink/10 text-ink"
+              }`}
+            >
+              {counts.announcement}
+            </span>
           </button>
 
+          {/* Completed Tasks */}
           <button
             type="button"
             onClick={() => onTypeChange("task_completed")}
-            className={`px-3 py-1.5 rounded-sm border transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-bold border-2 transition-all cursor-pointer ${
               selectedType === "task_completed"
-                ? "bg-lime text-ink border-ink shadow-hard-xs font-bold"
-                : "bg-[#0E1326] text-lime/80 border-white/15 hover:border-lime/50"
+                ? "bg-lime text-ink border-ink shadow-xs"
+                : "bg-white text-ink/70 border-ink/20 hover:border-ink hover:text-ink hover:bg-ivory"
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-lime" />
-            <span>Completed Tasks ({counts.task_completed})</span>
+            <span className="w-2 h-2 rounded-full bg-lime border border-ink/40 shrink-0" aria-hidden="true" />
+            <span>Completed tasks</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-xs text-[10px] tabular-nums font-black ${
+                selectedType === "task_completed" ? "bg-ink/15 text-ink" : "bg-ink/10 text-ink"
+              }`}
+            >
+              {counts.task_completed}
+            </span>
           </button>
 
+          {/* Emergency Alerts */}
           <button
             type="button"
             onClick={() => onTypeChange("emergency_alert")}
-            className={`px-3 py-1.5 rounded-sm border transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm font-bold border-2 transition-all cursor-pointer ${
               selectedType === "emergency_alert"
-                ? "bg-tomato text-white border-white shadow-hard-xs font-bold"
-                : "bg-[#0E1326] text-[#FF6B6B]/80 border-white/15 hover:border-tomato/50"
+                ? "bg-tomato text-white border-tomato shadow-xs"
+                : "bg-white text-ink/70 border-ink/20 hover:border-ink hover:text-ink hover:bg-ivory"
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-[#FF6B6B]" />
-            <span>Emergency Alerts ({counts.emergency_alert})</span>
+            <span className="w-2 h-2 rounded-full bg-tomato shrink-0" aria-hidden="true" />
+            <span>Emergency alerts</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-xs text-[10px] tabular-nums font-black ${
+                selectedType === "emergency_alert" ? "bg-white/20 text-white" : "bg-ink/10 text-ink"
+              }`}
+            >
+              {counts.emergency_alert}
+            </span>
           </button>
         </div>
 
-        {/* Chain Integrity Validator Button */}
+        {/* Outlined Verify Button Styled Like Feed "Verify media" */}
         <button
           type="button"
           onClick={handleVerifyChain}
           disabled={verifying}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#0C1021] hover:bg-[#121830] text-lime border border-lime/40 text-xs font-mono font-bold transition-all hover:border-lime cursor-pointer shadow-hard-xs shrink-0"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-white hover:bg-ivory text-ink border-2 border-ink text-xs font-bold transition-all shadow-hard-xs shrink-0 cursor-pointer disabled:opacity-50"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${verifying ? "animate-spin" : ""}`} />
-          <span>{verifying ? "Auditing Hashes..." : "Verify Chain Integrity"}</span>
+          <ShieldCheck className={`w-4 h-4 text-cobalt ${verifying ? "animate-spin" : ""}`} aria-hidden="true" />
+          <span>{verifying ? "Auditing hashes..." : "Verify chain integrity"}</span>
         </button>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { GroundTruthCommit } from "@/lib/mocks/ground-truth-data"
 import { formatCleanDateTime } from "@/lib/date"
-import { X, Check, Copy, ShieldCheck, Terminal, Link as LinkIcon, FileCode, CheckCircle2 } from "lucide-react"
+import { X, Check, Copy, ShieldCheck, Link as LinkIcon, FileCode, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 
 export interface CommitAuditModalProps {
@@ -67,33 +67,28 @@ export function CommitAuditModal({ commit, open, onClose }: CommitAuditModalProp
       role="dialog"
       aria-modal="true"
       aria-labelledby="audit-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/75 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl rounded-chunky border-2 border-ink bg-[#0C1021] text-[#E0E6F0] shadow-hard-lg overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-2xl rounded-chunky border-2 border-ink bg-white text-ink shadow-hard-lg overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Terminal Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b-2 border-ink/40 bg-[#080B16]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-ink bg-ivory">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 mr-2">
-              <span className="w-3 h-3 rounded-full bg-tomato/80 inline-block border border-ink/40" />
-              <span className="w-3 h-3 rounded-full bg-sun/80 inline-block border border-ink/40" />
-              <span className="w-3 h-3 rounded-full bg-lime/80 inline-block border border-ink/40" />
-            </div>
-            <Terminal className="w-4 h-4 text-lime" />
-            <span className="font-mono text-xs font-bold text-lime tracking-wide">
-              PROVENANCE_AUDITOR // commit {commit.commitHash}
+            <ShieldCheck className="w-5 h-5 text-cobalt" aria-hidden="true" />
+            <span className="font-bold text-sm text-ink font-sans">
+              Audit inspector: {commit.commitHash}
             </span>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close audit inspector"
-            className="p-1 rounded-sm border border-transparent hover:border-ink/50 hover:bg-white/10 text-[#E0E6F0]/70 hover:text-white transition-colors cursor-pointer"
+            className="p-1 rounded-sm border-2 border-transparent hover:border-ink hover:bg-white text-ink/70 hover:text-ink transition-colors cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -102,85 +97,85 @@ export function CommitAuditModal({ commit, open, onClose }: CommitAuditModalProp
           {/* Status Badge & Title */}
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-black bg-lime text-ink border border-ink font-mono">
-                <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
-                CRYPTOGRAPHICALLY VERIFIED
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-lime text-ink border border-ink">
+                <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true" />
+                <span>Cryptographically verified</span>
               </span>
-              <span className="px-2 py-0.5 rounded-sm text-xs font-mono bg-white/10 text-white/80 border border-white/20">
-                BLOCK #{String(commit.proof.blockNumber).padStart(3, "0")}
+              <span className="px-2 py-0.5 rounded-sm text-xs font-sans tabular-nums bg-ivory text-ink/80 border border-ink/20">
+                Block #{String(commit.proof.blockNumber).padStart(3, "0")}
               </span>
-              <span className="px-2 py-0.5 rounded-sm text-xs font-mono bg-white/10 text-white/80 border border-white/20">
+              <span className="px-2 py-0.5 rounded-sm text-xs font-sans bg-ivory text-ink/80 border border-ink/20">
                 {commit.proof.algorithm}
               </span>
             </div>
-            <h2 id="audit-modal-title" className="text-xl font-black text-white font-sans tracking-tight">
+            <h2 id="audit-modal-title" className="text-xl font-black text-ink font-sans tracking-tight">
               {commit.title}
             </h2>
-            <p className="text-xs text-white/70">
+            <p className="text-sm text-ink/80 leading-relaxed font-sans">
               {commit.details}
             </p>
           </div>
 
           {/* Cryptographic Hashes Grid */}
-          <div className="rounded-sm border border-white/10 bg-black/40 p-4 space-y-3 font-mono text-xs">
+          <div className="rounded-sm border-2 border-ink/20 bg-ivory/60 p-4 space-y-3 font-sans text-xs">
             {/* Commit Hash */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-white/10">
-              <span className="text-white/50 text-[11px] uppercase tracking-wider">Commit Hash:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-ink/10">
+              <span className="text-ink/60 font-medium">Commit hash:</span>
               <div className="flex items-center gap-2">
-                <span className="text-lime font-bold">{commit.commitHash}</span>
+                <span className="text-ink font-bold tabular-nums">{commit.commitHash}</span>
                 <button
                   type="button"
                   onClick={() => copyToClipboard(commit.commitHash, "Commit hash")}
-                  className="p-1 hover:text-white text-white/60 hover:bg-white/10 rounded cursor-pointer"
+                  className="p-1 hover:bg-white rounded border border-ink/20 text-ink/70 hover:text-ink cursor-pointer"
                   title="Copy commit hash"
                 >
-                  {copiedKey === "Commit hash" ? <Check className="w-3 h-3 text-lime" /> : <Copy className="w-3 h-3" />}
+                  {copiedKey === "Commit hash" ? <Check className="w-3 h-3 text-cobalt" /> : <Copy className="w-3 h-3" />}
                 </button>
               </div>
             </div>
 
             {/* Parent Hash */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-white/10">
-              <span className="text-white/50 text-[11px] uppercase tracking-wider flex items-center gap-1">
-                <LinkIcon className="w-3 h-3" /> Parent Link:
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-ink/10">
+              <span className="text-ink/60 font-medium flex items-center gap-1">
+                <LinkIcon className="w-3 h-3" /> Parent link:
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-white/80">{commit.parentHash}</span>
+                <span className="text-ink/80 tabular-nums">{commit.parentHash}</span>
                 {commit.parentHash !== "#0000000" && (
-                  <span className="text-[10px] text-lime/90 bg-lime/10 px-1.5 py-0.5 rounded border border-lime/30">
-                    CHAIN VALID
+                  <span className="text-[10px] text-ink font-bold bg-lime/30 px-1.5 py-0.5 rounded border border-ink/20">
+                    Chain valid
                   </span>
                 )}
               </div>
             </div>
 
             {/* Full SHA-256 Fingerprint */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1.5 pb-2 border-b border-white/10">
-              <span className="text-white/50 text-[11px] uppercase tracking-wider shrink-0">SHA-256 Digest:</span>
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1.5 pb-2 border-b border-ink/10">
+              <span className="text-ink/60 font-medium shrink-0">SHA-256 digest:</span>
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-[10px] text-white/70 break-all">{commit.fullSha256}</span>
+                <span className="text-[11px] text-ink/80 break-all tabular-nums font-sans">{commit.fullSha256}</span>
                 <button
                   type="button"
                   onClick={() => copyToClipboard(commit.fullSha256, "Full SHA-256")}
-                  className="p-1 hover:text-white text-white/60 hover:bg-white/10 rounded shrink-0 cursor-pointer"
+                  className="p-1 hover:bg-white rounded border border-ink/20 text-ink/70 hover:text-ink shrink-0 cursor-pointer"
                   title="Copy full SHA-256"
                 >
-                  {copiedKey === "Full SHA-256" ? <Check className="w-3 h-3 text-lime" /> : <Copy className="w-3 h-3" />}
+                  {copiedKey === "Full SHA-256" ? <Check className="w-3 h-3 text-cobalt" /> : <Copy className="w-3 h-3" />}
                 </button>
               </div>
             </div>
 
             {/* Timestamp */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-white/10">
-              <span className="text-white/50 text-[11px] uppercase tracking-wider">Timestamp:</span>
-              <span className="text-white/90">{formatCleanDateTime(commit.timestamp)}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-ink/10">
+              <span className="text-ink/60 font-medium">Timestamp:</span>
+              <span className="text-ink font-semibold tabular-nums">{formatCleanDateTime(commit.timestamp)}</span>
             </div>
 
             {/* Author Key Fingerprint */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-              <span className="text-white/50 text-[11px] uppercase tracking-wider">Authorized By:</span>
-              <span className="text-white/90">
-                {commit.author.name} (Tier {commit.author.tier}) // {commit.proof.publicKeyFingerprint}
+              <span className="text-ink/60 font-medium">Authorized by:</span>
+              <span className="text-ink font-semibold tabular-nums">
+                {commit.author.name} (Tier {commit.author.tier}) • {commit.proof.publicKeyFingerprint}
               </span>
             </div>
           </div>
@@ -188,18 +183,18 @@ export function CommitAuditModal({ commit, open, onClose }: CommitAuditModalProp
           {/* Raw Signed Payload */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-white/70 flex items-center gap-1.5 font-mono">
-                <FileCode className="w-3.5 h-3.5 text-cobalt" />
-                Signed JSON Payload Snapshot
+              <span className="text-xs font-bold text-ink/70 flex items-center gap-1.5 font-sans">
+                <FileCode className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
+                <span>Signed JSON payload snapshot</span>
               </span>
               <button
                 type="button"
                 onClick={() => copyToClipboard(rawJson, "Signed payload JSON")}
-                className="text-xs font-bold text-lime hover:underline flex items-center gap-1 cursor-pointer font-mono"
+                className="text-xs font-bold text-cobalt hover:underline flex items-center gap-1 cursor-pointer font-sans"
               >
                 {copiedKey === "Signed payload JSON" ? (
                   <>
-                    <Check className="w-3 h-3" /> Copied!
+                    <Check className="w-3 h-3" /> Copied
                   </>
                 ) : (
                   <>
@@ -208,24 +203,24 @@ export function CommitAuditModal({ commit, open, onClose }: CommitAuditModalProp
                 )}
               </button>
             </div>
-            <pre className="p-3 rounded-sm bg-black/60 border border-white/10 text-[11px] font-mono text-lime/90 overflow-x-auto max-h-48 leading-relaxed">
+            <pre className="p-3.5 rounded-sm bg-ivory border-2 border-ink/15 text-xs text-ink/90 overflow-x-auto max-h-48 leading-relaxed font-sans tabular-nums whitespace-pre">
               {rawJson}
             </pre>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-white/10 bg-[#080B16]">
-          <div className="flex items-center gap-1.5 text-xs text-white/60 font-mono">
-            <ShieldCheck className="w-4 h-4 text-lime" />
-            <span>Immutable Ledger Record</span>
+        <div className="flex items-center justify-between px-6 py-4 border-t-2 border-ink bg-ivory">
+          <div className="flex items-center gap-1.5 text-xs text-ink/60 font-sans">
+            <ShieldCheck className="w-4 h-4 text-cobalt" aria-hidden="true" />
+            <span>Immutable ledger record</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-sm bg-lime text-ink font-bold text-xs hover:bg-lime/90 transition-colors border border-ink cursor-pointer font-mono"
+            className="px-4 py-2 rounded-sm bg-lime text-ink font-bold text-xs hover:bg-lime/90 transition-colors border-2 border-ink shadow-hard-xs cursor-pointer font-sans"
           >
-            Close Inspector
+            Close inspector
           </button>
         </div>
       </div>

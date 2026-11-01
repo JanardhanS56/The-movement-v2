@@ -6,7 +6,7 @@ import { formatCleanDateTime } from "@/lib/date"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { TierBadge } from "@/components/shared/TierBadge"
 import { UserTier } from "@/lib/schemas/user.schema"
-import { Copy, Check, ShieldCheck, MapPin, FileText, CheckSquare, AlertTriangle, Terminal } from "lucide-react"
+import { Copy, Check, ShieldCheck, MapPin, FileText, CheckSquare, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
 export interface CommitCardProps {
@@ -28,30 +28,30 @@ export function CommitCard({ commit, onSelectAudit, isLast = false }: CommitCard
     }
   }
 
-  // Color coding matching specifications:
-  // Blue for Announcements
-  // Green for Completed Tasks
-  // Red for Emergency Alerts
+  // Type styling matching Feed dispatch:
+  // Announcement: cobalt strip & chip
+  // Completed task: lime strip & chip
+  // Emergency alert: tomato strip & chip
   const eventConfig = {
     announcement: {
       label: "Announcement",
-      badgeClass: "bg-cobalt/20 text-[#60A5FA] border-cobalt/50",
-      dotClass: "bg-[#255DEE] border-[#60A5FA] ring-cobalt/30",
-      accentBarClass: "bg-[#255DEE]",
+      borderLeftClass: "border-l-8 border-l-cobalt",
+      badgeClass: "bg-cobalt text-white border border-cobalt",
+      dotClass: "bg-white border-2 border-cobalt ring-2 ring-cobalt/20",
       icon: FileText,
     },
     task_completed: {
-      label: "Completed Task",
-      badgeClass: "bg-lime/20 text-[#D4FF24] border-lime/50",
-      dotClass: "bg-[#D4FF24] border-white ring-lime/30",
-      accentBarClass: "bg-[#D4FF24]",
+      label: "Completed task",
+      borderLeftClass: "border-l-8 border-l-lime",
+      badgeClass: "bg-lime text-ink border border-ink font-bold",
+      dotClass: "bg-lime border-2 border-ink ring-2 ring-lime/20",
       icon: CheckSquare,
     },
     emergency_alert: {
-      label: "Emergency Alert",
-      badgeClass: "bg-tomato/20 text-[#FF6B6B] border-tomato/50",
-      dotClass: "bg-[#FF4D2E] border-white ring-tomato/30",
-      accentBarClass: "bg-[#FF4D2E]",
+      label: "Emergency alert",
+      borderLeftClass: "border-l-8 border-l-tomato",
+      badgeClass: "bg-tomato text-white border border-tomato",
+      dotClass: "bg-white border-2 border-tomato ring-2 ring-tomato/20",
       icon: AlertTriangle,
     },
   }[commit.eventType]
@@ -59,20 +59,20 @@ export function CommitCard({ commit, onSelectAudit, isLast = false }: CommitCard
   const EventIcon = eventConfig.icon
 
   return (
-    <div className="relative flex items-start gap-4 sm:gap-6 group">
+    <div className="relative flex items-start gap-3 sm:gap-5 group">
       {/* 1. Timeline vertical track & node dot */}
       <div className="flex flex-col items-center shrink-0 self-stretch">
         <div
-          className={`w-4 h-4 rounded-full border-2 ${eventConfig.dotClass} shadow-md ring-4 transition-transform group-hover:scale-110 shrink-0 z-10 mt-5`}
+          className={`w-3.5 h-3.5 rounded-full ${eventConfig.dotClass} shrink-0 z-10 mt-6`}
           title={`Block #${commit.proof.blockNumber}`}
         />
         {!isLast && (
-          <div className="w-0.5 grow bg-gradient-to-b from-white/30 to-white/10 group-hover:from-lime/50 transition-colors my-1" />
+          <div className="w-0.5 grow bg-ink/15 group-hover:bg-ink/30 transition-colors my-1" />
         )}
       </div>
 
-      {/* 2. Main Commit Card */}
-      <div
+      {/* 2. Main Entry Row (Styled Like Feed Dispatch Row) */}
+      <article
         onClick={() => onSelectAudit(commit)}
         role="button"
         tabIndex={0}
@@ -82,94 +82,85 @@ export function CommitCard({ commit, onSelectAudit, isLast = false }: CommitCard
             onSelectAudit(commit)
           }
         }}
-        className="grow mb-6 rounded-chunky border-2 border-white/15 hover:border-lime/60 bg-[#0E1326] hover:bg-[#121830] transition-all p-5 shadow-hard-xs hover:shadow-hard-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+        className={`grow mb-6 p-5 sm:p-6 bg-white border-2 border-ink shadow-hard-sm hover:shadow-hard transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt ${eventConfig.borderLeftClass}`}
       >
-        {/* Card Header: 4 Core Elements */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-white/10">
+        {/* Header Row: 4 Core Elements */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-ink/10">
           {/* Item 2: Color-coded Event Type & Item 4: Cryptographic Hash */}
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm text-xs font-black uppercase tracking-wider border font-mono ${eventConfig.badgeClass}`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-sans ${eventConfig.badgeClass}`}
             >
-              <EventIcon className="w-3.5 h-3.5 stroke-[2.5]" />
-              {eventConfig.label}
+              <EventIcon className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{eventConfig.label}</span>
             </span>
 
-            {/* Cryptographic Hash */}
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-black/60 border border-white/15 font-mono text-xs text-lime">
-              <Terminal className="w-3 h-3 text-lime/70" />
+            {/* Cryptographic Hash: Normal font, tabular numerals, with small outlined copy button */}
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-ivory border border-ink/20 font-sans text-xs text-ink tabular-nums">
               <span className="font-bold">{commit.commitHash}</span>
               <button
                 type="button"
                 onClick={handleCopyHash}
                 aria-label={`Copy hash ${commit.commitHash}`}
-                className="p-0.5 hover:text-white text-white/50 hover:bg-white/10 rounded transition-colors ml-1"
+                className="p-0.5 hover:bg-white rounded border border-transparent hover:border-ink/20 text-ink/60 hover:text-ink transition-colors ml-0.5 cursor-pointer"
                 title="Copy hash"
               >
-                {copied ? <Check className="w-3 h-3 text-lime" /> : <Copy className="w-3 h-3" />}
+                {copied ? <Check className="w-3 h-3 text-cobalt" /> : <Copy className="w-3 h-3" />}
               </button>
             </div>
           </div>
 
           {/* Item 1: Exact timestamp down to the minute */}
-          <div className="text-right">
-            <time dateTime={commit.timestamp} className="font-mono text-xs font-semibold text-white/80 tabular-nums">
-              {formatCleanDateTime(commit.timestamp)}
-            </time>
-          </div>
+          <time dateTime={commit.timestamp} className="font-sans text-xs font-semibold text-ink/60 tabular-nums">
+            {formatCleanDateTime(commit.timestamp)}
+          </time>
         </div>
 
         {/* Content Section: Title & Details */}
         <div className="py-3.5 space-y-2">
-          <h3 className="text-base sm:text-lg font-black text-white font-sans tracking-tight leading-snug group-hover:text-lime transition-colors">
+          <h2 className="text-lg sm:text-xl font-black text-ink font-sans tracking-tight leading-snug">
             {commit.title}
-          </h3>
-          <p className="text-xs sm:text-sm text-white/80 leading-relaxed font-sans">
+          </h2>
+          <p className="text-sm text-ink/90 leading-relaxed font-sans">
             {commit.summary}
           </p>
 
           {commit.metadata.location && (
-            <div className="flex items-center gap-1.5 text-xs text-white/60 pt-1 font-mono">
-              <MapPin className="w-3.5 h-3.5 text-sun shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs text-ink/60 pt-1 font-sans">
+              <MapPin className="w-3.5 h-3.5 text-sun shrink-0" aria-hidden="true" />
               <span>{commit.metadata.location}</span>
               {commit.metadata.sector && (
                 <>
-                  <span className="text-white/30">•</span>
-                  <span className="text-white/70">{commit.metadata.sector}</span>
+                  <span className="text-ink/30">•</span>
+                  <span className="text-ink/70">{commit.metadata.sector}</span>
                 </>
               )}
             </div>
           )}
         </div>
 
-        {/* Card Footer: Item 3: Author & Trust Tier + Audit Action */}
-        <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+        {/* Footer Row: Item 3: Author & Trust Tier + Audit Action */}
+        <div className="pt-3 border-t border-ink/10 flex flex-wrap items-center justify-between gap-3 text-xs">
           {/* Author & Trust Tier */}
           <div className="flex items-center gap-2.5 min-w-0">
-            <UserAvatar name={commit.author.name} avatarUrl={commit.author.avatarUrl} className="w-6 h-6 shrink-0" />
+            <UserAvatar name={commit.author.name} avatarUrl={commit.author.avatarUrl} className="w-7 h-7 shrink-0 text-xs" />
             <div className="flex items-center gap-2 min-w-0 flex-wrap">
-              <span className="font-bold text-white truncate font-sans">
+              <span className="font-bold text-ink truncate font-sans">
                 {commit.author.name}
               </span>
-              <TierBadge tier={commit.author.tier as UserTier} showIcon={false} className="text-[10px] py-0 px-1.5" />
-              <span className="text-white/50 text-[11px] hidden sm:inline font-mono">
-                ({commit.author.roleTitle})
-              </span>
+              <TierBadge tier={commit.author.tier as UserTier} />
             </div>
           </div>
 
           {/* Audit Verification Proof Trigger */}
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-lime flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Audit Proof</span>
-            </span>
-            <span className="text-white/40 text-[10px] font-mono">
-              [block #{commit.proof.blockNumber}]
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm border-2 border-ink bg-ivory hover:bg-white text-xs font-bold text-ink shadow-hard-xs transition-colors">
+              <ShieldCheck className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
+              <span>Audit proof</span>
             </span>
           </div>
         </div>
-      </div>
+      </article>
     </div>
   )
 }
