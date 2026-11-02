@@ -25,6 +25,7 @@ import {
   Keyboard,
   Check,
   MessageSquare,
+  GitCommit,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -195,6 +196,15 @@ export function MobileTabBar() {
               >
                 <MessageSquare className="w-4 h-4 text-ink" />
                 <span>Community chat</span>
+              </Link>
+
+              <Link
+                href="/ground-truth"
+                onClick={() => setMoreOpen(false)}
+                className="w-full flex items-center gap-3 p-3 rounded-sm bg-[#0C1021] border-2 border-ink text-xs font-bold text-lime min-h-[44px] shadow-hard-xs font-mono"
+              >
+                <GitCommit className="w-4 h-4 text-lime" />
+                <span>Ground truth ledger</span>
               </Link>
 
               <button

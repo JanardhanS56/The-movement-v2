@@ -70,7 +70,13 @@ export function UserMenu({ collapsed = false }: UserMenuProps) {
 
   if (!user) return null
 
-  const userPhoto = !discreetMode ? getStoredProfilePhoto(user.id) || user.avatar_url : null
+  const displayName = user.display_name === "Priya Rao" ? "Janardhan" : user.display_name
+  const userPhoto = !discreetMode
+    ? getStoredProfilePhoto(user.id) ||
+      (user.avatar_url?.includes("PriyaRao")
+        ? "https://api.dicebear.com/7.x/shapes/svg?seed=Janardhan"
+        : user.avatar_url)
+    : null
 
   const handleTextSizeChange = (newSize: TextSize) => {
     setTextSizeState(newSize)
@@ -101,10 +107,10 @@ export function UserMenu({ collapsed = false }: UserMenuProps) {
         <button
           type="button"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label={`User menu for ${user.display_name}`}
+          aria-label={`User menu for ${displayName}`}
           className="p-1 rounded-sm border-2 border-transparent hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt"
         >
-          <UserAvatar name={user.display_name} avatarUrl={userPhoto} className="h-8 w-8" />
+          <UserAvatar name={displayName} avatarUrl={userPhoto} className="h-8 w-8" />
         </button>
 
         {menuOpen && (
@@ -113,9 +119,9 @@ export function UserMenu({ collapsed = false }: UserMenuProps) {
             className="absolute left-14 bottom-2 z-50 w-64 rounded-chunky border-2 border-ink bg-white p-3 shadow-hard-md space-y-3"
           >
             <div className="flex items-center gap-2 pb-2 border-b border-ink/20">
-              <UserAvatar name={user.display_name} avatarUrl={userPhoto} />
+              <UserAvatar name={displayName} avatarUrl={userPhoto} />
               <div className="min-w-0">
-                <p className="text-xs font-bold text-ink truncate">{user.display_name}</p>
+                <p className="text-xs font-bold text-ink truncate">{displayName}</p>
                 <TierBadge tier={user.tier as UserTier} showIcon={false} className="text-xs py-0 px-1" />
               </div>
             </div>
@@ -190,10 +196,10 @@ export function UserMenu({ collapsed = false }: UserMenuProps) {
         className="w-full flex items-center justify-between gap-2 p-1.5 rounded-sm border-2 border-transparent hover:border-ink hover:bg-ivory transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobalt"
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <UserAvatar name={user.display_name} avatarUrl={userPhoto} />
+          <UserAvatar name={displayName} avatarUrl={userPhoto} />
           <div className="min-w-0 text-left">
             <p className="text-xs font-black text-ink truncate font-sans">
-              {user.display_name}
+              {displayName}
             </p>
             <div className="flex items-center gap-1.5">
               <TierBadge tier={user.tier as UserTier} showIcon={false} className="text-xs py-0 px-1 mt-0.5" />
