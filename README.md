@@ -297,4 +297,6 @@ This project is licensed under the terms included in the [LICENSE](LICENSE) file
 
 ---
 
+Live link: https://the-movement-tau.vercel.app
+
 **Built with purpose. Designed for trust. Ready for the field.**
