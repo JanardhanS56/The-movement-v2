@@ -232,8 +232,12 @@ export class RestApiAdapter implements ApiClient {
   }
 
   public async getAggregatedCheckInPoints(): Promise<AggregatedCheckInPoint[]> {
-    const data = await request<{ points: AggregatedCheckInPoint[] }>("/api/checkins")
-    const points = data?.points || []
+    // Route returns { data: { heatmap_tuples, points, total_check_ins, active_clusters } }
+    // after apiSuccess wrapping. request<T> returns data.data, so T is the inner shape.
+    const data = await request<{ points: AggregatedCheckInPoint[]; heatmap_tuples?: unknown }>(
+      "/api/checkins"
+    )
+    const points = Array.isArray(data?.points) ? data.points : []
     return points.map((p) => AggregatedCheckInPointSchema.parse(p))
   }
 

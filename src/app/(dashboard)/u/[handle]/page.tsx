@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { ProfileView } from "@/components/profile/ProfileView"
-import { ProfileNotFound } from "@/components/profile/ProfileNotFound"
 import { getUserByHandle } from "@/lib/mocks/fictional-data"
+import { SEED_USERS } from "@/lib/mocks/seed-data"
 
 export async function generateMetadata({
   params,
@@ -23,6 +23,10 @@ export default function HandleProfilePage({
   params: { handle: string }
 }) {
   const user = getUserByHandle(params.handle)
+  const resolvedUserId =
+    user?.id ||
+    SEED_USERS.find((u) => u.handle === params.handle || u.id === params.handle)?.id ||
+    params.handle
 
   return (
     <div className="space-y-6">
@@ -30,11 +34,7 @@ export default function HandleProfilePage({
         title="Volunteer Profile"
         description="Public verification ledger, earned badges, and community recognition record."
       />
-      {user ? (
-        <ProfileView userId={user.id} />
-      ) : (
-        <ProfileNotFound userId={params.handle} />
-      )}
+      <ProfileView userId={resolvedUserId} />
     </div>
   )
 }

@@ -17,7 +17,16 @@ export function getStoredAuthUser(): User | null {
   try {
     const raw = localStorage.getItem(AUTH_USER_KEY)
     if (!raw) return null
-    return JSON.parse(raw) as User
+    const parsed = JSON.parse(raw) as User
+    if (parsed && (parsed.display_name === "Priya Rao" || parsed.handle === "priya-rao")) {
+      parsed.display_name = "Janardhan"
+      parsed.handle = "janardhan"
+      if (parsed.avatar_url && parsed.avatar_url.includes("PriyaRao")) {
+        parsed.avatar_url = "https://api.dicebear.com/7.x/shapes/svg?seed=Janardhan"
+      }
+      setStoredAuthUser(parsed)
+    }
+    return parsed
   } catch {
     return null
   }

@@ -60,6 +60,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     const stored = getStoredAuthUser()
     if (stored) {
+      if (stored.display_name === "Priya Rao" || stored.handle === "priya-rao") {
+        stored.display_name = "Janardhan"
+        stored.handle = "janardhan"
+        if (stored.avatar_url && stored.avatar_url.includes("PriyaRao")) {
+          stored.avatar_url = "https://api.dicebear.com/7.x/shapes/svg?seed=Janardhan"
+        }
+        setStoredAuthUser(stored)
+      }
       setCustomUser(stored)
       mockStore.upsertUser(stored)
       setCurrentUserId(stored.id)
@@ -68,8 +76,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const user = React.useMemo(() => {
     if (!currentUserId) return null
-    if (customUser && customUser.id === currentUserId) return customUser
-    return mockStore.getUser(currentUserId) || SEED_USERS.find((u) => u.id === currentUserId) || customUser || null
+    let resolved =
+      customUser && customUser.id === currentUserId
+        ? customUser
+        : mockStore.getUser(currentUserId) || SEED_USERS.find((u) => u.id === currentUserId) || customUser || null
+    if (resolved && (resolved.display_name === "Priya Rao" || resolved.handle === "priya-rao")) {
+      resolved = {
+        ...resolved,
+        display_name: "Janardhan",
+        handle: "janardhan",
+        avatar_url: resolved.avatar_url?.includes("PriyaRao")
+          ? "https://api.dicebear.com/7.x/shapes/svg?seed=Janardhan"
+          : resolved.avatar_url,
+      }
+    }
+    return resolved
   }, [currentUserId, customUser])
 
   const signIn = React.useCallback(
