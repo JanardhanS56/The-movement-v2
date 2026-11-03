@@ -28,6 +28,7 @@ import {
   MessageSquare,
   GitCommit,
   KeyRound,
+  Sparkles,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -219,6 +220,15 @@ export function MobileTabBar() {
               >
                 <GitCommit className="w-4 h-4 text-lime" />
                 <span>Ground truth ledger</span>
+              </Link>
+
+              <Link
+                href="/data-rain"
+                onClick={() => setMoreOpen(false)}
+                className="w-full flex items-center gap-3 p-3 rounded-sm bg-[#05070d] border-2 border-ink text-xs font-bold text-[#22e6ff] min-h-[44px] shadow-hard-xs font-mono"
+              >
+                <Sparkles className="w-4 h-4 text-[#22e6ff]" />
+                <span>Data Rain canvas</span>
               </Link>
 
               <button
