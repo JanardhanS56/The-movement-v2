@@ -5,10 +5,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Megaphone, MapPin, CheckSquare } from "lucide-react"
 import { Monogram } from "@/components/shared/Monogram"
 import DataRain from "@/components/ui/data-rain"
+import { FeatureCards } from "@/components/ui/FeatureCards"
 
 export default function LandingPage() {
   const router = useRouter()
@@ -54,59 +53,20 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main id="main-content" className="relative z-10 max-w-3xl mx-auto w-full py-12 space-y-8 text-center sm:text-left">
-        {/* Exactly 10 words (under the 12 words max limit) */}
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-          Verified collective action platform for civic volunteers and community organizers
-        </h1>
+      <main id="main-content" className="relative z-10 max-w-5xl mx-auto w-full py-12 space-y-10 text-center sm:text-left">
+        <div className="max-w-3xl space-y-4">
+          {/* Exactly 10 words (under the 12 words max limit) */}
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+            Verified collective action platform for civic volunteers and community organizers
+          </h1>
 
-        <p className="text-muted-foreground text-base sm:text-lg max-w-2xl">
-          Coordinate field operations with cryptographic multi-signature bulletins, real-time geographic check-in maps, and community-verified volunteer bounties.
-        </p>
+          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl">
+            Coordinate field operations with cryptographic multi-signature bulletins, real-time geographic check-in maps, and community-verified volunteer bounties.
+          </p>
+        </div>
 
         {/* The Three Features Section */}
-        <section aria-labelledby="features-heading" className="pt-8 space-y-6">
-          <h2 id="features-heading" className="text-xl font-semibold tracking-tight text-foreground">
-            Core Movement Capabilities
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-            <Card className="border-border bg-card/90 backdrop-blur-sm">
-              <CardHeader>
-                <div className="h-9 w-9 rounded-sm bg-primary/10 text-primary-light flex items-center justify-center mb-2">
-                  <Megaphone className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <CardTitle className="text-base font-semibold">Multi-Sig Announcements</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Field notices require multiple organizer cryptographic signatures before publishing to prevent false alarms.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border bg-card/90 backdrop-blur-sm">
-              <CardHeader>
-                <div className="h-9 w-9 rounded-sm bg-verified/10 text-verified flex items-center justify-center mb-2">
-                  <MapPin className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <CardTitle className="text-base font-semibold">Live Check-in Heatmap</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Real-time GPS density visualization displaying volunteer distribution across field sectors.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border bg-card/90 backdrop-blur-sm">
-              <CardHeader>
-                <div className="h-9 w-9 rounded-sm bg-accent/10 text-accent flex items-center justify-center mb-2">
-                  <CheckSquare className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <CardTitle className="text-base font-semibold">Bounty Board & Verifications</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  Community tasks claimed by volunteers and validated through randomized peer review consensus.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-        </section>
+        <FeatureCards className="px-0 py-2" />
       </main>
 
       {/* Footer */}
