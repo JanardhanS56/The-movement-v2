@@ -6,14 +6,13 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Megaphone, MapPin, CheckSquare, Sparkles } from "lucide-react"
+import { Megaphone, MapPin, CheckSquare } from "lucide-react"
 import { Monogram } from "@/components/shared/Monogram"
 import DataRain from "@/components/ui/data-rain"
 
 export default function LandingPage() {
   const router = useRouter()
   const { isAuthenticated } = useAuth()
-  const [enableAmbientRain, setEnableAmbientRain] = React.useState(true)
 
   // Redirect signed-in users directly to /feed
   React.useEffect(() => {
@@ -24,11 +23,11 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground flex flex-col justify-between p-6 sm:p-12 overflow-hidden">
-      {enableAmbientRain && (
-        <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
-          <DataRain fullscreen count={1800} flowSpeed={0.8} obstacleRadius={55} />
-        </div>
-      )}
+      {/* Interactive DataRain Ambient Particle Field - Always Active */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
+        <DataRain fullscreen count={1600} flowSpeed={0.75} obstacleRadius={50} />
+      </div>
+
       {/* Top Bar */}
       <header className="relative z-10 flex items-center justify-between max-w-5xl mx-auto w-full pb-8">
         <div className="flex items-center gap-2.5">
@@ -36,15 +35,6 @@ export default function LandingPage() {
           <span className="font-black text-xl tracking-tight text-foreground font-sans">The Movement</span>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setEnableAmbientRain((prev) => !prev)}
-            className="flex items-center gap-1.5 rounded-sm border border-border bg-card/80 px-2.5 py-1 text-xs font-semibold backdrop-blur-sm hover:bg-muted transition"
-            title="Toggle Ambient Data Rain"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-            <span className="hidden sm:inline">{enableAmbientRain ? "Rain Active" : "Ambient Rain"}</span>
-          </button>
           <Link href="/data-rain">
             <Button variant="outline" size="sm" className="font-bold">
               Data Rain
