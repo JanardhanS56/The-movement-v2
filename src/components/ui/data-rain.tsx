@@ -716,7 +716,13 @@ export default function DataRain(props: DataRainProps) {
 
       if (!initialised) return;
 
-      if (reduced) {
+      const onContextLost = (e: Event) => {
+      e.preventDefault();
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    if (reduced) {
         rebuildStatic();
         return;
       }
@@ -821,6 +827,11 @@ export default function DataRain(props: DataRainProps) {
     const ro = new ResizeObserver(() => resize());
     ro.observe(root);
 
+    const onContextLost = (e: Event) => {
+      e.preventDefault();
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
     apiRef.current = {
       refresh: () => {
         if (disposed || !initialised) return;
@@ -848,11 +859,6 @@ export default function DataRain(props: DataRainProps) {
       window.addEventListener("blur", onLeave);
       document.documentElement.addEventListener("pointerleave", onLeave);
       document.addEventListener("visibilitychange", onVisibility);
-      const onContextLost = (e: Event) => {
-        e.preventDefault();
-        cancelAnimationFrame(raf);
-        raf = 0;
-      };
       main.addEventListener("contextlost", onContextLost);
       start();
     }
