@@ -92,6 +92,35 @@ export default function DataRainDemoPage() {
         </div>
       </header>
 
+      {/* Real-time Physics Telemetry HUD */}
+      <aside
+        aria-label="Physics Telemetry"
+        className="fixed bottom-6 left-6 z-20 hidden md:flex items-center gap-3 rounded-xl border border-white/10 bg-black/70 px-4 py-2.5 font-mono text-[11px] text-white/70 backdrop-blur-md"
+      >
+        <span className="flex h-2 w-2 relative">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22e6ff] opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22e6ff]" />
+        </span>
+        <div className="flex items-center gap-4">
+          <div>
+            <span className="text-white/40">PARTICLES: </span>
+            <span className="text-[#22e6ff] font-semibold">{particleCount}</span>
+          </div>
+          <div>
+            <span className="text-white/40">FLOW: </span>
+            <span className="text-[#22e6ff] font-semibold">{flowSpeed.toFixed(1)}x</span>
+          </div>
+          <div>
+            <span className="text-white/40">OBSTACLE: </span>
+            <span className="text-[#22e6ff] font-semibold">{obstacleRadius}px</span>
+          </div>
+          <div>
+            <span className="text-white/40">PALETTE: </span>
+            <span className="text-white font-semibold">{currentPreset.name}</span>
+          </div>
+        </div>
+      </aside>
+
       {/* Floating Control Panel */}
       {showControls && (
         <aside
