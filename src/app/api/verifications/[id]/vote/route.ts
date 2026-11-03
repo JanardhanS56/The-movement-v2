@@ -79,8 +79,9 @@ export async function POST(
 
     let claimStatus = verification.claim?.status || "pending_verification"
 
-    // 3. Threshold checks: 2 approvals = verified, 2 rejections = rejected
-    if (approvals >= 2 && claimStatus !== "verified") {
+    // 3. Threshold checks: 3 approvals (or 2 if 2 verifiers) = verified, 2 rejections = rejected
+    const isQuorumReached = approvals >= 3 || (approvals >= 2 && (allVotes || []).length <= 2)
+    if (isQuorumReached && claimStatus !== "verified") {
       claimStatus = "verified"
 
       // Update claim
@@ -98,12 +99,43 @@ export async function POST(
           .eq("id", taskId)
       }
 
-      // Issue badge to claimant
+      // Issue badge and credit points to claimant
       const claimantId = verification.claim?.claimed_by
       const taskTitle = verification.claim?.task?.title || "Community Bounty Task"
       const rewardPoints = verification.claim?.task?.reward_points || 50
 
       if (claimantId) {
+        // Credit impact points to claimant
+        try {
+          const { data: userData } = await admin
+            .from("users")
+            .select("impact_points")
+            .eq("id", claimantId)
+            .maybeSingle()
+          const currentPoints = (userData as { impact_points?: number })?.impact_points || 0
+          await admin
+            .from("users")
+            .update({ impact_points: currentPoints + rewardPoints })
+            .eq("id", claimantId)
+        } catch {}
+
+        // Add impact ledger audit record
+        try {
+          await admin.from("impact_ledger").upsert(
+            {
+              user_id: claimantId,
+              task_id: taskId,
+              claim_id: claimId,
+              task_title: taskTitle,
+              verification_method: "peer_vote",
+              verified_by_detail: `Peer Review Consensus (${approvals} approvals)`,
+              reward_points: rewardPoints,
+              verified_at: now,
+            },
+            { onConflict: "claim_id" }
+          )
+        } catch {}
+
         // Prevent duplicate badge insertion
         const { data: existingBadge } = await admin
           .from("badges")
