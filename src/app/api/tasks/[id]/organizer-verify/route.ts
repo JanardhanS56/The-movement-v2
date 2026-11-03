@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { getAdminClient, getCallerUser } from "@/lib/supabase/admin"
 import { apiSuccess, apiError } from "@/lib/api-response"
 import { OrganizerOverrideSchema } from "@/lib/schemas/verification.schema"
+import { createGroundTruthCommit } from "@/lib/services/ground-truth"
 
 export const dynamic = "force-dynamic"
 
@@ -110,6 +111,24 @@ export async function POST(
           awarded_at: now,
         })
       }
+
+      // Automatically emit a Ground Truth audit commit
+      await createGroundTruthCommit({
+        eventType: "task_completed",
+        title: `Task Verified: ${taskTitle}`,
+        summary: `Task "${taskTitle}" claimed by volunteer was reviewed and verified by organizer.`,
+        details: note || `Organizer override executed for claim ${claim.id}. Points awarded: ${rewardPoints}.`,
+        authorId: organizerId,
+        tags: ["Task", "Verified", "Organizer Override"],
+        metadata: {
+          taskId: claim.task_id,
+          claimId: claim.id,
+          claimantId: claim.claimed_by,
+          rewardPoints,
+          organizerNote: note || null,
+          verificationType: "Organizer Verification",
+        },
+      }).catch(() => {})
 
       return apiSuccess({
         claim_id: claim.id,

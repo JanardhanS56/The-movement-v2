@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { getAdminClient, getCallerUser } from "@/lib/supabase/admin"
 import { apiSuccess, apiError } from "@/lib/api-response"
 import { CreateAnnouncementSchema } from "@/lib/schemas/announcement.schema"
+import { createGroundTruthCommit } from "@/lib/services/ground-truth"
 
 export const dynamic = "force-dynamic"
 
@@ -135,6 +136,27 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (updated) finalAnnouncement = updated
+    }
+
+    // Automatically emit a Ground Truth audit commit if announcement is published
+    if (finalAnnouncement.is_published) {
+      await createGroundTruthCommit({
+        eventType: "announcement",
+        title: finalAnnouncement.title,
+        summary:
+          finalAnnouncement.body.length > 150
+            ? `${finalAnnouncement.body.substring(0, 147)}...`
+            : finalAnnouncement.body,
+        details: finalAnnouncement.body,
+        authorId,
+        tags: ["Announcement", "Civic Notice", "Official"],
+        metadata: {
+          announcementId: finalAnnouncement.id,
+          movementId: finalAnnouncement.movement_id,
+          signaturesVerified: signatureCount,
+          signaturesRequired: finalAnnouncement.required_signatures,
+        },
+      }).catch(() => {})
     }
 
     return apiSuccess(finalAnnouncement, 201)
