@@ -4,7 +4,8 @@ import * as React from "react"
 import { Movement } from "@/lib/schemas/movement.schema"
 import { FICTIONAL_MOVEMENTS, getActiveMovementId, setActiveMovementId } from "@/lib/mocks/fictional-data"
 import { toast } from "sonner"
-import { Check, ChevronsUpDown, Shield } from "lucide-react"
+import { Check, ChevronsUpDown, Shield, KeyRound } from "lucide-react"
+import { JoinMovementDialog } from "./JoinMovementDialog"
 
 export interface MovementSwitcherProps {
   collapsed?: boolean
@@ -60,9 +61,9 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
     setActiveMovementId(id)
     setActiveIdState(id)
     setOpen(false)
-    const target = movements.find((m) => m.id === id)
-    if (target) {
-      toast.success(`Switched movement to ${target.name}`)
+    const selected = movements.find((m) => m.id === id)
+    if (selected) {
+      toast.success(`Switched to ${selected.name}`)
     }
   }
 
@@ -106,6 +107,21 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
                 </button>
               )
             })}
+            <div className="pt-1 border-t border-ink/15">
+              <JoinMovementDialog
+                trigger={
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                    className="w-full text-left px-2.5 py-1.5 rounded-sm text-xs flex items-center gap-2 text-cobalt font-bold hover:bg-cobalt/5 transition-all cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 shrink-0" />
+                    <span>Join with Code</span>
+                  </button>
+                }
+              />
+            </div>
           </div>
         )}
       </div>
@@ -114,9 +130,16 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
 
   return (
     <div ref={menuRef} className="relative px-3 py-2 border-b-2 border-ink/10">
-      <p className="text-[10px] uppercase font-black tracking-wider text-ink/60 px-1 mb-1">
-        Movement
-      </p>
+      <div className="flex items-center justify-between px-1 mb-1">
+        <p className="text-[10px] uppercase font-black tracking-wider text-ink/60">
+          Movement
+        </p>
+        {activeMovement.invite_code && (
+          <span className="text-[10px] font-mono font-bold text-cobalt tracking-wider">
+            {activeMovement.invite_code}
+          </span>
+        )}
+      </div>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -157,13 +180,36 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
                 }`}
               >
                 <div className="min-w-0">
-                  <p className="truncate">{mov.name}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="truncate">{mov.name}</p>
+                    {mov.invite_code && (
+                      <span className="text-[9px] font-mono text-ink/50 bg-ink/5 px-1 rounded-xs">
+                        {mov.invite_code}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[10px] text-ink/60 truncate">{mov.description}</p>
                 </div>
                 {isSelected && <Check className="w-4 h-4 shrink-0 stroke-[3] ml-2" />}
               </button>
             )
           })}
+
+          <div className="pt-1 mt-1 border-t border-ink/15">
+            <JoinMovementDialog
+              trigger={
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="w-full text-left px-2.5 py-1.5 rounded-sm text-xs flex items-center gap-2 text-cobalt font-bold hover:bg-cobalt/5 transition-all cursor-pointer"
+                >
+                  <KeyRound className="w-3.5 h-3.5 shrink-0" />
+                  <span>Join with Code</span>
+                </button>
+              }
+            />
+          </div>
         </div>
       )}
     </div>
