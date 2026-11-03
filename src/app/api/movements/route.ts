@@ -4,6 +4,7 @@ import { apiSuccess, apiError } from "@/lib/api-response"
 import { SEED_USERS } from "@/lib/mocks/seed-data"
 import { FICTIONAL_MOVEMENTS } from "@/lib/mocks/fictional-data"
 import { Movement } from "@/lib/schemas/movement.schema"
+import { generateMovementInviteCode } from "@/lib/movement-utils"
 import { z } from "zod"
 
 export const dynamic = "force-dynamic"
@@ -14,15 +15,6 @@ const CreateMovementSchema = z.object({
   slug: z.string().optional(),
   invite_code: z.string().length(5).optional(),
 })
-
-export function generateMovementInviteCode(): string {
-  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
-  let code = ""
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
-}
 
 export async function GET() {
   try {

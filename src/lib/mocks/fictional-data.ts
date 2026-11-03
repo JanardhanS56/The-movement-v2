@@ -1042,6 +1042,13 @@ export const FICTIONAL_MOVEMENTS: Movement[] = [
   },
 ]
 
+export function getMovementByInviteCode(code: string): Movement | undefined {
+  const clean = code.trim().toUpperCase()
+  return FICTIONAL_MOVEMENTS.find(
+    (m) => m.invite_code?.toUpperCase() === clean || m.slug.toUpperCase() === clean
+  )
+}
+
 export function addFictionalMovement(movement: Movement): void {
   const existing = FICTIONAL_MOVEMENTS.find((m) => m.id === movement.id)
   if (!existing) {
