@@ -829,34 +829,8 @@ export class MockChatAdapter implements ChatClient {
  * 7. Mention notifications via push/email workers.
  * ============================================================================
  */
-export class SupabaseChatAdapter implements ChatClient {
-  async listMessages(): Promise<{ messages: Message[]; nextCursor?: string }> {
-    throw new NotImplementedError("SupabaseChatAdapter.listMessages")
-  }
-  async sendMessage(): Promise<Message> {
-    throw new NotImplementedError("SupabaseChatAdapter.sendMessage")
-  }
-  async deleteMessage(): Promise<void> {
-    throw new NotImplementedError("SupabaseChatAdapter.deleteMessage")
-  }
-  async removeMessageByOrganizer(): Promise<void> {
-    throw new NotImplementedError("SupabaseChatAdapter.removeMessageByOrganizer")
-  }
-  async reportMessage(): Promise<void> {
-    throw new NotImplementedError("SupabaseChatAdapter.reportMessage")
-  }
-  async toggleReaction(): Promise<Message> {
-    throw new NotImplementedError("SupabaseChatAdapter.toggleReaction")
-  }
-  async pinMessage(): Promise<void> {
-    throw new NotImplementedError("SupabaseChatAdapter.pinMessage")
-  }
-  async getPinnedMessage(): Promise<Message | null> {
-    throw new NotImplementedError("SupabaseChatAdapter.getPinnedMessage")
-  }
-  subscribe(): () => void {
-    throw new NotImplementedError("SupabaseChatAdapter.subscribe")
-  }
-}
+import { SupabaseChatAdapter } from "./chat-supabase-adapter"
+export { SupabaseChatAdapter } from "./chat-supabase-adapter"
 
-export const chatApi: ChatClient = new MockChatAdapter()
+export const mockChatClient = new MockChatAdapter()
+export const chatApi: ChatClient = new SupabaseChatAdapter(mockChatClient)
