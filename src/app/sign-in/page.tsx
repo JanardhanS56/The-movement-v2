@@ -101,9 +101,9 @@ export default function SignInPage() {
   return (
     <main
       id="main-content"
-      className="relative min-h-screen bg-ivory text-ink flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden"
+      className="relative min-h-screen bg-[#0D0F14] text-white flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden"
     >
-      {/* Interactive DataRain Ambient Particle Field - Always Active in Background */}
+      {/* Interactive DataRain Ambient Particle Field - Active in Background */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-45">
         <DataRain fullscreen count={1800} flowSpeed={0.8} obstacleRadius={55} />
       </div>
@@ -111,38 +111,44 @@ export default function SignInPage() {
       <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center mb-2">
-            <Monogram className="h-10 w-10" />
+          <div className="inline-flex items-center justify-center mb-1">
+            <Monogram className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-ink font-sans">
+          <h1 className="text-3xl font-black tracking-tight text-white font-sans">
             Sign in to The Movement
           </h1>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs sm:text-sm text-neutral-400">
             Decentralized volunteer coordination and consensus verification.
           </p>
         </div>
 
         {/* Username Login Card */}
-        <Card className="border-2 border-ink bg-white/95 shadow-hard-sm backdrop-blur-sm">
-          <CardHeader className="pb-3 border-b border-ink/10">
-            <CardTitle className="text-base font-bold text-ink flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-cobalt" />
+        <Card className="rounded-2xl border border-white/[0.12] bg-[#13151B]/80 backdrop-blur-xl ring-0 shadow-2xl shadow-black/50">
+          <CardHeader className="pb-3.5 border-b border-white/[0.08]">
+            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+              <KeyRound className="w-4 h-4 text-[#D4E700]" aria-hidden="true" />
               <span>Username Sign In</span>
             </CardTitle>
-            <CardDescription className="text-xs text-ink/70">
+            <CardDescription className="text-xs text-neutral-400">
               Log in with your registered volunteer username and password.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
-            <form onSubmit={handleUsernameLogin} className="space-y-3.5">
+            <form onSubmit={handleUsernameLogin} className="space-y-4">
               {loginError && (
-                <div role="alert" className="p-2.5 rounded-sm bg-tomato/10 border border-tomato/30 text-tomato text-xs font-medium">
+                <div
+                  role="alert"
+                  className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium"
+                >
                   {loginError}
                 </div>
               )}
 
-              <div className="space-y-1">
-                <label htmlFor="login_username" className="text-xs font-bold text-ink">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="login_username"
+                  className="text-xs font-semibold text-neutral-300"
+                >
                   Username
                 </label>
                 <Input
@@ -151,12 +157,15 @@ export default function SignInPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="e.g. jana or volunteer"
-                  className="h-9 border border-ink/30 bg-white"
+                  className="h-10 rounded-xl border border-white/[0.15] bg-black/40 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-[#D4E700] focus:ring-2 focus:ring-[#D4E700]/25 focus:outline-none transition-all duration-200"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label htmlFor="login_password" className="text-xs font-bold text-ink">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="login_password"
+                  className="text-xs font-semibold text-neutral-300"
+                >
                   Password
                 </label>
                 <Input
@@ -166,24 +175,28 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="h-9 border border-ink/30 bg-white"
+                  className="h-10 rounded-xl border border-white/[0.15] bg-black/40 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-[#D4E700] focus:ring-2 focus:ring-[#D4E700]/25 focus:outline-none transition-all duration-200"
                 />
               </div>
 
               {/* Remember Me Checkbox */}
               <div className="flex items-center justify-between text-xs pt-1">
-                <label className="flex items-center gap-2 text-ink/70 cursor-pointer select-none">
+                <label className="flex items-center gap-2 text-neutral-400 hover:text-neutral-200 cursor-pointer select-none transition-colors">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded-xs border-ink bg-white text-cobalt focus:ring-1 focus:ring-ring"
+                    className="h-4 w-4 rounded-md border border-white/20 bg-black/40 text-[#D4E700] accent-[#D4E700] focus:ring-2 focus:ring-[#D4E700]/25 transition"
                   />
                   <span>Remember me</span>
                 </label>
               </div>
 
-              <Button type="submit" loading={loading} className="w-full min-h-[42px] mt-1 bg-lime text-ink font-bold hover:bg-lime/90 border-2 border-ink shadow-hard-xs">
+              <Button
+                type="submit"
+                loading={loading}
+                className="w-full min-h-[44px] mt-1.5 bg-[#D4E700] hover:bg-[#CCDE00] text-neutral-950 font-bold rounded-xl border border-black/15 shadow-md shadow-[#D4E700]/15 hover:shadow-lg hover:shadow-[#D4E700]/30 transition-all duration-200 active:scale-[0.99]"
+              >
                 Sign In
               </Button>
             </form>
@@ -191,13 +204,13 @@ export default function SignInPage() {
         </Card>
 
         {/* Persona Selection Card */}
-        <Card className="border-2 border-ink bg-white/95 shadow-hard-sm backdrop-blur-sm">
-          <CardHeader className="pb-3 border-b border-ink/10">
-            <CardTitle className="text-base font-bold text-ink flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-cobalt" />
+        <Card className="rounded-2xl border border-white/[0.12] bg-[#13151B]/80 backdrop-blur-xl ring-0 shadow-2xl shadow-black/50">
+          <CardHeader className="pb-3.5 border-b border-white/[0.08]">
+            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
+              <UserCheck className="w-4 h-4 text-[#D4E700]" aria-hidden="true" />
               <span>Or select a persona</span>
             </CardTitle>
-            <CardDescription className="text-xs text-ink/70">
+            <CardDescription className="text-xs text-neutral-400">
               Each demo role tests different actions across the movement.
             </CardDescription>
           </CardHeader>
@@ -209,34 +222,38 @@ export default function SignInPage() {
                   key={seedUser.id}
                   type="button"
                   onClick={() => handleSelectUser(seedUser.id)}
-                  className={`w-full flex items-center justify-between p-3 rounded-sm border-2 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  className={`w-full flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4E700] ${
                     isCurrent
-                      ? "border-ink bg-cobalt text-white shadow-hard-xs"
-                      : "border-ink/20 bg-ivory/50 hover:bg-ivory hover:border-ink text-ink"
+                      ? "border-[#D4E700] bg-[#D4E700]/15 text-white shadow-sm"
+                      : "border-white/[0.10] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/[0.20] text-white"
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <UserAvatar name={seedUser.display_name} avatarUrl={seedUser.avatar_url} className="w-7 h-7 text-xs" />
-                    <div className="min-w-0">
-                      <p className={`text-sm font-bold truncate ${isCurrent ? "text-white" : "text-ink"}`}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <UserAvatar
+                      name={seedUser.display_name}
+                      avatarUrl={seedUser.avatar_url}
+                      className="w-8 h-8 text-xs ring-1 ring-white/20"
+                    />
+                    <div className="min-w-0 text-left">
+                      <p className="text-sm font-bold truncate text-white">
                         {seedUser.display_name}
                       </p>
                       <TierBadge
                         tier={seedUser.tier as UserTier}
                         showIcon={false}
-                        className="text-xs py-0 px-1 mt-0.5"
+                        className="text-[11px] py-0 px-1.5 mt-0.5 rounded-md"
                       />
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 text-xs font-bold shrink-0">
                     {isCurrent ? (
-                      <span className="bg-lime text-ink px-2 py-0.5 rounded-xs border border-ink">
+                      <span className="bg-[#D4E700] text-neutral-950 px-2.5 py-0.5 rounded-md text-xs font-bold shadow-xs">
                         Active
                       </span>
                     ) : (
-                      <span className="text-cobalt flex items-center gap-1">
+                      <span className="text-[#D4E700] flex items-center gap-1 font-semibold">
                         <span>Select</span>
-                        <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                        <ArrowRight className="h-3.5 w-3.5 stroke-[2.25]" aria-hidden="true" />
                       </span>
                     )}
                   </div>
@@ -246,20 +263,22 @@ export default function SignInPage() {
           </CardContent>
         </Card>
 
-        <div className="text-center text-xs text-muted-foreground">
+        {/* Create Account Link */}
+        <div className="text-center text-xs text-neutral-400">
           New volunteer?{" "}
-          <Link href="/sign-up" className="text-cobalt hover:underline font-bold">
+          <Link href="/sign-up" className="text-[#D4E700] hover:underline font-semibold transition-colors">
             Create an account
           </Link>
         </div>
 
+        {/* Continue Session Link */}
         {user && (
           <div className="text-center pt-1">
             <Button
               variant="outline"
               size="sm"
               onClick={() => router.push("/feed")}
-              className="text-xs border-2 border-ink bg-white hover:bg-ivory text-ink font-bold shadow-hard-xs"
+              className="text-xs border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold rounded-xl shadow-sm transition-all"
             >
               Continue to feed as {user.display_name}
             </Button>
