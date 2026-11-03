@@ -17,6 +17,7 @@ import { ConfirmDeleteDialog } from "@/components/chat/ConfirmDeleteDialog"
 import { BlockedUsersDialog } from "@/components/chat/BlockedUsersDialog"
 import { ChatRulesDialog } from "@/components/chat/ChatRulesDialog"
 import { TaskDetailDrawer } from "@/components/tasks/TaskDetailDrawer"
+import DataRain from "@/components/ui/data-rain"
 import { toast } from "sonner"
 
 export default function ChatPage() {
@@ -380,38 +381,45 @@ export default function ChatPage() {
           />
         </div>
 
-        {/* Right: Active Conversation (Visible on desktop; on mobile only when mobileView === 'conversation') */}
+        {/* Right: Active Conversation with Atmospheric Particle Stream */}
         <div
-          className={`flex-1 flex flex-col min-w-0 h-full ${
+          className={`relative flex-1 flex flex-col min-w-0 h-full overflow-hidden ${
             mobileView === "conversation" ? "flex" : "hidden md:flex"
           }`}
         >
-          <ChatConversation
-            room={activeRoom}
-            messages={messages}
-            usersMap={usersMap}
-            tasks={SEED_TASKS}
-            currentUserId={user?.id}
-            currentUserTier={user?.tier || 1}
-            pinnedMessage={pinnedMessage}
-            blockedIds={blockedUserIds}
-            isSlowMode={slowModeActive}
-            slowModeCountdown={slowModeCountdown}
-            onToggleSlowMode={handleToggleSlowMode}
-            onOpenRules={() => setRulesOpen(true)}
-            onOpenBlocked={() => setBlockedOpen(true)}
-            onOpenInfo={() => setRoomInfoOpen(true)}
-            onBackToRooms={() => setMobileView("rooms")}
-            onSendMessage={handleSendMessage}
-            onToggleReaction={handleToggleReaction}
-            onTogglePin={handleTogglePin}
-            onDeleteMessage={(id) => setDeleteTarget({ id, isOrganizer: false })}
-            onRemoveMessageByOrganizer={(id) => setDeleteTarget({ id, isOrganizer: true })}
-            onReportMessage={(id) => setReportTargetId(id)}
-            onBlockUser={handleBlockUser}
-            isSending={isSending}
-            onSelectTask={(taskId) => setSelectedTaskId(taskId)}
-          />
+          {/* Subtle Ambient Particle Field for Field Coordination Immersion */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.06]">
+            <DataRain fullscreen={false} count={500} flowSpeed={0.4} obstacleRadius={48} />
+          </div>
+
+          <div className="relative z-10 flex-1 flex flex-col min-w-0 h-full">
+            <ChatConversation
+              room={activeRoom}
+              messages={messages}
+              usersMap={usersMap}
+              tasks={SEED_TASKS}
+              currentUserId={user?.id}
+              currentUserTier={user?.tier || 1}
+              pinnedMessage={pinnedMessage}
+              blockedIds={blockedUserIds}
+              isSlowMode={slowModeActive}
+              slowModeCountdown={slowModeCountdown}
+              onToggleSlowMode={handleToggleSlowMode}
+              onOpenRules={() => setRulesOpen(true)}
+              onOpenBlocked={() => setBlockedOpen(true)}
+              onOpenInfo={() => setRoomInfoOpen(true)}
+              onBackToRooms={() => setMobileView("rooms")}
+              onSendMessage={handleSendMessage}
+              onToggleReaction={handleToggleReaction}
+              onTogglePin={handleTogglePin}
+              onDeleteMessage={(id) => setDeleteTarget({ id, isOrganizer: false })}
+              onRemoveMessageByOrganizer={(id) => setDeleteTarget({ id, isOrganizer: true })}
+              onReportMessage={(id) => setReportTargetId(id)}
+              onBlockUser={handleBlockUser}
+              isSending={isSending}
+              onSelectTask={(taskId) => setSelectedTaskId(taskId)}
+            />
+          </div>
         </div>
       </div>
 
