@@ -40,27 +40,17 @@ The design tone is **serious, calm, direct, and trustworthy** — built for outd
 ### 1. Multi-Signature Announcements
 Broadcast alerts require cryptographic threshold approval from multiple organizers before publication. Draft announcements appear in a **Pending Signatures** state and only go live once the required number of co-signatures is reached. This eliminates unilateral misinformation and unauthorized panic.
 
-<img width="1892" height="991" alt="Screenshot 2026-11-02 063917" src="https://github.com/user-attachments/assets/9bafaf20-751c-4b34-aa7b-443e6bb21616" />
-
 ### 2. Privacy-Preserving Heatmaps
 On-demand check-ins truncate coordinates to **3 decimal places (~110m)** before storage. Exact locations and individual paths are never recorded or mapped. The public heatmap endpoint returns only aggregated spatial centroids, ensuring volunteer safety while still providing valuable field intelligence.
-
-<img width="1127" height="652" alt="Screenshot 2026-11-02 063836" src="https://github.com/user-attachments/assets/287fd1f4-4f8c-405c-8fe2-929f2cadb67d" />
 
 ### 3. Peer-Verified Task Board & Automated Quorum Resolution
 Open community tasks require **multi-volunteer peer review consensus** (3 assigned verifiers, $\ge 2$ approvals required) or **organizer override** before impact points and badges are awarded. An automated PostgreSQL trigger (`check_peer_verification_quorum`) resolves claims in real-time, increments verified impact points, and awards milestone badges.
 
-<img width="948" height="892" alt="image" src="https://github.com/user-attachments/assets/cf75193d-7be6-4fb8-a3e4-167a4572aae9" />
-
 ### 4. Ground Truth Transparency Audit Ledger
 An append-only cryptographic commit ledger (`public.ground_truth_commits`) records verified milestones, task completions, and announcements with SHA-256 payload hashes and parent-link chains. Anyone can verify the integrity of movement operations directly on `/audit` or via `/api/ground-truth/[hash]`.
 
-<img width="1248" height="905" alt="Screenshot 2026-11-02 063735" src="https://github.com/user-attachments/assets/1ea34ff0-e48b-4282-9154-b6222465923f" />
-
 ### 5. Persistent Real-Time Chat for Field Coordination
 High-fidelity chat powered by Supabase Realtime WebSockets with automatic exponential backoff reconnection. Features 4 rooms (`everyone`, `urgent-needs`, `help-questions`, task-specific rooms), optimistic state updates, a 6-glyph reaction matrix, reply threading, @mentions, pinned messages, slow mode, and a volunteer moderation report pipeline (`/api/chat/reports`).
-
-<img width="1892" height="991" alt="Screenshot 2026-11-02 063917" src="https://github.com/user-attachments/assets/2e27ac05-8801-4d4d-b695-4f5b25d1c8f5" />
 
 ### 6. 5-Character Movement Invite Codes & Quick Join
 Movements generate 5-character uppercase alphanumeric invite codes (e.g., `MOV9K`, `HK26V`) with direct share links (`/join/[code]`). Volunteers can join in one click across desktop and mobile, immediately unlocking movement feeds, tasks, and chat channels.
