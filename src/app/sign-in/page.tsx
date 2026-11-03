@@ -6,14 +6,14 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { TierBadge } from "@/components/shared/TierBadge"
 import { UserAvatar } from "@/components/shared/UserAvatar"
 import { Monogram } from "@/components/shared/Monogram"
 import { SEED_USERS } from "@/lib/mocks/seed-data"
 import { UserTier } from "@/lib/schemas/user.schema"
-import { ArrowRight, KeyRound, UserCheck } from "lucide-react"
+import { ArrowRight, KeyRound, UserCheck, User, Lock } from "lucide-react"
 import { logUserSession } from "@/lib/session-logger"
+import DataRain from "@/components/ui/data-rain"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -100,102 +100,179 @@ export default function SignInPage() {
   return (
     <main
       id="main-content"
-      className="min-h-screen bg-ivory text-ink flex flex-col items-center justify-center p-4 sm:p-8"
+      className="relative min-h-screen bg-[#0D0F14] text-white flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden"
     >
-      <div className="w-full max-w-md space-y-6">
+      {/* Interactive DataRain Ambient Particle Field - Active in Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-45">
+        <DataRain fullscreen count={1800} flowSpeed={0.8} obstacleRadius={55} />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center mb-2">
-            <Monogram className="h-10 w-10" />
+          <div className="inline-flex items-center justify-center p-2 rounded-2xl bg-white/[0.05] border border-white/10 mb-1 shadow-sm">
+            <Monogram className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-ink font-sans">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-sans">
             Sign in to The Movement
           </h1>
-          <p className="text-xs text-muted-foreground">
-            Decentralized volunteer coordination and consensus verification.
+          <p className="text-xs sm:text-sm text-neutral-400 max-w-sm mx-auto leading-relaxed">
+            Decentralized collective action coordination with cryptographic consensus verification.
           </p>
         </div>
 
         {/* Username Login Card */}
-        <Card className="border-2 border-ink bg-white shadow-hard-sm">
-          <CardHeader className="pb-3 border-b border-ink/10">
-            <CardTitle className="text-base font-bold text-ink flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-cobalt" />
-              <span>Username Sign In</span>
-            </CardTitle>
-            <CardDescription className="text-xs text-ink/70">
-              Log in with your registered volunteer username and password.
-            </CardDescription>
+        <Card className="rounded-2xl border border-white/[0.12] bg-[#13151B]/80 backdrop-blur-xl ring-0 shadow-2xl shadow-black/50">
+          <CardHeader className="p-6 pb-4 border-b border-white/[0.08]">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#D4E700]/15 border border-[#D4E700]/30 flex items-center justify-center shrink-0 mt-0.5">
+                <KeyRound className="w-4 h-4 text-[#D4E700]" aria-hidden="true" />
+              </div>
+              <div className="space-y-0.5">
+                <CardTitle className="text-base font-bold text-white tracking-tight">
+                  Username Sign In
+                </CardTitle>
+                <CardDescription className="text-xs text-neutral-400 leading-relaxed">
+                  Authenticate using your registered field handle and secret key.
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="pt-4">
-            <form onSubmit={handleUsernameLogin} className="space-y-3.5">
+          <CardContent className="p-6 pt-5">
+            <form onSubmit={handleUsernameLogin} className="space-y-4">
               {loginError && (
-                <div role="alert" className="p-2.5 rounded-sm bg-tomato/10 border border-tomato/30 text-tomato text-xs font-medium">
+                <div
+                  role="alert"
+                  className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium"
+                >
                   {loginError}
                 </div>
               )}
 
-              <div className="space-y-1">
-                <label htmlFor="login_username" className="text-xs font-bold text-ink">
-                  Username
+              {/* Username Field with Left Icon */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="login_username"
+                  className="block text-xs font-semibold text-neutral-200 tracking-wide"
+                >
+                  Username or Handle
                 </label>
-                <Input
-                  id="login_username"
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. jana or volunteer"
-                  className="h-9 border border-ink/30"
-                />
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 pointer-events-none text-neutral-400">
+                    <User className="w-4 h-4" aria-hidden="true" />
+                  </div>
+                  <input
+                    id="login_username"
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="e.g. jana or volunteer"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-white/[0.15] bg-black/40 text-sm text-white placeholder:text-neutral-500 focus:border-[#D4E700] focus:ring-2 focus:ring-[#D4E700]/25 focus:outline-none transition-all duration-200"
+                  />
+                </div>
+                {/* Quick-fill handle pills */}
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[11px] text-neutral-400">Quick fill:</span>
+                  <button
+                    type="button"
+                    onClick={() => setUsername("jana")}
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-neutral-300 hover:text-white transition-colors"
+                  >
+                    jana (Organizer)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUsername("volunteer")}
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-neutral-300 hover:text-white transition-colors"
+                  >
+                    volunteer
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <label htmlFor="login_password" className="text-xs font-bold text-ink">
-                  Password
-                </label>
-                <Input
-                  id="login_password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="h-9 border border-ink/30"
-                />
+              {/* Password Field with Left Icon and Demo Hint */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="login_password"
+                    className="block text-xs font-semibold text-neutral-200 tracking-wide"
+                  >
+                    Password
+                  </label>
+                  <span className="text-[11px] text-neutral-400 font-normal">
+                    Demo access: all passwords accepted
+                  </span>
+                </div>
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 pointer-events-none text-neutral-400">
+                    <Lock className="w-4 h-4" aria-hidden="true" />
+                  </div>
+                  <input
+                    id="login_password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your account password"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-white/[0.15] bg-black/40 text-sm text-white placeholder:text-neutral-500 focus:border-[#D4E700] focus:ring-2 focus:ring-[#D4E700]/25 focus:outline-none transition-all duration-200"
+                  />
+                </div>
               </div>
 
-              {/* Remember Me Checkbox */}
+              {/* Remember Me and Security Note */}
               <div className="flex items-center justify-between text-xs pt-1">
-                <label className="flex items-center gap-2 text-ink/70 cursor-pointer select-none">
+                <label className="flex items-center gap-2.5 text-neutral-300 hover:text-white cursor-pointer select-none transition-colors">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded-xs border-ink bg-white text-cobalt focus:ring-1 focus:ring-ring"
+                    className="h-4 w-4 rounded-md border border-white/20 bg-black/40 text-[#D4E700] accent-[#D4E700] focus:ring-2 focus:ring-[#D4E700]/25 transition cursor-pointer"
                   />
-                  <span>Remember me</span>
+                  <span className="font-medium">Stay signed in for 30 days</span>
                 </label>
+                <span className="text-[11px] text-neutral-400">Encrypted</span>
               </div>
 
-              <Button type="submit" loading={loading} className="w-full min-h-[42px] mt-1 bg-lime text-ink font-bold hover:bg-lime/90 border-2 border-ink shadow-hard-xs">
-                Sign In
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                loading={loading}
+                className="w-full min-h-[46px] mt-2 bg-[#D4E700] hover:bg-[#CCDE00] text-neutral-950 font-bold rounded-xl border border-black/15 shadow-md shadow-[#D4E700]/15 hover:shadow-lg hover:shadow-[#D4E700]/30 transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 text-sm"
+              >
+                <span>Sign In with Username</span>
+                <ArrowRight className="w-4 h-4 stroke-[2.25]" aria-hidden="true" />
               </Button>
             </form>
           </CardContent>
         </Card>
 
+        {/* Section Divider */}
+        <div className="relative flex items-center justify-center py-0.5">
+          <div className="border-t border-white/[0.12] w-full" />
+          <span className="bg-[#0D0F14] px-3 text-[11px] font-semibold text-neutral-400 uppercase tracking-widest relative">
+            or instant persona access
+          </span>
+        </div>
+
         {/* Persona Selection Card */}
-        <Card className="border-2 border-ink bg-white shadow-hard-sm">
-          <CardHeader className="pb-3 border-b border-ink/10">
-            <CardTitle className="text-base font-bold text-ink flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-cobalt" />
-              <span>Or select a persona</span>
-            </CardTitle>
-            <CardDescription className="text-xs text-ink/70">
-              Each demo role tests different actions across the movement.
-            </CardDescription>
+        <Card className="rounded-2xl border border-white/[0.12] bg-[#13151B]/80 backdrop-blur-xl ring-0 shadow-2xl shadow-black/50">
+          <CardHeader className="p-6 pb-4 border-b border-white/[0.08]">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#D4E700]/15 border border-[#D4E700]/30 flex items-center justify-center shrink-0 mt-0.5">
+                <UserCheck className="w-4 h-4 text-[#D4E700]" aria-hidden="true" />
+              </div>
+              <div className="space-y-0.5">
+                <CardTitle className="text-base font-bold text-white tracking-tight">
+                  Demo Persona Switcher
+                </CardTitle>
+                <CardDescription className="text-xs text-neutral-400 leading-relaxed">
+                  Test specialized organizer and volunteer roles with one click.
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-2.5 pt-4">
+          <CardContent className="p-6 pt-5 space-y-3">
             {SEED_USERS.filter((seedUser) => seedUser.id === "11111111-1111-4111-8111-111111111111").map((seedUser) => {
               const isCurrent = user?.id === seedUser.id
               return (
@@ -203,34 +280,43 @@ export default function SignInPage() {
                   key={seedUser.id}
                   type="button"
                   onClick={() => handleSelectUser(seedUser.id)}
-                  className={`w-full flex items-center justify-between p-3 rounded-sm border-2 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  className={`w-full flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4E700] ${
                     isCurrent
-                      ? "border-ink bg-cobalt text-white shadow-hard-xs"
-                      : "border-ink/20 bg-ivory/50 hover:bg-ivory hover:border-ink text-ink"
+                      ? "border-[#D4E700] bg-[#D4E700]/15 text-white shadow-sm"
+                      : "border-white/[0.10] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/[0.20] text-white"
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <UserAvatar name={seedUser.display_name} avatarUrl={seedUser.avatar_url} className="w-7 h-7 text-xs" />
-                    <div className="min-w-0">
-                      <p className={`text-sm font-bold truncate ${isCurrent ? "text-white" : "text-ink"}`}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <UserAvatar
+                      name={seedUser.display_name}
+                      avatarUrl={seedUser.avatar_url}
+                      className="w-9 h-9 text-xs ring-1 ring-white/20 shrink-0"
+                    />
+                    <div className="min-w-0 text-left space-y-0.5">
+                      <p className="text-sm font-bold truncate text-white">
                         {seedUser.display_name}
                       </p>
-                      <TierBadge
-                        tier={seedUser.tier as UserTier}
-                        showIcon={false}
-                        className="text-xs py-0 px-1 mt-0.5"
-                      />
+                      <div className="flex items-center gap-2">
+                        <TierBadge
+                          tier={seedUser.tier as UserTier}
+                          showIcon={false}
+                          className="text-[11px] py-0 px-1.5 rounded-md"
+                        />
+                        <span className="text-[11px] text-neutral-400 font-mono">
+                          @{seedUser.handle || "organizer"}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold shrink-0">
+                  <div className="flex items-center gap-1.5 text-xs font-bold shrink-0 ml-3">
                     {isCurrent ? (
-                      <span className="bg-lime text-ink px-2 py-0.5 rounded-xs border border-ink">
+                      <span className="bg-[#D4E700] text-neutral-950 px-2.5 py-1 rounded-lg text-xs font-bold shadow-xs">
                         Active
                       </span>
                     ) : (
-                      <span className="text-cobalt flex items-center gap-1">
+                      <span className="text-[#D4E700] flex items-center gap-1 font-semibold hover:translate-x-0.5 transition-transform">
                         <span>Select</span>
-                        <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                        <ArrowRight className="h-3.5 w-3.5 stroke-[2.25]" aria-hidden="true" />
                       </span>
                     )}
                   </div>
@@ -240,20 +326,22 @@ export default function SignInPage() {
           </CardContent>
         </Card>
 
-        <div className="text-center text-xs text-muted-foreground">
+        {/* Create Account Link */}
+        <div className="text-center text-xs text-neutral-400">
           New volunteer?{" "}
-          <Link href="/sign-up" className="text-cobalt hover:underline font-bold">
+          <Link href="/sign-up" className="text-[#D4E700] hover:underline font-semibold transition-colors">
             Create an account
           </Link>
         </div>
 
+        {/* Continue Session Link */}
         {user && (
           <div className="text-center pt-1">
             <Button
               variant="outline"
               size="sm"
               onClick={() => router.push("/feed")}
-              className="text-xs border-2 border-ink bg-white hover:bg-ivory text-ink font-bold shadow-hard-xs"
+              className="text-xs border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold rounded-xl shadow-sm transition-all"
             >
               Continue to feed as {user.display_name}
             </Button>

@@ -31,6 +31,7 @@ import {
   Hash,
   GitCommit,
   Heart,
+  Sparkles,
 } from "lucide-react"
 import { CHAT_ROOMS } from "@/lib/constants/chat"
 import { Message } from "@/lib/schemas/chat.schema"
@@ -217,6 +218,12 @@ export function Sidebar() {
       label: "My Profile",
       href: user ? `/u/${user.handle || user.id}` : "/sign-in",
       icon: UserIcon,
+      needsYouCount: 0,
+    },
+    {
+      label: "Data Rain",
+      href: "/data-rain",
+      icon: Sparkles,
       needsYouCount: 0,
     },
   ]

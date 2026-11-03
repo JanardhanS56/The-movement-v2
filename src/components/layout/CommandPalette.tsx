@@ -65,6 +65,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       { id: "p-chat-help", title: "Chat: Help and questions", subtitle: "Questions about volunteering and tasks", category: "Pages", url: "/chat?room=help-questions" },
       { id: "p-leaderboard", title: "Leaderboard", subtitle: "Community member impact rankings", category: "Pages", url: "/tasks?view=leaderboard" },
       { id: "p-profile", title: "My Profile", subtitle: "View your verified badges & stats", category: "Pages", url: user ? `/u/${user.handle || user.id}` : "/sign-in" },
+      { id: "p-data-rain", title: "DataRain Canvas", subtitle: "Interactive fluid dynamics particle engine", category: "Pages", url: "/data-rain" },
     ]
 
     const tasks: PaletteItem[] = SEED_TASKS.map((t) => {
