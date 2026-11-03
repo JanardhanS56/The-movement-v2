@@ -106,10 +106,10 @@ export function JoinMovementDialog({
             <Input
               id="invite-code-input"
               required
-              maxLength={5}
+              maxLength={10}
               value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^2-9A-Z]/g, ""))}
-              placeholder="e.g. MOV9K"
+              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, ""))}
+              placeholder="e.g. HK26V or MOV9K"
               className="h-12 text-center text-xl font-mono font-black tracking-widest uppercase border-2 border-ink bg-ivory shadow-hard-xs focus-visible:ring-cobalt"
             />
           </div>
@@ -127,7 +127,7 @@ export function JoinMovementDialog({
             <Button
               type="submit"
               size="sm"
-              disabled={loading || code.trim().length !== 5}
+              disabled={loading || code.trim().length < 3}
               className="bg-lime text-ink border-2 border-ink font-black text-xs hover:bg-lime/90 shadow-hard-xs gap-1.5"
             >
               {loading ? (

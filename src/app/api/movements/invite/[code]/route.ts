@@ -23,7 +23,7 @@ export async function GET(
       const { data, error } = await admin
         .from("movements")
         .select("*, members:movement_members(count)")
-        .or(`invite_code.eq.${rawCode},slug.ilike.${rawCode.toLowerCase()}`)
+        .or(`metadata->>invite_code.eq.${rawCode},slug.ilike.${rawCode.toLowerCase()},name.ilike.%${rawCode}%`)
         .eq("is_active", true)
         .maybeSingle()
 
@@ -33,6 +33,7 @@ export async function GET(
           : 1
         foundMovement = {
           ...data,
+          invite_code: data.invite_code || data.metadata?.invite_code || rawCode,
           memberCount,
         }
       }

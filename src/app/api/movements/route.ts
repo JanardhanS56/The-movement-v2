@@ -26,7 +26,15 @@ export async function GET() {
         .select("*")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
-      if (!error && data) movements = data
+      if (!error && Array.isArray(data)) {
+        movements = data.map((row: Record<string, unknown>) => ({
+          ...(row as unknown as Movement),
+          invite_code:
+            (row.invite_code as string) ||
+            ((row.metadata as Record<string, unknown>)?.invite_code as string) ||
+            "MOV9K",
+        }))
+      }
     } catch {
       // Supabase fetch failure fallback
     }
@@ -90,7 +98,7 @@ export async function POST(req: NextRequest) {
     let movement: Movement | null = null
     try {
       const admin = getAdminClient()
-      const { data, error: createError } = await admin
+      let res = await admin
         .from("movements")
         .insert({
           name,
@@ -99,15 +107,35 @@ export async function POST(req: NextRequest) {
           invite_code: inviteCode,
           created_by: organizerId,
           is_active: true,
+          metadata: { invite_code: inviteCode },
         })
         .select()
         .single()
 
-      if (!createError && data) {
-        movement = data
+      if (res.error && res.error.code === "42703") {
+        // Column invite_code does not exist yet; insert without column, stored in metadata
+        res = await admin
+          .from("movements")
+          .insert({
+            name,
+            description: description || null,
+            slug: uniqueSlug,
+            created_by: organizerId,
+            is_active: true,
+            metadata: { invite_code: inviteCode },
+          })
+          .select()
+          .single()
+      }
+
+      if (!res.error && res.data) {
+        movement = {
+          ...res.data,
+          invite_code: res.data.invite_code || res.data.metadata?.invite_code || inviteCode,
+        }
         try {
           await admin.from("movement_members").insert({
-            movement_id: data.id,
+            movement_id: res.data.id,
             user_id: organizerId,
             role: "organizer",
           })

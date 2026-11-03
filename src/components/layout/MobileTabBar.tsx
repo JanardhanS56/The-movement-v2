@@ -8,6 +8,7 @@ import { useNotificationCounts } from "./NotificationInbox"
 import { SupportDialog } from "./SupportDialog"
 import { CommandPalette } from "./CommandPalette"
 import { ShortcutsDialog } from "./ShortcutsDialog"
+import { JoinMovementDialog } from "./JoinMovementDialog"
 import { FICTIONAL_MOVEMENTS, getActiveMovementId, setActiveMovementId } from "@/lib/mocks/fictional-data"
 import {
   Megaphone,
@@ -26,6 +27,7 @@ import {
   Check,
   MessageSquare,
   GitCommit,
+  KeyRound,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -38,6 +40,7 @@ export function MobileTabBar() {
   const [supportOpen, setSupportOpen] = React.useState(false)
   const [commandOpen, setCommandOpen] = React.useState(false)
   const [shortcutsOpen, setShortcutsOpen] = React.useState(false)
+  const [joinOpen, setJoinOpen] = React.useState(false)
   const [activeMovementId, setActiveMovementIdState] = React.useState(FICTIONAL_MOVEMENTS[0].id)
   const [discreetMode, setDiscreetMode] = React.useState(false)
 
@@ -185,6 +188,17 @@ export function MobileTabBar() {
                   )
                 })}
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMoreOpen(false)
+                  setJoinOpen(true)
+                }}
+                className="w-full text-left p-2.5 rounded-sm border-2 border-cobalt/30 bg-cobalt/5 text-cobalt flex items-center gap-2 min-h-[44px] font-bold text-xs"
+              >
+                <KeyRound className="w-4 h-4 shrink-0" />
+                <span>Join Movement with Code</span>
+              </button>
             </div>
 
             {/* Actions List (min-h-[44px] tap targets) */}
@@ -300,6 +314,7 @@ export function MobileTabBar() {
       <SupportDialog open={supportOpen} onOpenChange={setSupportOpen} />
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
       <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+      <JoinMovementDialog open={joinOpen} onOpenChange={setJoinOpen} />
     </>
   )
 }

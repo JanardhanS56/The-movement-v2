@@ -27,14 +27,17 @@ export async function POST(req: NextRequest) {
       let query = admin.from("movements").select("*").eq("is_active", true)
 
       if (code) {
-        query = query.or(`invite_code.eq.${code},slug.ilike.${code.toLowerCase()}`)
+        query = query.or(`metadata->>invite_code.eq.${code},slug.ilike.${code.toLowerCase()},name.ilike.%${code}%`)
       } else {
         query = query.eq("id", movementId)
       }
 
       const { data, error } = await query.maybeSingle()
       if (!error && data) {
-        targetMovement = data
+        targetMovement = {
+          ...data,
+          invite_code: data.invite_code || data.metadata?.invite_code || code,
+        }
       }
     } catch {
       // Handled via fallback below
@@ -43,7 +46,10 @@ export async function POST(req: NextRequest) {
     if (!targetMovement) {
       const match = FICTIONAL_MOVEMENTS.find(
         (m) =>
-          (code && (m.invite_code?.toUpperCase() === code || m.slug.toUpperCase() === code)) ||
+          (code &&
+            (m.invite_code?.toUpperCase() === code ||
+              m.slug.toUpperCase() === code ||
+              m.name.toUpperCase().includes(code))) ||
           (movementId && m.id === movementId)
       )
       if (match) {

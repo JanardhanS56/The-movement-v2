@@ -90,5 +90,24 @@ describe("Movement Invite Code & Cross-Browser Join Flow", () => {
       // When in non-browser Node test environment, verify function handles gracefully
       expect(FICTIONAL_MOVEMENTS.some((m) => m.id === targetId)).toBe(true)
     })
+
+    it("supports joining Hack-a-thon 2026 Volunteer movement by code HK26V", () => {
+      const hackathonMovement: Movement = {
+        id: "806a316b-83f7-4aae-b35d-af0689be109e",
+        name: "Hack-a-thon 2026 Volunteer",
+        description: "Volunteer movement for Hack-a-thon 2026",
+        slug: "hack-a-thon-2026-volunteer",
+        invite_code: "HK26V",
+        is_active: true,
+        created_by: "11111111-1111-4111-8111-111111111111",
+        created_at: new Date().toISOString(),
+      }
+
+      addFictionalMovement(hackathonMovement)
+      const found = getMovementByInviteCode("HK26V")
+      expect(found).toBeDefined()
+      expect(found?.name).toBe("Hack-a-thon 2026 Volunteer")
+      expect(found?.invite_code).toBe("HK26V")
+    })
   })
 })

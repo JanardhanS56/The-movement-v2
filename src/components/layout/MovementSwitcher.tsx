@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { useAuth } from "@/components/providers/AuthProvider"
 import { Movement } from "@/lib/schemas/movement.schema"
-import { FICTIONAL_MOVEMENTS, getActiveMovementId, setActiveMovementId } from "@/lib/mocks/fictional-data"
+import { FICTIONAL_MOVEMENTS, addFictionalMovement, getActiveMovementId, setActiveMovementId } from "@/lib/mocks/fictional-data"
 import { toast } from "sonner"
 import { Check, ChevronsUpDown, Shield, KeyRound } from "lucide-react"
 import { JoinMovementDialog } from "./JoinMovementDialog"
@@ -12,14 +13,30 @@ export interface MovementSwitcherProps {
 }
 
 export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
+  const { setMovementId } = useAuth()
   const [activeId, setActiveIdState] = React.useState<string>(FICTIONAL_MOVEMENTS[0].id)
   const [movements, setMovements] = React.useState<Movement[]>(FICTIONAL_MOVEMENTS)
   const [open, setOpen] = React.useState(false)
+  const [joinOpen, setJoinOpen] = React.useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     setActiveIdState(getActiveMovementId())
     setMovements([...FICTIONAL_MOVEMENTS])
+
+    async function fetchRemoteMovements() {
+      try {
+        const res = await fetch("/api/movements")
+        if (res.ok) {
+          const json = await res.json()
+          if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+            json.data.forEach((m: Movement) => addFictionalMovement(m))
+            setMovements([...FICTIONAL_MOVEMENTS])
+          }
+        }
+      } catch {}
+    }
+    fetchRemoteMovements()
 
     const handleMovementChange = () => {
       setActiveIdState(getActiveMovementId())
@@ -60,6 +77,7 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
   const handleSelect = (id: string) => {
     setActiveMovementId(id)
     setActiveIdState(id)
+    setMovementId(id)
     setOpen(false)
     const selected = movements.find((m) => m.id === id)
     if (selected) {
@@ -108,22 +126,25 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
               )
             })}
             <div className="pt-1 border-t border-ink/15">
-              <JoinMovementDialog
-                trigger={
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => setOpen(false)}
-                    className="w-full text-left px-2.5 py-1.5 rounded-sm text-xs flex items-center gap-2 text-cobalt font-bold hover:bg-cobalt/5 transition-all cursor-pointer"
-                  >
-                    <KeyRound className="w-3.5 h-3.5 shrink-0" />
-                    <span>Join with Code</span>
-                  </button>
-                }
-              />
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false)
+                  setJoinOpen(true)
+                }}
+                className="w-full text-left px-2.5 py-1.5 rounded-sm text-xs flex items-center gap-2 text-cobalt font-bold hover:bg-cobalt/5 transition-all cursor-pointer"
+              >
+                <KeyRound className="w-3.5 h-3.5 shrink-0" />
+                <span>Join with Code</span>
+              </button>
             </div>
           </div>
         )}
+        <JoinMovementDialog
+          open={joinOpen}
+          onOpenChange={setJoinOpen}
+        />
       </div>
     )
   }
@@ -196,22 +217,25 @@ export function MovementSwitcher({ collapsed = false }: MovementSwitcherProps) {
           })}
 
           <div className="pt-1 mt-1 border-t border-ink/15">
-            <JoinMovementDialog
-              trigger={
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="w-full text-left px-2.5 py-1.5 rounded-sm text-xs flex items-center gap-2 text-cobalt font-bold hover:bg-cobalt/5 transition-all cursor-pointer"
-                >
-                  <KeyRound className="w-3.5 h-3.5 shrink-0" />
-                  <span>Join with Code</span>
-                </button>
-              }
-            />
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false)
+                setJoinOpen(true)
+              }}
+              className="w-full text-left px-2.5 py-1.5 rounded-sm text-xs flex items-center gap-2 text-cobalt font-bold hover:bg-cobalt/5 transition-all cursor-pointer"
+            >
+              <KeyRound className="w-3.5 h-3.5 shrink-0" />
+              <span>Join with Code</span>
+            </button>
           </div>
         </div>
       )}
+      <JoinMovementDialog
+        open={joinOpen}
+        onOpenChange={setJoinOpen}
+      />
     </div>
   )
 }
