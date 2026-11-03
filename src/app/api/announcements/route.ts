@@ -28,14 +28,33 @@ export async function GET(req: NextRequest) {
       if (caller && caller.tier === 3) isOrganizer = true
     }
 
+    const search = searchParams.get("search") || searchParams.get("q")
+    const cursor = searchParams.get("cursor") || searchParams.get("after")
+    const limitParam = parseInt(searchParams.get("limit") || "20", 10)
+    const limit = Math.min(Math.max(isNaN(limitParam) ? 20 : limitParam, 1), 50)
+    const isPaginated =
+      searchParams.has("cursor") ||
+      searchParams.has("limit") ||
+      searchParams.has("after") ||
+      searchParams.get("paginate") === "true"
+
     let query = admin
       .from("announcements")
       .select("*, signatures:announcement_signatures(*)")
       .eq("movement_id", movementId)
       .order("created_at", { ascending: false })
+      .limit(limit + 1)
 
     if (!isOrganizer) {
       query = query.eq("is_published", true)
+    }
+
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,body.ilike.%${search}%`)
+    }
+
+    if (cursor) {
+      query = query.lt("created_at", cursor)
     }
 
     const { data, error } = await query
@@ -43,7 +62,22 @@ export async function GET(req: NextRequest) {
       return apiError("Failed to fetch announcements", 500)
     }
 
-    return apiSuccess(data || [])
+    const items = data ? [...data] : []
+    let nextCursor: string | null = null
+    if (items.length > limit) {
+      const nextItem = items.pop()
+      nextCursor = nextItem?.created_at || items[items.length - 1]?.created_at || null
+    }
+
+    if (isPaginated) {
+      return apiSuccess({
+        items,
+        nextCursor,
+        limit,
+      })
+    }
+
+    return apiSuccess(items)
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Internal server error"
     return apiError(msg, 500)

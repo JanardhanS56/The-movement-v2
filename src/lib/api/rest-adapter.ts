@@ -59,10 +59,11 @@ async function request<T>(
 
 export class RestApiAdapter implements ApiClient {
   public async getAnnouncements(movementId: string): Promise<Announcement[]> {
-    const data = await request<Announcement[]>(
+    const data = await request<Announcement[] | { items: Announcement[] }>(
       `/api/announcements?movementId=${encodeURIComponent(movementId)}`
     )
-    return (data || []).map((a) => AnnouncementSchema.parse(a))
+    const list = Array.isArray(data) ? data : data?.items || []
+    return list.map((a) => AnnouncementSchema.parse(a))
   }
 
   public async createAnnouncement(
@@ -100,10 +101,11 @@ export class RestApiAdapter implements ApiClient {
   }
 
   public async getTasks(movementId: string): Promise<Task[]> {
-    const data = await request<Task[]>(
+    const data = await request<Task[] | { items: Task[] }>(
       `/api/tasks?movementId=${encodeURIComponent(movementId)}`
     )
-    return (data || []).map((t) => TaskSchema.parse(t))
+    const list = Array.isArray(data) ? data : data?.items || []
+    return list.map((t) => TaskSchema.parse(t))
   }
 
   public async getTask(taskId: string): Promise<Task> {

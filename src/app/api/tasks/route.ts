@@ -12,15 +12,33 @@ export async function GET(req: NextRequest) {
     const movementId =
       searchParams.get("movementId") || "00000000-0000-4000-8000-000000000001"
     const status = searchParams.get("status")
+    const search = searchParams.get("search") || searchParams.get("q")
+    const cursor = searchParams.get("cursor") || searchParams.get("after")
+    const limitParam = parseInt(searchParams.get("limit") || "20", 10)
+    const limit = Math.min(Math.max(isNaN(limitParam) ? 20 : limitParam, 1), 50)
+    const isPaginated =
+      searchParams.has("cursor") ||
+      searchParams.has("limit") ||
+      searchParams.has("after") ||
+      searchParams.get("paginate") === "true"
 
     let query = admin
       .from("tasks")
       .select("*, claims:task_claims(*)")
       .eq("movement_id", movementId)
       .order("created_at", { ascending: false })
+      .limit(limit + 1)
 
     if (status && status !== "all") {
       query = query.eq("status", status)
+    }
+
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+    }
+
+    if (cursor) {
+      query = query.lt("created_at", cursor)
     }
 
     const { data, error } = await query
@@ -28,7 +46,22 @@ export async function GET(req: NextRequest) {
       return apiError("Failed to fetch tasks", 500)
     }
 
-    return apiSuccess(data || [])
+    const items = data ? [...data] : []
+    let nextCursor: string | null = null
+    if (items.length > limit) {
+      const nextItem = items.pop()
+      nextCursor = nextItem?.created_at || items[items.length - 1]?.created_at || null
+    }
+
+    if (isPaginated) {
+      return apiSuccess({
+        items,
+        nextCursor,
+        limit,
+      })
+    }
+
+    return apiSuccess(items)
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Internal server error"
     return apiError(msg, 500)
