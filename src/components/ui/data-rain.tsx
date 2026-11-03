@@ -848,6 +848,12 @@ export default function DataRain(props: DataRainProps) {
       window.addEventListener("blur", onLeave);
       document.documentElement.addEventListener("pointerleave", onLeave);
       document.addEventListener("visibilitychange", onVisibility);
+      const onContextLost = (e: Event) => {
+        e.preventDefault();
+        cancelAnimationFrame(raf);
+        raf = 0;
+      };
+      main.addEventListener("contextlost", onContextLost);
       start();
     }
 
@@ -863,6 +869,7 @@ export default function DataRain(props: DataRainProps) {
       window.removeEventListener("blur", onLeave);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
+      main.removeEventListener("contextlost", onContextLost);
       ro.disconnect();
       apiRef.current = null;
       haloGradient = null;
