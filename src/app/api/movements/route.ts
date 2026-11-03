@@ -4,6 +4,7 @@ import { apiSuccess, apiError } from "@/lib/api-response"
 import { SEED_USERS } from "@/lib/mocks/seed-data"
 import { FICTIONAL_MOVEMENTS } from "@/lib/mocks/fictional-data"
 import { Movement } from "@/lib/schemas/movement.schema"
+import { generateMovementInviteCode } from "@/lib/movement-utils"
 import { z } from "zod"
 
 export const dynamic = "force-dynamic"
@@ -12,6 +13,7 @@ const CreateMovementSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters").max(100),
   description: z.string().max(1000).optional(),
   slug: z.string().optional(),
+  invite_code: z.string().length(5).optional(),
 })
 
 export async function GET() {
@@ -24,8 +26,18 @@ export async function GET() {
         .select("*")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
-      if (!error && data) movements = data
-    } catch {}
+      if (!error && Array.isArray(data)) {
+        movements = data.map((row: Record<string, unknown>) => ({
+          ...(row as unknown as Movement),
+          invite_code:
+            (row.invite_code as string) ||
+            ((row.metadata as Record<string, unknown>)?.invite_code as string) ||
+            "MOV9K",
+        }))
+      }
+    } catch {
+      // Supabase fetch failure fallback
+    }
 
     if (!movements || movements.length === 0) {
       movements = FICTIONAL_MOVEMENTS
@@ -63,7 +75,6 @@ export async function POST(req: NextRequest) {
       } catch {}
     }
     if (!isTier3) {
-      // Check seed users fallback
       const seedUser = SEED_USERS.find((u) => u.id === organizerId)
       if (seedUser?.tier === 3) isTier3 = true
     }
@@ -78,35 +89,61 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, description } = parsed.data
-    const baseSlug = parsed.data.slug || name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+    const baseSlug =
+      parsed.data.slug ||
+      name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
     const uniqueSlug = `${baseSlug}-${Date.now().toString(36)}`
+    const inviteCode = (parsed.data.invite_code || generateMovementInviteCode()).toUpperCase()
 
     let movement: Movement | null = null
     try {
       const admin = getAdminClient()
-      const { data, error: createError } = await admin
+      let res = await admin
         .from("movements")
         .insert({
           name,
           description: description || null,
           slug: uniqueSlug,
+          invite_code: inviteCode,
           created_by: organizerId,
           is_active: true,
+          metadata: { invite_code: inviteCode },
         })
         .select()
         .single()
 
-      if (!createError && data) {
-        movement = data
+      if (res.error && res.error.code === "42703") {
+        // Column invite_code does not exist yet; insert without column, stored in metadata
+        res = await admin
+          .from("movements")
+          .insert({
+            name,
+            description: description || null,
+            slug: uniqueSlug,
+            created_by: organizerId,
+            is_active: true,
+            metadata: { invite_code: inviteCode },
+          })
+          .select()
+          .single()
+      }
+
+      if (!res.error && res.data) {
+        movement = {
+          ...res.data,
+          invite_code: res.data.invite_code || res.data.metadata?.invite_code || inviteCode,
+        }
         try {
           await admin.from("movement_members").insert({
-            movement_id: data.id,
+            movement_id: res.data.id,
             user_id: organizerId,
             role: "organizer",
           })
         } catch {}
       }
-    } catch {}
+    } catch {
+      // Handled via local fallback below
+    }
 
     if (!movement) {
       movement = {
@@ -114,13 +151,21 @@ export async function POST(req: NextRequest) {
         name,
         description: description || null,
         slug: uniqueSlug,
+        invite_code: inviteCode,
         created_by: organizerId,
         is_active: true,
         created_at: new Date().toISOString(),
       }
     }
 
-    return apiSuccess(movement, 201)
+    const origin = req.headers.get("origin") || req.nextUrl?.origin || ""
+    return apiSuccess(
+      {
+        ...movement,
+        joinUrl: origin ? `${origin}/join/${movement.invite_code || inviteCode}` : `/join/${movement.invite_code || inviteCode}`,
+      },
+      201
+    )
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Internal server error"
     return apiError(msg, 500)

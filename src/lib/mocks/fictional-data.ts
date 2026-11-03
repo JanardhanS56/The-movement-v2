@@ -2,7 +2,7 @@ import { demoNow } from "./clock"
 import { Task, TaskClaim, TaskStatus } from "../schemas/task.schema"
 import { User } from "../schemas/user.schema"
 import { Movement } from "../schemas/movement.schema"
-import { SEED_MOVEMENT, SEED_MOVEMENT_ID } from "./seed-data"
+import { SEED_MOVEMENT, SEED_MOVEMENT_ID, SEED_USERS } from "./seed-data"
 
 export type TaskCategory = "Setup" | "Outreach" | "Cleanup" | "Safety" | "Logistics"
 export type TaskDifficulty = "Easy" | "Medium" | "Hard"
@@ -822,18 +822,51 @@ export function getLeaderboard(
 }
 
 export function getUserByHandle(handle: string): DemoUser | undefined {
+  if (!handle) return undefined
   const normalized = handle.toLowerCase().replace(/^@/, "").trim()
-  return FICTIONAL_USERS.find(
+  const found = FICTIONAL_USERS.find(
     (u) =>
       u.handle.toLowerCase() === normalized ||
-      u.id === normalized ||
-      (u.handle === "janardhan" && normalized === "priya-rao")
+      u.id.toLowerCase() === normalized ||
+      (u.handle === "janardhan" && (normalized === "priya-rao" || normalized === "jana"))
   )
+  if (found) return found
+
+  // Match against SEED_USERS
+  const seedMatch = SEED_USERS.find(
+    (u) =>
+      u.handle?.toLowerCase() === normalized ||
+      u.id.toLowerCase() === normalized ||
+      u.display_name.toLowerCase().includes(normalized)
+  )
+  if (seedMatch) {
+    const defaultUser = FICTIONAL_USERS[0]
+    return {
+      ...defaultUser,
+      ...seedMatch,
+      handle: seedMatch.handle || normalized,
+      showOnLeaderboards: true,
+      stats: defaultUser.stats,
+      earnedBadgeIds: defaultUser.earnedBadgeIds,
+      completedTasks: defaultUser.completedTasks,
+      movement_id: SEED_MOVEMENT_ID,
+    }
+  }
+
+  return undefined
 }
 
 export function getBadgeProgress(user: DemoUser | User) {
-  const demoUser = (FICTIONAL_USERS.find((u) => u.id === user.id) || user) as DemoUser
-  const completedTasks = demoUser.completedTasks || []
+  const matchedUser = FICTIONAL_USERS.find((u) => u.id === user.id || u.handle === (user as DemoUser).handle)
+  const defaultUser = FICTIONAL_USERS[0]
+  const demoUser = (matchedUser || {
+    ...defaultUser,
+    ...user,
+    stats: defaultUser.stats,
+    earnedBadgeIds: defaultUser.earnedBadgeIds,
+    completedTasks: defaultUser.completedTasks,
+  }) as DemoUser
+  const completedTasks = demoUser.completedTasks || defaultUser.completedTasks || []
 
   return BADGE_DEFINITIONS.map((def) => {
     const { earned, progress } = def.evaluate(demoUser, completedTasks)
@@ -1002,11 +1035,19 @@ export const FICTIONAL_MOVEMENTS: Movement[] = [
     name: "Metro Solidarity Network",
     description: "Decentralized mutual aid and civic coordination across urban metro districts.",
     slug: "metro-solidarity-network",
+    invite_code: "METR2",
     is_active: true,
     created_by: "22222222-2222-4222-8222-222222222222",
     created_at: "2026-10-02T10:00:00Z",
   },
 ]
+
+export function getMovementByInviteCode(code: string): Movement | undefined {
+  const clean = code.trim().toUpperCase()
+  return FICTIONAL_MOVEMENTS.find(
+    (m) => m.invite_code?.toUpperCase() === clean || m.slug.toUpperCase() === clean
+  )
+}
 
 export function addFictionalMovement(movement: Movement): void {
   const existing = FICTIONAL_MOVEMENTS.find((m) => m.id === movement.id)

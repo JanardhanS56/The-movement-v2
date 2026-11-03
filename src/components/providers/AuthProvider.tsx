@@ -4,6 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { User } from "@/lib/schemas/user.schema"
 import { SEED_USERS, SEED_MOVEMENT_ID } from "@/lib/mocks/seed-data"
+import { getActiveMovementId, setActiveMovementId } from "@/lib/mocks/fictional-data"
 import { mockStore } from "@/lib/mocks/mock-store"
 import { logUserSession, getStoredAuthUser, setStoredAuthUser } from "@/lib/session-logger"
 
@@ -48,13 +49,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   // Active user session
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(null)
-  const [movementId, setMovementId] = React.useState<string>(SEED_MOVEMENT_ID)
+  const [movementId, setMovementIdState] = React.useState<string>(SEED_MOVEMENT_ID)
   const [customUser, setCustomUser] = React.useState<User | null>(null)
   const [simulateFailure, setSimulateFailure] = React.useState(false)
   const [isDemoDrawerOpen, setIsDemoDrawerOpen] = React.useState(false)
 
   const openDemoDrawer = React.useCallback(() => setIsDemoDrawerOpen(true), [])
   const closeDemoDrawer = React.useCallback(() => setIsDemoDrawerOpen(false), [])
+
+  const setMovementId = React.useCallback((id: string) => {
+    setMovementIdState(id)
+    setActiveMovementId(id)
+  }, [])
+
+  // Restore stored session and sync active movement
+  React.useEffect(() => {
+    setMovementIdState(getActiveMovementId())
+    const handleMovementChange = () => {
+      setMovementIdState(getActiveMovementId())
+    }
+    window.addEventListener("the-movement:movement-changed", handleMovementChange)
+    window.addEventListener("the-movement:movement-added", handleMovementChange)
+    return () => {
+      window.removeEventListener("the-movement:movement-changed", handleMovementChange)
+      window.removeEventListener("the-movement:movement-added", handleMovementChange)
+    }
+  }, [])
 
   // Restore stored session if present on mount
   React.useEffect(() => {
@@ -150,6 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [
       user,
       movementId,
+      setMovementId,
       signIn,
       signOut,
       switchDemoUser,

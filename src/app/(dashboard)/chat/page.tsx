@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
-import { CHAT_ROOMS, ReactionKey, ReportReason } from "@/lib/constants/chat"
+import { CHAT_ROOMS, ChatRoomDefinition, ReactionKey, ReportReason } from "@/lib/constants/chat"
 import { chatApi, ChatRateLimitError } from "@/lib/api/chat"
 import { Message } from "@/lib/schemas/chat.schema"
 import { User } from "@/lib/schemas/user.schema"
@@ -25,8 +25,9 @@ export default function ChatPage() {
   const { user } = useAuth()
 
   const currentRoomParam = searchParams.get("room") || "everyone"
+  const [rooms, setRooms] = React.useState<ChatRoomDefinition[]>(CHAT_ROOMS)
   const activeRoom =
-    CHAT_ROOMS.find((r) => r.id === currentRoomParam) || CHAT_ROOMS[0]
+    rooms.find((r) => r.id === currentRoomParam) || rooms[0] || CHAT_ROOMS[0]
 
   // Track whether mobile user is viewing conversation or room list
   const [mobileView, setMobileView] = React.useState<"rooms" | "conversation">("conversation")
@@ -127,9 +128,31 @@ export default function ChatPage() {
     }))
   }, [activeRoom.id, loadMessages])
 
+  // Fetch persistent rooms with static fallback
+  React.useEffect(() => {
+    let isMounted = true
+    async function fetchRooms() {
+      try {
+        const res = await fetch("/api/chat/rooms")
+        if (res.ok) {
+          const json = await res.json()
+          if (json.data && Array.isArray(json.data) && json.data.length > 0 && isMounted) {
+            setRooms(json.data)
+          }
+        }
+      } catch {
+        // Fallback to static CHAT_ROOMS
+      }
+    }
+    fetchRooms()
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   // Preload messages for all rooms so unread counts in room list are accurate
   React.useEffect(() => {
-    for (const r of CHAT_ROOMS) {
+    for (const r of rooms) {
       chatApi.listMessages(r.id).then((res) => {
         setMessagesMap((prev) => ({
           ...prev,
@@ -137,7 +160,7 @@ export default function ChatPage() {
         }))
       })
     }
-  }, [])
+  }, [rooms])
 
   // Subscribe to realtime / cross-tab broadcast events for the active room
   React.useEffect(() => {
@@ -346,6 +369,7 @@ export default function ChatPage() {
           }`}
         >
           <ChatRoomList
+            rooms={rooms}
             activeRoomId={activeRoom.id}
             onSelectRoom={handleSelectRoom}
             messagesMap={messagesMap}

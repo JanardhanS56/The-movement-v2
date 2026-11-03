@@ -379,6 +379,9 @@ class MockStore {
 
     const verificationRecord = assigned.find((v) => v.verifier_id === verifierId)
     if (!verificationRecord) throw new Error("Verification record not found")
+    if (verificationRecord.vote !== null) {
+      throw new Error("Vote has already been cast for this verification assignment")
+    }
 
     const now = new Date().toISOString()
     verificationRecord.vote = vote

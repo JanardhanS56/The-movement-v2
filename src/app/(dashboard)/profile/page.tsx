@@ -7,15 +7,15 @@ import { ProfileSkeleton } from "@/components/profile/ProfileSkeleton"
 
 export default function BaseProfilePage() {
   const router = useRouter()
-  const { user, isAuthenticated } = useAuth()
+  const { user } = useAuth()
 
   React.useEffect(() => {
     if (user?.id) {
       router.replace(`/profile/${user.id}`)
-    } else if (!isAuthenticated) {
-      router.replace("/sign-in")
+    } else {
+      router.replace(`/profile/11111111-1111-4111-8111-111111111111`)
     }
-  }, [user, isAuthenticated, router])
+  }, [user, router])
 
   return (
     <div className="p-4 sm:p-6 md:p-8">

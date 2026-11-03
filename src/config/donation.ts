@@ -16,3 +16,4 @@ export const DONATION_CONFIG: DonationConfig = {
   paymentIdOrLink: "",
   qrImagePath: "/donate-qr.png",
 }
+
