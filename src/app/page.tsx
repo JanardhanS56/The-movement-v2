@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Monogram } from "@/components/shared/Monogram"
-import DataRain from "@/components/ui/data-rain"
 import { FeatureCards } from "@/components/ui/FeatureCards"
 
 export default function LandingPage() {
@@ -22,11 +21,6 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground flex flex-col justify-between p-6 sm:p-12 overflow-hidden">
-      {/* Interactive DataRain Ambient Particle Field - Always Active */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
-        <DataRain fullscreen count={1600} flowSpeed={0.75} obstacleRadius={50} />
-      </div>
-
       {/* Top Bar */}
       <header className="relative z-10 flex items-center justify-between max-w-5xl mx-auto w-full pb-8">
         <div className="flex items-center gap-2.5">
@@ -34,11 +28,6 @@ export default function LandingPage() {
           <span className="font-black text-xl tracking-tight text-foreground font-sans">The Movement</span>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/data-rain">
-            <Button variant="outline" size="sm" className="font-bold">
-              Data Rain
-            </Button>
-          </Link>
           <Link href="/sign-up">
             <Button size="sm" className="font-bold">
               Create Account
@@ -66,16 +55,13 @@ export default function LandingPage() {
         </div>
 
         {/* The Three Features Section */}
-        <FeatureCards className="px-0 py-2" />
+        <FeatureCards wrapperClassName="rounded-3xl shadow-lg" className="px-4 sm:px-6 md:px-8" />
       </main>
 
       {/* Footer */}
       <footer className="relative z-10 max-w-5xl mx-auto w-full pt-12 border-t border-border flex flex-col sm:flex-row items-center justify-between text-xs text-muted-foreground gap-4">
         <p>The Movement platform for verified collective action.</p>
         <div className="flex items-center gap-4">
-          <Link href="/data-rain" className="hover:text-foreground underline underline-offset-4">
-            Data Rain Demo
-          </Link>
           <Link href="/privacy" className="hover:text-foreground underline underline-offset-4">
             Privacy policy
           </Link>

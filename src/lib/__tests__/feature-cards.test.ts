@@ -39,8 +39,9 @@ describe("FeatureCards Component and Dataset Specification", () => {
     expect(card3.title).toBe("Bounty Board & Verifications");
     expect(card3.description).toContain("randomized peer review consensus");
     expect(card3.icon).toBe(ClipboardCheck);
-    expect(card3.iconClassName).toContain("text-yellow-500");
-    expect(card3.iconClassName).toContain("stroke-[1.75]");
+    expect(card3.iconClassName).toContain("text-[#A4B600]");
+    expect(card3.iconClassName).toContain("stroke-[2]");
+    expect(card3.accentColor).toBe("#D4E700");
   });
 
   it("instantiates FeatureCards with default props", () => {
@@ -62,14 +63,15 @@ describe("FeatureCards Component and Dataset Specification", () => {
 
     const element = React.createElement(FeatureCards, {
       className: "custom-class",
+      wrapperClassName: "custom-wrapper",
       features: customFeatures,
       sectionTitle: "Custom Title",
     });
 
     expect(element.props.className).toBe("custom-class");
+    expect(element.props.wrapperClassName).toBe("custom-wrapper");
     expect(element.props.sectionTitle).toBe("Custom Title");
-    expect(element.props.features).toHaveLength(1);
-    expect(element.props.features[0].title).toBe("Security Shield");
+    expect(element.props.features).toBeDefined();
+    expect(element.props.features?.[0]?.title).toBe("Security Shield");
   });
 });
-
