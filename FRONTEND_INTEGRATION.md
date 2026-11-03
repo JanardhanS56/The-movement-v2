@@ -404,17 +404,45 @@ Returns user's complete public impact ledger, stats, and verified contributions.
 In `src/lib/api/index.ts`:
 ```typescript
 import { ApiClient } from "./types"
-import { MockApiAdapter } from "./mock-adapter"
-import { RestApiAdapter } from "./rest-adapter" // Implements ApiClient calling /api/*
+import { FallbackApiAdapter } from "./FallbackApiAdapter"
+import { MockApiAdapter } from "./MockApiAdapter"
+import { RestApiAdapter } from "./rest-adapter"
 
-const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS !== "false"
+const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === "true"
 
-export const api: ApiClient = useMocks ? new MockApiAdapter() : new RestApiAdapter()
+// FallbackApiAdapter calls RestApiAdapter (/api/*) and transparently falls back
+// to MockApiAdapter if the database is paused or unreachable.
+export const api: ApiClient = useMocks ? new MockApiAdapter() : new FallbackApiAdapter()
 ```
 
 Set in `.env.local`:
 ```bash
 NEXT_PUBLIC_USE_MOCKS=false
 ```
-All UI components immediately render real database state from Supabase without any UI modifications.
+
+---
+
+## 5. Additional Production Endpoints (Phases 1–6)
+
+### A. Movement Invite Codes & Quick Join
+- `GET /api/movements/invite/[code]` — Resolves movement and checks if caller is already a member.
+- `POST /api/movements/join` — Body: `{ "invite_code": "MOV9K" }`. Joins movement and returns membership record.
+
+### B. Ground Truth Cryptographic Audit Ledger
+- `GET /api/ground-truth` — Returns list of SHA-256 verified commits. Optional query: `type` and `limit`.
+- `GET /api/ground-truth/[hash]` — Returns full cryptographic proof, author snapshot, and metadata for a specific commit hash.
+
+### C. Persistent Real-Time Chat & Reports
+- `GET /api/chat/rooms` — Returns available movement rooms (`everyone`, `urgent-needs`, `help-questions`, etc.).
+- `GET /api/chat/messages?roomId=[id]&limit=[limit]&cursor=[timestamp]` — Paginated messages for a room.
+- `POST /api/chat/messages` — Sends message with reply threading and task embedding.
+- `POST /api/chat/messages/[id]/reactions` — Body: `{ "reactionKey": "heart" }`. Toggles reaction.
+- `POST /api/chat/reports` — Submits volunteer moderation report for abusive content.
+
+### D. Cloud Media Storage
+- `POST /api/upload?bucket=task-proofs` — Uploads task completion proofs (multipart form or base64 data URL). Enforces 10MB limit and JPEG/PNG/WebP formats. Returns `{ success: true, url: "..." }`.
+
+### E. Full-Text Search & Cursor-Based Pagination
+- `GET /api/tasks?limit=20&cursor=[iso_timestamp]&q=[search_term]` — Searches titles & descriptions using GIN `to_tsvector` indexes.
+- `GET /api/announcements?limit=20&cursor=[iso_timestamp]&q=[search_term]` — Cursor-paginated announcement feed.
 

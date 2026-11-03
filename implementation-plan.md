@@ -459,3 +459,34 @@ A feature is "done" when it meets **all** of the following criteria:
 | RLS | Row Level Security policy written and tested for the relevant table |
 | Mobile | Layout tested at 375px (iPhone SE) width |
 | Accessibility | At minimum: aria-label on all icon buttons, focus ring visible |
+
+---
+
+## 8. Backend Implementation Phases & Checkpoint Verification Log
+
+All 6 backend architecture phases have been executed and verified via deterministic micro-commits:
+
+| Phase | Checkpoint | Focus Area | Status | Commit |
+|---|---|---|---|---|
+| **Phase 1** | 1.1 | Movement invite codes schema & generator function | Complete | `e5e9e01` |
+| | 1.2 | Lookup & join API endpoints (`/api/movements/invite/[code]`, `/api/movements/join`) | Complete | `146e292` |
+| | 1.3 | Direct `/join/[code]` route, join modal, and invite share sheet | Complete | `f08bc79` |
+| | 1.4 | Integration test suite for invite codes & join flow | Complete | `c9f7eca` |
+| **Phase 2** | 2.1 | `ground_truth_commits` table, SHA-256 digests, and seed audit events | Complete | `9608a56` |
+| | 2.2 | `/api/ground-truth` and `/api/ground-truth/[hash]` endpoints | Complete | `97227ac` |
+| | 2.3 | Autonomous ground truth commit triggers on tasks & announcements | Complete | `b0d0175` |
+| | 2.4 | Ground truth transparency dashboard wired to live API | Complete | `5c8d032` |
+| **Phase 3** | 3.1 | Chat rooms, messages, reactions, and reports schema with RLS | Complete | `940d41e` |
+| | 3.2 | REST endpoints for chat messaging, pinning, reactions, and reports | Complete | `c7ff01a` |
+| | 3.3 | `SupabaseChatClient` with Realtime WebSocket sync & reconnect backoff | Complete | `ebcfc7e` |
+| | 3.4 | Chat UI wired to live persistent WebSocket client | Complete | `f2841d2` |
+| **Fix Phase**| - | Join-with-code modal unmount bug fix & metadata invite code fallback | Complete | `adb2499` |
+| **Phase 4** | 4.1 | Automated quorum resolution trigger (`check_peer_verification_quorum`) | Complete | `484117f` |
+| | 4.2 | Automated milestone badge awarding trigger (`check_and_award_milestone_badges`) | Complete | `9dc6617` |
+| | 4.3 | End-to-end peer verification consensus & anti-self-verification tests | Complete | `9f0d4ff` |
+| **Phase 5** | 5.1 | Supabase Storage buckets `task-proofs` and `avatars` with RLS policies | Complete | `11107e4` |
+| | 5.2 | Cloud media upload endpoint (`/api/upload`) with size/MIME validation | Complete | `3c57233` |
+| | 5.3 | `TaskDetailDrawer` proof photo upload wired with canvas EXIF sanitizer | Complete | `c1ff028` |
+| **Phase 6** | 6.1 | Full-text GIN search indexes on tasks and announcements | Complete | `fe79928` |
+| | 6.2 | Cursor-based server pagination and search query parameters | Complete | `1b5d45b` |
+| | 6.3 | Production health verification suite & schema contracts test suite | Complete | `d52462d` |
