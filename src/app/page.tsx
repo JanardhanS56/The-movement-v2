@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Monogram } from "@/components/shared/Monogram"
+import DataRain from "@/components/ui/data-rain"
 import { FeatureCards } from "@/components/ui/FeatureCards"
 
 export default function LandingPage() {
@@ -21,6 +22,11 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground flex flex-col justify-between p-6 sm:p-12 overflow-hidden">
+      {/* Interactive DataRain Ambient Particle Field - Always Active in Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
+        <DataRain fullscreen count={1600} flowSpeed={0.75} obstacleRadius={50} />
+      </div>
+
       {/* Top Bar */}
       <header className="relative z-10 flex items-center justify-between max-w-5xl mx-auto w-full pb-8">
         <div className="flex items-center gap-2.5">
