@@ -132,3 +132,31 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================================
+   Data Rain Theme Variables & Keyframes
+   ========================================================================== */
+
+:root {
+  --dr-bg-0: #020308;
+  --dr-bg-1: #05070d;
+  --dr-bg-2: #0a1020;
+  --dr-calm: #22e6ff;
+  --dr-mid: #8a5cff;
+  --dr-hot: #ff3d9a;
+  --dr-core: #eafcff;
+  --dr-vignette: 0.62;
+  --dr-grain: 0.05;
+  --dr-bloom-blur: 10px;
+  --dr-bloom-opacity: 0.7;
+}
+
+@keyframes dr-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
