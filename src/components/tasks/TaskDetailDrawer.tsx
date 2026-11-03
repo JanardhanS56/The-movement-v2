@@ -160,8 +160,32 @@ export function TaskDetailDrawer({
     try {
       setPhotoProcessing(true)
       const cleanDataUrl = await reencodeImage(file, { maxWidth: 1024, maxHeight: 1024 })
-      setCompletionPhotoUrl(cleanDataUrl)
-      toast.success("Photo attached (EXIF & location metadata stripped).")
+
+      // Attempt cloud storage upload via /api/upload with base64 fallback
+      let uploadedUrl = cleanDataUrl
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dataUrl: cleanDataUrl,
+            bucket: "task-proofs",
+          }),
+        })
+        if (res.ok) {
+          const json = await res.json()
+          if (json.success && json.data?.url) {
+            uploadedUrl = json.data.url
+          }
+        }
+      } catch {
+        // Retain local base64 data URL fallback
+      }
+
+      setCompletionPhotoUrl(uploadedUrl)
+      toast.success("Photo attached and processed (EXIF & location metadata stripped).")
     } catch {
       toast.error("Could not process photo. You may continue without it.")
     } finally {
