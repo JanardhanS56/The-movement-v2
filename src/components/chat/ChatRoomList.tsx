@@ -14,6 +14,7 @@ export interface ChatRoomListProps {
   mutedRoomIds?: string[]
   currentUserId?: string | null
   blockedIds?: string[]
+  rooms?: ChatRoomDefinition[]
 }
 
 export function ChatRoomList({
@@ -24,6 +25,7 @@ export function ChatRoomList({
   mutedRoomIds = [],
   currentUserId,
   blockedIds = [],
+  rooms = CHAT_ROOMS,
 }: ChatRoomListProps) {
   const mutedSet = new Set(mutedRoomIds)
 
@@ -39,7 +41,7 @@ export function ChatRoomList({
       </div>
 
       <div className="p-2 space-y-1">
-        {CHAT_ROOMS.map((room: ChatRoomDefinition) => {
+        {rooms.map((room: ChatRoomDefinition) => {
           const isActive = room.id === activeRoomId
           const isMuted = mutedSet.has(room.id)
           const roomMsgs = messagesMap[room.id] || []
