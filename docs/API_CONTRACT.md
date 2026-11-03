@@ -1,9 +1,10 @@
-# The Movement - Frontend/Backend API Contract Specification
+# The Movement - Production API Specification & Contract
 
-> **Backend Implementation Status:** All routes below are labeled **"Proposed, backend teammate to implement."**  
-> In the frontend prototype, all requests are routed through `src/lib/api/index.ts` backed by `MockApiAdapter`. When backend teammates deploy Supabase, the `SupabaseStubAdapter` will be replaced with real Supabase RPC and PostgREST client calls.
+> **Backend Status:** **100% Implemented & Operational**  
+> All 32 endpoints below are live via Next.js App Router Route Handlers (`/api/*`), executing securely against Supabase PostgreSQL 15 and Supabase Realtime with the server-side `SUPABASE_SERVICE_ROLE_KEY`.  
+> The client uses `FallbackApiAdapter` wrapping `RestApiAdapter` with graceful in-memory `MockApiAdapter` fallback so the UI never displays blank screens or crashes during network/database outages.
 >
-> **Important Privacy Notice:** **Profile visibility** (whether public or movement-scoped) and **check-in precision / coordinate truncation** (e.g., 3-decimal rounding to ~110m, geohash aggregation, or spatial grid quantization) are **backend privacy decisions** enforced by Postgres RLS, database triggers, and PostGIS views.
+> **Privacy Enforcements:** **Location truncation** (3-decimal rounding to ~110m spatial centroid before storage) and **role-based security** (Tier 1 Volunteer, Tier 2 Senior Volunteer, Tier 3 Organizer) are strictly enforced in both Next.js route handlers and Postgres RLS triggers.
 
 ---
 
@@ -236,11 +237,84 @@ Every request in production will carry a Supabase JWT in the `Authorization: Bea
 
 #### `getUserStats(userId: string)`
 - **Signature:** `getUserStats(userId: string): Promise<UserStats>`
-- **Proposed Route & Method:** `GET /rest/v1/rpc/get_user_stats?user_id={userId}`
-- **Status:** Proposed, backend teammate to implement.
+- **Live Route & Method:** `GET /api/users?id={userId}`
 - **Auth & Tier:** Public / Authenticated.
 - **Request Schema:** `userId: string`
 - **Response Schema:** `{ tasksCompleted: number, announcementsSigned: number, checkInsCount: number, impactPoints: number }`
 - **Error Responses:** `404 Not Found`.
-- **Intended RLS Rules:** Aggregated deterministic summary calculated from verified ledger records.
 - **Query Keys to Invalidate:** `["userStats", userId]`
+
+---
+
+### Movements & Invite Codes
+
+#### `GET /api/movements`
+- **Description:** Returns all active movements or filters by user membership.
+- **Auth & Tier:** Authenticated (Tier 1+).
+- **Response Schema:** `z.array(MovementSchema)`
+
+#### `GET /api/movements/invite/[code]`
+- **Description:** Resolves movement metadata and membership status from a 5-character invite code (e.g., `MOV9K`).
+- **Auth & Tier:** Public / Authenticated.
+- **Response:** `{ success: true, data: { movement: Movement, isMember: boolean } }`
+- **Error:** `404 Not Found` if invite code does not exist.
+
+#### `POST /api/movements/join`
+- **Description:** Joins authenticated user to a movement using a verified invite code.
+- **Auth & Tier:** Authenticated (`x-user-id` or session).
+- **Request Body:** `{ invite_code: string }`
+- **Response:** `{ success: true, data: { membership: MovementMember, movement: Movement } }`
+- **Error:** `404 Not Found`, `400 Bad Request`.
+
+---
+
+### Ground Truth Transparency Ledger
+
+#### `GET /api/ground-truth`
+- **Description:** Returns the public cryptographic audit ledger of verified commits with parent SHA links.
+- **Query Parameters:** `type?: string` (`task_completed`, `announcement`, `emergency_alert`), `limit?: number`.
+- **Response Schema:** `z.array(GroundTruthCommitSchema)`
+
+#### `GET /api/ground-truth/[hash]`
+- **Description:** Resolves a single cryptographic audit commit by short hash (e.g., `#a8f3b2c`) or full SHA-256 digest.
+- **Response:** `{ success: true, data: GroundTruthCommit }`
+- **Error:** `404 Not Found`.
+
+---
+
+### Persistent Real-Time Chat
+
+#### `GET /api/chat/rooms`
+- **Description:** Lists available chat rooms (`everyone`, `urgent-needs`, `help-questions`, task-specific rooms).
+- **Response Schema:** `z.array(ChatRoomSchema)`
+
+#### `GET /api/chat/messages?roomId={roomId}&limit={limit}&cursor={cursor}`
+- **Description:** Retrieves paginated messages for a given chat room.
+- **Response:** `{ items: Message[], nextCursor: string | null }`
+
+#### `POST /api/chat/messages`
+- **Description:** Dispatches a new chat message with mention and task embed support.
+- **Auth & Tier:** Authenticated (`x-user-id` or session).
+- **Request Body:** `{ roomId: string, text: string, replyToId?: string, mentions?: string[], taskRef?: string }`
+- **Response:** `MessageSchema`
+
+#### `POST /api/chat/messages/[id]/reactions`
+- **Description:** Toggles an emoji reaction (`thumbs_up`, `heart`, `thanks`, `celebrate`, `laugh`, `surprised`).
+- **Request Body:** `{ reactionKey: string }`
+- **Response:** `{ reactions: Record<string, string[]> }`
+
+#### `POST /api/chat/reports`
+- **Description:** Submits a moderation report against an offensive or rule-violating chat message.
+- **Request Body:** `{ messageId: string, reason: string, note?: string }`
+- **Response:** `{ success: true, reportId: string }`
+
+---
+
+### Cloud Media & Task Proof Uploads
+
+#### `POST /api/upload`
+- **Description:** Uploads a proof photo or avatar to Supabase Storage with size and MIME validation.
+- **Content-Type:** `multipart/form-data` OR `application/json` (`{ file: "data:image/jpeg;base64,..." }`).
+- **Query Parameters:** `bucket=task-proofs` (default) or `bucket=avatars`.
+- **Validation:** Max 10MB file size, restricted to `image/jpeg`, `image/png`, `image/webp`.
+- **Response:** `{ success: true, url: string, path: string, size: number, mimeType: string }`

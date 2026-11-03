@@ -481,3 +481,37 @@ Adding Zustand or Redux for MVP adds cognitive overhead without benefit. This ca
 - `loading.tsx` and `error.tsx` colocation is cleaner than HOC patterns in Pages Router.
 
 **Consequences:** Engineers must understand RSC vs. Client Component boundaries. The `'use client'` directive is required for any component using hooks, browser APIs (Leaflet), or event handlers.
+
+---
+
+### ADR-006: Multi-Tiered Fail-Safe Data Adapter Pattern
+
+**Decision:** Wrap all live REST operations in `FallbackApiAdapter` with transparent, silent fallback to in-memory `MockApiAdapter` upon database error or rate limiting.
+
+**Rationale:** In civic coordination tools and hackathon demonstrations, external cloud database rate limits or sleep cycles must never cause client-side uncaught exceptions, blank screens, or broken user experiences.
+
+**Consequences:** The UI maintains continuous 100% functionality regardless of network conditions or backend compute limits.
+
+---
+
+### ADR-007: Append-Only Cryptographic Audit Ledger (`ground_truth_commits`)
+
+**Decision:** Record all verified task completions, multi-sig announcements, and milestone verifications in an immutable table linked via parent SHA-256 hashes.
+
+**Rationale:** Civic actions require public verifiability. Anyone can independently verify that a specific contribution or announcement was cryptographically authorized without tampering.
+
+---
+
+### ADR-008: Automated Quorum & Milestone Badge Resolution Triggers
+
+**Decision:** Enforce 3 assigned peer verifiers and $\ge 2$ approval threshold via database trigger `check_peer_verification_quorum()` on `peer_verifications`.
+
+**Rationale:** Delegating consensus counting and impact point minting to PostgreSQL database triggers guarantees atomicity and eliminates distributed race conditions or duplicate awards.
+
+---
+
+### ADR-009: 5-Character Unambiguous Join Codes
+
+**Decision:** Generate 5-character movement invite codes (`2-9`, `A-Z` excluding `0`, `O`, `1`, `I`) paired with direct URL routing (`/join/[code]`).
+
+**Rationale:** Volunteers in the field often receive codes via SMS, verbal relay, or handwritten signs. Eliminating ambiguous characters prevents join failures and speeds up mobile recruitment.

@@ -3,7 +3,7 @@ import { getAdminClient, getCallerUser } from "@/lib/supabase/admin"
 import { apiSuccess, apiError } from "@/lib/api-response"
 import { ALLOWED_REACTION_KEYS, ReactionKey } from "@/lib/constants/chat"
 import { SEED_USERS } from "@/lib/mocks/seed-data"
-import { mapRowToMessage } from "../../route"
+import { mapRowToMessage } from "@/app/api/chat/helpers"
 
 export const dynamic = "force-dynamic"
 

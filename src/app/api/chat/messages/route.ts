@@ -1,42 +1,13 @@
 import { NextRequest } from "next/server"
 import { getAdminClient, getCallerUser } from "@/lib/supabase/admin"
 import { apiSuccess, apiError } from "@/lib/api-response"
-import { Message, MessageStatus } from "@/lib/schemas/chat.schema"
+import { Message } from "@/lib/schemas/chat.schema"
 import { buildFictionalDemoMessages } from "@/lib/api/chat"
 import { SEED_USERS } from "@/lib/mocks/seed-data"
 import { parseMentions } from "@/lib/mocks/chat-pure"
+import { mapRowToMessage, ChatMessageRow } from "@/app/api/chat/helpers"
 
 export const dynamic = "force-dynamic"
-
-interface ChatMessageRow {
-  id: string
-  room_id: string
-  author_id: string
-  text: string
-  status: string
-  reply_to_id: string | null
-  mentions: string[]
-  reactions: Record<string, string[]>
-  task_ref: string | null
-  is_pinned?: boolean
-  created_at: string
-}
-
-export function mapRowToMessage(row: ChatMessageRow): Message {
-  return {
-    id: row.id,
-    roomId: row.room_id,
-    authorId: row.author_id,
-    text: row.text,
-    createdAt: row.created_at,
-    status: (row.status as MessageStatus) || "sent",
-    replyToId: row.reply_to_id || null,
-    mentions: Array.isArray(row.mentions) ? row.mentions : [],
-    reactions: row.reactions && typeof row.reactions === "object" ? row.reactions : {},
-    taskRef: row.task_ref || null,
-    isDemo: false,
-  }
-}
 
 export async function GET(req: NextRequest) {
   try {
