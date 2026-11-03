@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Flag, MapPin, ClipboardCheck, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { Flag, MapPin, ClipboardCheck, ArrowRight, type LucideIcon } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 export interface FeatureItem {
@@ -18,6 +19,9 @@ export interface FeatureCardsProps {
   wrapperClassName?: string;
   features?: FeatureItem[];
   sectionTitle?: string;
+  showSignIn?: boolean;
+  signInHref?: string;
+  signInLabel?: string;
 }
 
 export const DEFAULT_FEATURES: FeatureItem[] = [
@@ -53,6 +57,9 @@ export function FeatureCards({
   wrapperClassName = "",
   features = DEFAULT_FEATURES,
   sectionTitle = "Platform Features",
+  showSignIn = true,
+  signInHref = "/sign-in",
+  signInLabel = "Sign in to Platform",
 }: FeatureCardsProps) {
   const shouldReduceMotion = useReducedMotion();
 
@@ -138,6 +145,35 @@ export function FeatureCards({
             );
           })}
         </motion.div>
+
+        {/* Integrated Sign-in Option */}
+        {showSignIn && (
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 12 }}
+            whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 md:p-6 rounded-2xl bg-[#EBEBEB] border-2 border-[#1A1A1A] shadow-sm"
+          >
+            <div className="text-center sm:text-left">
+              <h4 className="font-bold text-[#111827] text-base md:text-lg tracking-tight">
+                Ready to coordinate verified collective action?
+              </h4>
+              <p className="font-normal text-[#4B5563] text-xs sm:text-sm mt-0.5">
+                Sign in to verify field reports, view real-time volunteer heatmaps, and claim bounties.
+              </p>
+            </div>
+            <Link href={signInHref} className="shrink-0">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-[#111827] bg-[#D4E700] hover:bg-[#CCDE00] border-2 border-[#1A1A1A] shadow-sm transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
+              >
+                <span>{signInLabel}</span>
+                <ArrowRight className="w-4 h-4 stroke-[2.25]" aria-hidden="true" />
+              </button>
+            </Link>
+          </motion.div>
+        )}
       </section>
     </div>
   );

@@ -50,7 +50,7 @@ describe("FeatureCards Component and Dataset Specification", () => {
     expect(element.props).toEqual({});
   });
 
-  it("instantiates FeatureCards with customized props and features array", () => {
+  it("instantiates FeatureCards with customized props and sign-in options", () => {
     const customFeatures: FeatureItem[] = [
       {
         id: "custom-1",
@@ -66,11 +66,17 @@ describe("FeatureCards Component and Dataset Specification", () => {
       wrapperClassName: "custom-wrapper",
       features: customFeatures,
       sectionTitle: "Custom Title",
+      showSignIn: true,
+      signInHref: "/sign-in",
+      signInLabel: "Enter Portal",
     });
 
     expect(element.props.className).toBe("custom-class");
     expect(element.props.wrapperClassName).toBe("custom-wrapper");
     expect(element.props.sectionTitle).toBe("Custom Title");
+    expect(element.props.showSignIn).toBe(true);
+    expect(element.props.signInHref).toBe("/sign-in");
+    expect(element.props.signInLabel).toBe("Enter Portal");
     expect(element.props.features).toBeDefined();
     expect(element.props.features?.[0]?.title).toBe("Security Shield");
   });
