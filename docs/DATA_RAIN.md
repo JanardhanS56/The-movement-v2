@@ -227,3 +227,4 @@ The implementation is verified with dedicated unit tests:
 - `src/lib/__tests__/data-rain-presets.test.ts`: Color palette completeness and boundary validation.
 - `src/lib/__tests__/data-rain-components.test.ts`: Component props and mounting contracts.
 - `src/lib/__tests__/data-rain-styles.test.ts`: Computed CSS property fallback resilience.
+

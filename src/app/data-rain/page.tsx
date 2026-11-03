@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, Play, Pause, RefreshCw, Palette, Sliders, Maximize2, Minimize2, Eye } from "lucide-react";
-import DataRain, { type DataRainPalette } from "@/components/ui/data-rain";
+import { ArrowLeft, Play, Pause, RefreshCw, Palette, Sliders, Maximize2, Minimize2 } from "lucide-react";
+import DataRain from "@/components/ui/data-rain";
 import { DATA_RAIN_PRESETS, type DataRainPreset } from "@/lib/constants/data-rain-palettes";
 import { Button } from "@/components/ui/button";
 

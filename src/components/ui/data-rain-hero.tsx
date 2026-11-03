@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import DataRain, { type DataRainProps, type DataRainPalette } from "@/components/ui/data-rain";
+import DataRain, { type DataRainPalette } from "@/components/ui/data-rain";
 import { cn } from "@/lib/utils";
 
 export interface DataRainHeroProps extends React.HTMLAttributes<HTMLDivElement> {

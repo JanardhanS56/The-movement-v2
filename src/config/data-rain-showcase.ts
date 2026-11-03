@@ -29,3 +29,4 @@ export const SHOWCASE_ASSETS: ShowcaseAsset[] = [
     description: "Field volunteers deploying humanitarian assistance supplies across sectors",
   },
 ];
+

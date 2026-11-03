@@ -716,12 +716,6 @@ export default function DataRain(props: DataRainProps) {
 
       if (!initialised) return;
 
-      const onContextLost = (e: Event) => {
-      e.preventDefault();
-      cancelAnimationFrame(raf);
-      raf = 0;
-    };
-
     if (reduced) {
         rebuildStatic();
         return;
