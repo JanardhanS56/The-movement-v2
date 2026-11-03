@@ -3,6 +3,7 @@ import { getAdminClient, getCallerUser } from "@/lib/supabase/admin"
 import { apiSuccess, apiError } from "@/lib/api-response"
 import { OrganizerOverrideSchema } from "@/lib/schemas/verification.schema"
 import { createGroundTruthCommit } from "@/lib/services/ground-truth"
+import { evaluateMilestoneBadges } from "@/lib/services/badges"
 
 export const dynamic = "force-dynamic"
 
@@ -111,6 +112,9 @@ export async function POST(
           awarded_at: now,
         })
       }
+
+      // Evaluate milestone badges
+      await evaluateMilestoneBadges(claim.claimed_by).catch(() => {})
 
       // Automatically emit a Ground Truth audit commit
       await createGroundTruthCommit({

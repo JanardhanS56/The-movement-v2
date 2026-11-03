@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { getAdminClient, getCallerUser } from "@/lib/supabase/admin"
 import { apiSuccess, apiError } from "@/lib/api-response"
 import { SubmitVerificationVoteSchema } from "@/lib/schemas/verification.schema"
+import { evaluateMilestoneBadges } from "@/lib/services/badges"
 
 export const dynamic = "force-dynamic"
 
@@ -158,6 +159,9 @@ export async function POST(
             awarded_at: now,
           })
         }
+
+        // Evaluate milestone badges (first_step, reliable_responder, community_pillar)
+        await evaluateMilestoneBadges(claimantId)
       }
     } else if (rejections >= 2 && claimStatus !== "rejected") {
       claimStatus = "rejected"
