@@ -385,12 +385,12 @@ export function buildFictionalDemoMessages(): Record<string, Message[]> {
   ]
 
   // 3. Room: Help and questions (6 messages)
-  const h1MsgId = "h1111111-0003-4000-8000-000000000001"
-  const h2MsgId = "h1111111-0003-4000-8000-000000000002"
-  const h3MsgId = "h1111111-0003-4000-8000-000000000003"
-  const h4MsgId = "h1111111-0003-4000-8000-000000000004"
-  const h5MsgId = "h1111111-0003-4000-8000-000000000005"
-  const h6MsgId = "h1111111-0003-4000-8000-000000000006"
+  const h1MsgId = "d1111111-0003-4000-8000-000000000001"
+  const h2MsgId = "d1111111-0003-4000-8000-000000000002"
+  const h3MsgId = "d1111111-0003-4000-8000-000000000003"
+  const h4MsgId = "d1111111-0003-4000-8000-000000000004"
+  const h5MsgId = "d1111111-0003-4000-8000-000000000005"
+  const h6MsgId = "d1111111-0003-4000-8000-000000000006"
 
   const helpMessages: Message[] = [
     {
