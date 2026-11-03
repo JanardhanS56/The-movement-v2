@@ -15,6 +15,7 @@ export const SEED_MOVEMENT: Movement = {
   name: "Coastal Action Front",
   description: "Coordinating decentralized civic action and community support across coastal Karnataka.",
   slug: "coastal-action-front",
+  invite_code: "MOV9K",
   is_active: true,
   created_by: "11111111-1111-4111-8111-111111111111",
   created_at: "2026-10-01T08:00:00Z",

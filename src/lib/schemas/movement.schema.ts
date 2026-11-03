@@ -6,6 +6,7 @@ export const MovementSchema = z.object({
   name: z.string().min(3).max(100),
   description: z.string().nullable().optional(),
   slug: z.string().min(3).max(100),
+  invite_code: z.string().length(5).optional(),
   is_active: z.boolean(),
   created_by: uuidField,
   settings: z.record(z.string(), z.unknown()).optional(),

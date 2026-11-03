@@ -12,7 +12,17 @@ const CreateMovementSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters").max(100),
   description: z.string().max(1000).optional(),
   slug: z.string().optional(),
+  invite_code: z.string().length(5).optional(),
 })
+
+export function generateMovementInviteCode(): string {
+  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+  let code = ""
+  for (let i = 0; i < 5; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return code
+}
 
 export async function GET() {
   try {
@@ -25,7 +35,9 @@ export async function GET() {
         .eq("is_active", true)
         .order("created_at", { ascending: false })
       if (!error && data) movements = data
-    } catch {}
+    } catch {
+      // Supabase fetch failure fallback
+    }
 
     if (!movements || movements.length === 0) {
       movements = FICTIONAL_MOVEMENTS
@@ -63,7 +75,6 @@ export async function POST(req: NextRequest) {
       } catch {}
     }
     if (!isTier3) {
-      // Check seed users fallback
       const seedUser = SEED_USERS.find((u) => u.id === organizerId)
       if (seedUser?.tier === 3) isTier3 = true
     }
@@ -78,8 +89,11 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, description } = parsed.data
-    const baseSlug = parsed.data.slug || name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+    const baseSlug =
+      parsed.data.slug ||
+      name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
     const uniqueSlug = `${baseSlug}-${Date.now().toString(36)}`
+    const inviteCode = (parsed.data.invite_code || generateMovementInviteCode()).toUpperCase()
 
     let movement: Movement | null = null
     try {
@@ -90,6 +104,7 @@ export async function POST(req: NextRequest) {
           name,
           description: description || null,
           slug: uniqueSlug,
+          invite_code: inviteCode,
           created_by: organizerId,
           is_active: true,
         })
@@ -106,7 +121,9 @@ export async function POST(req: NextRequest) {
           })
         } catch {}
       }
-    } catch {}
+    } catch {
+      // Handled via local fallback below
+    }
 
     if (!movement) {
       movement = {
@@ -114,13 +131,21 @@ export async function POST(req: NextRequest) {
         name,
         description: description || null,
         slug: uniqueSlug,
+        invite_code: inviteCode,
         created_by: organizerId,
         is_active: true,
         created_at: new Date().toISOString(),
       }
     }
 
-    return apiSuccess(movement, 201)
+    const origin = req.headers.get("origin") || req.nextUrl?.origin || ""
+    return apiSuccess(
+      {
+        ...movement,
+        joinUrl: origin ? `${origin}/join/${movement.invite_code || inviteCode}` : `/join/${movement.invite_code || inviteCode}`,
+      },
+      201
+    )
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Internal server error"
     return apiError(msg, 500)

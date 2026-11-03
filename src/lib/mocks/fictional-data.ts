@@ -1035,6 +1035,7 @@ export const FICTIONAL_MOVEMENTS: Movement[] = [
     name: "Metro Solidarity Network",
     description: "Decentralized mutual aid and civic coordination across urban metro districts.",
     slug: "metro-solidarity-network",
+    invite_code: "METR2",
     is_active: true,
     created_by: "22222222-2222-4222-8222-222222222222",
     created_at: "2026-10-02T10:00:00Z",
