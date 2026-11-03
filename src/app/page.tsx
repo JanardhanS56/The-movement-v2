@@ -13,7 +13,7 @@ import DataRain from "@/components/ui/data-rain"
 export default function LandingPage() {
   const router = useRouter()
   const { isAuthenticated } = useAuth()
-  const [enableAmbientRain, setEnableAmbientRain] = React.useState(false)
+  const [enableAmbientRain, setEnableAmbientRain] = React.useState(true)
 
   // Redirect signed-in users directly to /feed
   React.useEffect(() => {
@@ -25,8 +25,8 @@ export default function LandingPage() {
   return (
     <div className="relative min-h-screen bg-background text-foreground flex flex-col justify-between p-6 sm:p-12 overflow-hidden">
       {enableAmbientRain && (
-        <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-          <DataRain fullscreen count={1600} flowSpeed={0.75} obstacleRadius={50} />
+        <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
+          <DataRain fullscreen count={1800} flowSpeed={0.8} obstacleRadius={55} />
         </div>
       )}
       {/* Top Bar */}
@@ -39,7 +39,7 @@ export default function LandingPage() {
           <button
             type="button"
             onClick={() => setEnableAmbientRain((prev) => !prev)}
-            className="flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted transition"
+            className="flex items-center gap-1.5 rounded-sm border border-border bg-card/80 px-2.5 py-1 text-xs font-semibold backdrop-blur-sm hover:bg-muted transition"
             title="Toggle Ambient Data Rain"
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
