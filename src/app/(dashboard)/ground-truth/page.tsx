@@ -7,6 +7,7 @@ import { GroundTruthHeader } from "@/components/ground-truth/GroundTruthHeader"
 import { AuditSearchBar } from "@/components/ground-truth/AuditSearchBar"
 import { CommitCard } from "@/components/ground-truth/CommitCard"
 import { CommitAuditModal } from "@/components/ground-truth/CommitAuditModal"
+import { DataRainCard } from "@/components/ui/data-rain-card"
 import { GitCommit, FileQuestion } from "lucide-react"
 
 export default function GroundTruthPage() {
@@ -86,6 +87,25 @@ export default function GroundTruthPage() {
       {/* 1. Header: Ivory, Ruled, Feed-Style */}
       <GroundTruthHeader />
 
+      {/* Atmospheric Cryptographic Telemetry Card */}
+      <DataRainCard
+        title="Decentralized Audit Telemetry"
+        badge="Active Stream"
+        flowSpeed={0.5}
+        count={600}
+        className="my-3 border-border/80"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-white/80">SHA-256 Ledger Synchronized</span>
+          </div>
+          <div className="text-white/60">
+            {commits.length} Cryptographic Commits Anchored
+          </div>
+        </div>
+      </DataRainCard>
+
       {/* 2. Audit Search & Color-Coded Filter Chips */}
       <AuditSearchBar
         searchQuery={searchQuery}
@@ -147,7 +167,7 @@ export default function GroundTruthPage() {
         <div className="pt-4 border-t border-ink/15 flex flex-wrap items-center justify-between gap-2 text-xs text-ink/60 font-sans tabular-nums">
           <div className="flex items-center gap-1.5">
             <GitCommit className="w-3.5 h-3.5 text-cobalt" aria-hidden="true" />
-            <span>Genesis hash: #c7f91a2 • Root block 001</span>
+            <span>Genesis hash: #c7f91a2 * Root block 001</span>
           </div>
           <span>Consensus verified across community organizers</span>
         </div>
