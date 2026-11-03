@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useQuery } from "@tanstack/react-query"
 import { GROUND_TRUTH_COMMITS, GroundTruthCommit, GroundTruthEventType } from "@/lib/mocks/ground-truth-data"
 import { GroundTruthHeader } from "@/components/ground-truth/GroundTruthHeader"
 import { AuditSearchBar } from "@/components/ground-truth/AuditSearchBar"
@@ -14,19 +15,39 @@ export default function GroundTruthPage() {
   const [auditCommit, setAuditCommit] = React.useState<GroundTruthCommit | null>(null)
   const [isAuditOpen, setIsAuditOpen] = React.useState(false)
 
-  // Compute counts
+  // Fetch commits from live API with automatic fallback to static mock data
+  const { data: commits = GROUND_TRUTH_COMMITS } = useQuery({
+    queryKey: ["ground-truth-commits"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/ground-truth")
+        if (!res.ok) throw new Error("Failed to fetch")
+        const json = await res.json()
+        if (json.success && Array.isArray(json.data?.commits) && json.data.commits.length > 0) {
+          return json.data.commits as GroundTruthCommit[]
+        }
+      } catch {
+        // Fallback to static mock commits if API unavailable
+      }
+      return GROUND_TRUTH_COMMITS
+    },
+    initialData: GROUND_TRUTH_COMMITS,
+    staleTime: 1000 * 30,
+  })
+
+  // Compute counts dynamically from active commits
   const counts = React.useMemo(() => {
     return {
-      all: GROUND_TRUTH_COMMITS.length,
-      announcement: GROUND_TRUTH_COMMITS.filter((c) => c.eventType === "announcement").length,
-      task_completed: GROUND_TRUTH_COMMITS.filter((c) => c.eventType === "task_completed").length,
-      emergency_alert: GROUND_TRUTH_COMMITS.filter((c) => c.eventType === "emergency_alert").length,
+      all: commits.length,
+      announcement: commits.filter((c) => c.eventType === "announcement").length,
+      task_completed: commits.filter((c) => c.eventType === "task_completed").length,
+      emergency_alert: commits.filter((c) => c.eventType === "emergency_alert").length,
     }
-  }, [])
+  }, [commits])
 
   // Filter commits
   const filteredCommits = React.useMemo(() => {
-    return GROUND_TRUTH_COMMITS.filter((commit) => {
+    return commits.filter((commit) => {
       // 1. Type filter
       if (selectedType !== "all" && commit.eventType !== selectedType) {
         return false
@@ -36,16 +57,20 @@ export default function GroundTruthPage() {
       if (!searchQuery.trim()) return true
 
       const query = searchQuery.toLowerCase().trim()
-      const matchHash = commit.commitHash.toLowerCase().includes(query) || commit.fullSha256.toLowerCase().includes(query)
+      const matchHash =
+        commit.commitHash.toLowerCase().includes(query) ||
+        commit.fullSha256.toLowerCase().includes(query)
       const matchTitle = commit.title.toLowerCase().includes(query)
       const matchSummary = commit.summary.toLowerCase().includes(query)
-      const matchAuthor = commit.author.name.toLowerCase().includes(query) || commit.author.handle.toLowerCase().includes(query)
-      const matchLocation = (commit.metadata.location || "").toLowerCase().includes(query)
-      const matchTags = commit.tags.some((t) => t.toLowerCase().includes(query))
+      const matchAuthor =
+        (commit.author?.name || "").toLowerCase().includes(query) ||
+        (commit.author?.handle || "").toLowerCase().includes(query)
+      const matchLocation = (commit.metadata?.location || "").toLowerCase().includes(query)
+      const matchTags = (commit.tags || []).some((t) => t.toLowerCase().includes(query))
 
       return matchHash || matchTitle || matchSummary || matchAuthor || matchLocation || matchTags
     })
-  }, [searchQuery, selectedType])
+  }, [commits, searchQuery, selectedType])
 
   const handleOpenAudit = (commit: GroundTruthCommit) => {
     setAuditCommit(commit)
@@ -78,7 +103,7 @@ export default function GroundTruthPage() {
             Provenance timeline
           </h2>
           <div className="text-xs font-semibold text-ink/60 font-sans tabular-nums">
-            Showing <strong className="text-ink">{filteredCommits.length}</strong> of {GROUND_TRUTH_COMMITS.length} verified commits
+            Showing <strong className="text-ink">{filteredCommits.length}</strong> of {commits.length} verified commits
           </div>
         </div>
 
